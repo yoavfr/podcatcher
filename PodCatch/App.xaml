@@ -1,0 +1,15 @@
+﻿<Application
+    x:Class="PodCatch.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PodCatch"
+    xmlns:localData="using:PodCatch.Data">
+
+    <Application.Resources>
+
+        <!-- Application-specific resources -->
+
+        <x:String x:Key="AppName">PodCatch</x:String>
+
+    </Application.Resources>
+</Application>

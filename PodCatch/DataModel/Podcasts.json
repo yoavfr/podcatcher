@@ -1,0 +1,19 @@
+{"Groups":[
+  {
+    "UniqueId": "Favorites",
+    "Title": "Favorites",
+    "Subtitle": "My favorite podcasts",
+    "ImagePath": "Assets/DarkGray.png",
+    "Description" : "Podcasts you have subscribed to",
+    "Items":
+    [
+      {
+        "Title": "The Moth",
+        "Uri": "http://feeds.themoth.org/themothpodcast",
+        "ImagePath": "Assets/LightGray.png",
+        "Description": ""
+      }
+    ]
+  }
+]
+}
