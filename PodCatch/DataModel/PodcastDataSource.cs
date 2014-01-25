@@ -45,9 +45,16 @@ namespace PodCatch.Data
                 return _podcastDataSource;
             }
         }
-        public static async Task<IEnumerable<PodcastDataGroup>> GetGroupsAsync()
+        public static async Task<IEnumerable<PodcastDataGroup>> GetLocalGroupsAsync()
         {
-            await _podcastDataSource.GetPodcastDataAsync();
+            await _podcastDataSource.GetLocalPodcastDataAsync();
+
+            return _podcastDataSource.Groups;
+        }
+
+        public static async Task<IEnumerable<PodcastDataGroup>> GetWebGroupsAsync()
+        {
+            await _podcastDataSource.GetWebPodcastDataAsync();
 
             return _podcastDataSource.Groups;
         }
@@ -75,7 +82,7 @@ namespace PodCatch.Data
 
         public static async Task<PodcastDataGroup> GetGroupAsync(string uniqueId)
         {
-            await _podcastDataSource.GetPodcastDataAsync();
+            await _podcastDataSource.GetLocalPodcastDataAsync();
             // Simple linear search is acceptable for small data sets
             var matches = _podcastDataSource.Groups.Where((group) => group.UniqueId.Equals(uniqueId));
             if (matches.Count() == 1) return matches.First();
@@ -84,7 +91,7 @@ namespace PodCatch.Data
 
         public static async Task<PodcastDataItem> GetItemAsync(string uniqueId)
         {
-            await _podcastDataSource.GetPodcastDataAsync();
+            await _podcastDataSource.GetLocalPodcastDataAsync();
             // Simple linear search is acceptable for small data sets
             var matches = _podcastDataSource.Groups.SelectMany(group => group.Items).Where((item) => item.UniqueId.Equals(uniqueId));
             if (matches.Count() > 0)
@@ -102,7 +109,18 @@ namespace PodCatch.Data
             roamingSettings.Values["PodcastDataSource"] = favoritesString;
         }
 
-        private async Task GetPodcastDataAsync()
+        private async Task GetWebPodcastDataAsync()
+        {
+            foreach (PodcastDataGroup podcastDataGroup in _podcastDataSource.Groups)
+            {
+                foreach (PodcastDataItem podcastDataItem in podcastDataGroup.Items)
+                {
+                    await podcastDataItem.GetWebPodcastDataAsync();
+                }
+            }
+        }
+
+        private async Task GetLocalPodcastDataAsync()
         {
             if (Groups.Count != 0)
                 return;
@@ -131,7 +149,7 @@ namespace PodCatch.Data
                     {
                         try
                         {
-                            await item.GetPodcastDataAsync();
+                            await item.GetLocalPodcastDataAsync();
                         }
                         catch (Exception e)
                         {

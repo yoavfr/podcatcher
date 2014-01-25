@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Networking.BackgroundTransfer;
+using Windows.Storage;
+using Windows.UI.Xaml.Shapes;
 
 namespace PodCatch.Data
 {
@@ -19,6 +23,45 @@ namespace PodCatch.Data
             PublishDate = publishDate;
             Uri = uri;
             m_parentCollection = parentCollection;
+
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            string localPath = GetLocalPath();
+            try
+            {
+                //var operation = localFolder.GetFileAsync(localPath);
+                //operation.AsTask().Wait();
+                IsDownloaded = true;
+            }
+            catch (FileNotFoundException e)
+            {
+                IsDownloaded = false;
+            }
+
+        }
+
+        public async Task DownloadAsync()
+        {
+
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            string localPath = GetLocalPath();
+            StorageFile localFile = await localFolder.CreateFileAsync(localPath, CreationCollisionOption.ReplaceExisting);
+            BackgroundDownloader downloader = new BackgroundDownloader();
+            try
+            {
+                DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
+                await downloadOperation.StartAsync();
+                IsDownloaded = true;
+            }
+            catch (Exception ex)
+            {
+
+            }
+          
+        }
+
+        private string GetLocalPath()
+        {
+            return System.IO.Path.Combine(PodcastUniqueId, System.IO.Path.GetFileName(Uri.ToString()));
         }
 
         private ObservableCollection<EpisodeDataItem> m_parentCollection;
@@ -26,6 +69,7 @@ namespace PodCatch.Data
         public string Title { get; private set; }
         [DataMember]
         public DateTimeOffset PublishDate { get; private set; }
+        [DataMember]
         public string PodcastUniqueId { get; private set; }
         [DataMember]
         public string Description { get; private set; }
@@ -38,6 +82,13 @@ namespace PodCatch.Data
         }
         [DataMember]
         public Uri Uri { get; private set; }
+
+        [DataMember]
+        public bool IsDownloaded
+        {
+            get;
+            private set;
+        }
 
         public int Index
         {

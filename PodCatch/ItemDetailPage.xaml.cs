@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Networking.BackgroundTransfer;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -112,11 +114,10 @@ namespace PodCatch
             NavigationHelper.GoBack();
         }
 
-        private void OnDownloadClicked(object sender, RoutedEventArgs e)
+        private async void OnDownloadClicked(object sender, RoutedEventArgs e)
         {
             EpisodeDataItem episode = (EpisodeDataItem)((AppBarButton)sender).DataContext;
-            Uri episodeUri = episode.Uri;
-            //var itemId = ((EpisodeDataItem)e.OriginalSourceClickedItem).UniqueId;
+            await episode.DownloadAsync();
         }
     }
 }

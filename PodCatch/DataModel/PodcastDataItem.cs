@@ -49,18 +49,18 @@ namespace PodCatch.Data
         [DataMember]
         public ObservableCollection<EpisodeDataItem> Episodes {get; private set;}
 
-        public async Task GetPodcastDataAsync()
+        public async Task GetWebPodcastDataAsync()
         {
-            await GetLocalPodcastDataAsync();
-
+            
             // Update data from actual RSS feed
             SyndicationFeed syndicationFeed = new SyndicationFeed();
             XmlDocument feedXml = await XmlDocument.LoadFromUriAsync(new Uri(Uri));
             syndicationFeed.LoadFromXml(feedXml);
 
+            var relevantItemsCount = syndicationFeed.Items.Count(item => item.Links.Any(link => link.Relationship == "enclosure" && link.MediaType == "audio/mpeg"));
             if (syndicationFeed.Title.Text != Title ||
                 syndicationFeed.Subtitle.Text != Description ||
-                syndicationFeed.Items.Count != Episodes.Count) // TODO: check for image changes
+                relevantItemsCount != Episodes.Count) // TODO: check for image changes
             {
                 Title = syndicationFeed.Title.Text;
 
@@ -99,7 +99,13 @@ namespace PodCatch.Data
             }
         }
 
-        private async Task GetLocalPodcastDataAsync()
+        
+        /// <summary>
+        /// 
+        /// Get cached data from local storage
+        /// </summary>
+        /// <returns></returns>
+        public async Task GetLocalPodcastDataAsync()
         {
             // use cached data if we have it
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
@@ -117,7 +123,7 @@ namespace PodCatch.Data
                     string imageExtension = Path.GetExtension(imagePath);
                     imagePath = string.Format("{0}{1}", UniqueId, imageExtension);
                     StorageFile imageFile = await localFolder.GetFileAsync(imagePath);
-                    ImagePath = imagePath;
+                    ImagePath = imageFile.Path;
                 }
                 catch (Exception)
                 { }
