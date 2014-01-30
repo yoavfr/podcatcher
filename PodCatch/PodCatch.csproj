@@ -107,12 +107,14 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\AltBackgroundConverter.cs" />
+    <Compile Include="Common\InverseBooleanConverter.cs" />
     <Compile Include="DataModel\EpisodeDataItem.cs" />
     <Compile Include="DataModel\PodcastDataGroup.cs" />
     <Compile Include="DataModel\PodcastDataItem.cs" />

@@ -48,8 +48,10 @@ namespace PodCatch.Data
         public string ImagePath { get; private set; }
         [DataMember]
         public ObservableCollection<EpisodeDataItem> Episodes {get; private set;}
+        [DataMember]
+        public DateTime LastUpdatedTime { get; private set; }
 
-        public async Task GetWebPodcastDataAsync()
+        public async Task LoadFromRssAsync()
         {
             
             // Update data from actual RSS feed
@@ -57,12 +59,10 @@ namespace PodCatch.Data
             XmlDocument feedXml = await XmlDocument.LoadFromUriAsync(new Uri(Uri));
             syndicationFeed.LoadFromXml(feedXml);
 
-            var relevantItemsCount = syndicationFeed.Items.Count(item => item.Links.Any(link => link.Relationship == "enclosure" && link.MediaType == "audio/mpeg"));
-            if (syndicationFeed.Title.Text != Title ||
-                syndicationFeed.Subtitle.Text != Description ||
-                relevantItemsCount != Episodes.Count) // TODO: check for image changes
+            if (syndicationFeed.LastUpdatedTime.DateTime > LastUpdatedTime)
             {
                 Title = syndicationFeed.Title.Text;
+                LastUpdatedTime = syndicationFeed.LastUpdatedTime.DateTime;
 
                 if (syndicationFeed.Subtitle != null)
                 {
@@ -75,6 +75,7 @@ namespace PodCatch.Data
                 }
 
                 Episodes.Clear();
+                int count = 0;
 
                 foreach (SyndicationItem item in syndicationFeed.Items)
                 {
@@ -87,15 +88,18 @@ namespace PodCatch.Data
                             break;
                         }
                     }
-                    if (uri != null)
+                    if (uri != null && count++ <3)
                     {
                         EpisodeDataItem episode = new EpisodeDataItem(UniqueId, item.Title.Text, HtmlUtilities.ConvertToText(item.Summary.Text), item.PublishedDate, uri, Episodes);
                         Episodes.Add(episode);
                     }
+                    if (count>=3)
+                    {
+                        break;
+                    }
                 }
-
                 // Store changes locally
-                await StoreLocalPodcastDataAsync();
+                await StoreToCacheAsync();
             }
         }
 
@@ -105,7 +109,7 @@ namespace PodCatch.Data
         /// Get cached data from local storage
         /// </summary>
         /// <returns></returns>
-        public async Task GetLocalPodcastDataAsync()
+        public async Task LoadFromCacheAsync()
         {
             // use cached data if we have it
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
@@ -119,18 +123,23 @@ namespace PodCatch.Data
                     Title = readItem.Title;
                     Description = readItem.Description;
                     Episodes = readItem.Episodes;
+                    LastUpdatedTime = readItem.LastUpdatedTime;
                     string imagePath = readItem.ImagePath;
                     string imageExtension = Path.GetExtension(imagePath);
                     imagePath = string.Format("{0}{1}", UniqueId, imageExtension);
                     StorageFile imageFile = await localFolder.GetFileAsync(imagePath);
                     ImagePath = imageFile.Path;
+                    foreach (EpisodeDataItem episode in Episodes)
+                    {
+                        await episode.LoadStateAsync(Episodes);
+                    }
                 }
                 catch (Exception)
                 { }
             }
         }
 
-        private async Task StoreLocalPodcastDataAsync()
+        private async Task StoreToCacheAsync()
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile xmlFile = await localFolder.CreateFileAsync(string.Format("{0}.xml", UniqueId), CreationCollisionOption.ReplaceExisting);

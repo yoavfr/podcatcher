@@ -63,9 +63,16 @@ namespace PodCatch
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            var podcastDataGroups = await PodcastDataSource.GetLocalGroupsAsync();
+            var podcastDataGroups = await PodcastDataSource.LoadGroupsFromCacheAsync();
             this.DefaultViewModel["Groups"] = podcastDataGroups;
-            podcastDataGroups = await PodcastDataSource.GetWebGroupsAsync();
+            try
+            {
+                podcastDataGroups = await PodcastDataSource.LoadGroupsFromRssAsync();
+            }
+            catch (Exception ex)
+            {
+                // TODO: trace or alert
+            }
         }
 
         /// <summary>
@@ -123,10 +130,10 @@ namespace PodCatch
         private async void AddToFavoritesButtonClicked(object sender, RoutedEventArgs e)
         {
             PodcastDataItem newItem = new PodcastDataItem(string.Empty, RssUrl.Text, string.Empty, string.Empty);
-            await newItem.GetWebPodcastDataAsync();
+            await newItem.LoadFromRssAsync();
             PodcastDataSource.AddItem("Favorites", newItem);
-            var podcastDataGroups = await PodcastDataSource.GetWebGroupsAsync();
-            this.DefaultViewModel["Groups"] = podcastDataGroups;
+            //var podcastDataGroups = await PodcastDataSource.GetWebGroupsAsync();
+            this.DefaultViewModel["Groups"] = PodcastDataSource.Instance.Groups;
             AddToFavoritesAppBarButton.Flyout.Hide();
             PodcastDataSource.Store();
         }

@@ -22,49 +22,62 @@ namespace PodCatch.Data
             Description = description;
             PublishDate = publishDate;
             Uri = uri;
-            m_parentCollection = parentCollection;
+            ParentCollection = parentCollection;
 
+        }
+
+        public async Task LoadStateAsync(ObservableCollection<EpisodeDataItem> parentCollection)
+        {
+            ParentCollection = parentCollection;
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            string localPath = GetLocalPath();
             try
             {
-                //var operation = localFolder.GetFileAsync(localPath);
-                //operation.AsTask().Wait();
+                await localFolder.GetFileAsync(FileName);
                 IsDownloaded = true;
             }
             catch (FileNotFoundException e)
             {
                 IsDownloaded = false;
             }
-
         }
 
         public async Task DownloadAsync()
         {
 
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            string localPath = GetLocalPath();
-            StorageFile localFile = await localFolder.CreateFileAsync(localPath, CreationCollisionOption.ReplaceExisting);
+            StorageFile localFile = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.ReplaceExisting);
             BackgroundDownloader downloader = new BackgroundDownloader();
             try
             {
                 DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
-                await downloadOperation.StartAsync();
                 IsDownloaded = true;
+                await downloadOperation.StartAsync();
             }
             catch (Exception ex)
             {
-
+                IsDownloaded = false;
             }
           
         }
 
-        private string GetLocalPath()
+        public string FullFileName
         {
-            return System.IO.Path.Combine(PodcastUniqueId, System.IO.Path.GetFileName(Uri.ToString()));
+            get
+            {
+                string s = System.IO.Path.Combine(ApplicationData.Current.LocalFolder.Path, FileName);
+                return s;
+            }
         }
 
-        private ObservableCollection<EpisodeDataItem> m_parentCollection;
+        private string FileName
+        {
+            get
+            {
+                return System.IO.Path.Combine(PodcastUniqueId, System.IO.Path.GetFileName(Uri.ToString()));
+            }
+        }
+
+        private ObservableCollection<EpisodeDataItem> ParentCollection { get; set; }
         [DataMember]
         public string Title { get; private set; }
         [DataMember]
@@ -94,7 +107,7 @@ namespace PodCatch.Data
         {
             get
             {
-                return m_parentCollection.IndexOf(this);
+                return ParentCollection.IndexOf(this);
             }
         }
 
