@@ -25,10 +25,10 @@
             d:Source="{Binding Groups, Source={d:DesignData Source=/DataModel/Podcasts.json, Type=data:PodcastDataSource}}"/>
     </Page.Resources>
     <Page.BottomAppBar>
-        <AppBar Padding="10,0,10,0">
+        <AppBar Padding="10,0,10,0" Name="BottomAppBar">
             <Grid>
-                <StackPanel>
-                    <AppBarButton Label="Add Podcast" Icon="Add" Name="AddToFavoritesAppBarButton">
+                <StackPanel Orientation="Horizontal">
+                    <AppBarButton Label="Add Rss" Icon="Add" Name="AddToFavoritesAppBarButton">
                         <Button.Flyout>
                             <Flyout>
                                 <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="White" Width="{ThemeResource FlyoutThemeMaxWidth}">
@@ -45,6 +45,7 @@
                             </Flyout>
                         </Button.Flyout>
                     </AppBarButton>
+                    <AppBarButton Label="Rss To Clipboard" Icon="Copy" Name="RssFeedToClipboardButton" Click="RssFeedToClipboardButton_Click"/>
                 </StackPanel>            
             </Grid>
         </AppBar>

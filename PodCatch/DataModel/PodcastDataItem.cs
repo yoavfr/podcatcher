@@ -90,7 +90,7 @@ namespace PodCatch.Data
                     }
                     if (uri != null && count++ <3)
                     {
-                        EpisodeDataItem episode = new EpisodeDataItem(UniqueId, item.Title.Text, HtmlUtilities.ConvertToText(item.Summary.Text), item.PublishedDate, uri, Episodes);
+                        EpisodeDataItem episode = new EpisodeDataItem(UniqueId, item.Title.Text, item.Summary.Text, item.PublishedDate, uri, Episodes);
                         Episodes.Add(episode);
                     }
                     if (count>=3)

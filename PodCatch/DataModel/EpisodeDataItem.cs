@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PodCatch.Common;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Data.Html;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 using Windows.UI.Xaml.Shapes;
@@ -19,8 +21,13 @@ namespace PodCatch.Data
         {
             PodcastUniqueId = podcastUniqueId;
             Title = title;
-            Description = description;
-            PublishDate = publishDate;
+            string descriptionAsPlainString = HtmlUtilities.ConvertToText(description).Trim('\n','\r','\t',' ');
+            int lineLimit = descriptionAsPlainString.IndexOfOccurence("\n", 10);
+            if (lineLimit != -1)
+            {
+                descriptionAsPlainString = descriptionAsPlainString.Substring(0, lineLimit)+"\n...";
+            }
+            Description = descriptionAsPlainString;
             Uri = uri;
             ParentCollection = parentCollection;
 

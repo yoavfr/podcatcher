@@ -16,7 +16,7 @@ namespace PodCatch.Common
             int index = (int)value;
 
             if (index % 2 == 0)
-                return Colors.DarkSlateGray;
+                return Colors.Black;
             else
                 return Colors.DarkGray;
         }

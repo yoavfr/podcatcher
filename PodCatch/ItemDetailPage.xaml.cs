@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Networking.BackgroundTransfer;
@@ -109,6 +110,7 @@ namespace PodCatch
 
         private void RemoveFromFavoritesButtonClicked(object sender, RoutedEventArgs e)
         {
+            BottomAppBar.IsOpen = false;
             PodcastDataSource.RemoveItem("Favorites", (PodcastDataItem)DefaultViewModel["Item"]);
             PodcastDataSource.Store();
             NavigationHelper.GoBack();
@@ -118,6 +120,15 @@ namespace PodCatch
         {
             EpisodeDataItem episode = (EpisodeDataItem)((AppBarButton)sender).DataContext;
             await episode.DownloadAsync();
+        }
+
+        private void RssFeedToClipboardButton_Click(object sender, RoutedEventArgs e)
+        {
+            BottomAppBar.IsOpen = false;
+            PodcastDataItem podcastDataItem = (PodcastDataItem)DefaultViewModel["Item"];
+            DataPackage dataPackage = new DataPackage();
+            dataPackage.SetText(podcastDataItem.Uri);
+            Clipboard.SetContent(dataPackage);
         }
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -129,13 +130,26 @@ namespace PodCatch
 
         private async void AddToFavoritesButtonClicked(object sender, RoutedEventArgs e)
         {
+            BottomAppBar.IsOpen = false;
+            AddToFavoritesAppBarButton.Flyout.Hide();
             PodcastDataItem newItem = new PodcastDataItem(string.Empty, RssUrl.Text, string.Empty, string.Empty);
             await newItem.LoadFromRssAsync();
             PodcastDataSource.AddItem("Favorites", newItem);
             //var podcastDataGroups = await PodcastDataSource.GetWebGroupsAsync();
             this.DefaultViewModel["Groups"] = PodcastDataSource.Instance.Groups;
-            AddToFavoritesAppBarButton.Flyout.Hide();
             PodcastDataSource.Store();
+        }
+
+        private void RssFeedToClipboardButton_Click(object sender, RoutedEventArgs e)
+        {
+            BottomAppBar.IsOpen = false;
+            PodcastDataItem selectedItem = (PodcastDataItem)itemGridView.SelectedItem;
+            if (selectedItem != null)
+            {
+                DataPackage dataPackage = new DataPackage();
+                dataPackage.SetText(selectedItem.Uri);
+                Clipboard.SetContent(dataPackage);
+            }
         }
     }
 }

@@ -29,11 +29,12 @@
     </Page.Resources>
 
     <Page.BottomAppBar>
-        <AppBar Padding="10,0,10,0">
+        <AppBar Padding="10,0,10,0" Name="BottomAppBar">
             <Grid>
                 <StackPanel Orientation="Horizontal">
                     <AppBarButton Label="Add to Favorites" Icon="Add" Name="AddToFavoritesAppBarButton"/>
                     <AppBarButton Label="Remove from Favorites" Icon="Remove" Name="RemoveFromFavoritesAppBarButton" Click="RemoveFromFavoritesButtonClicked"/>
+                    <AppBarButton Label="Rss To Clipboard" Icon="Copy" Name="RssFeedToClipboardButton" Click="RssFeedToClipboardButton_Click"/>
                 </StackPanel>
             </Grid>
         </AppBar>
@@ -85,7 +86,7 @@
                                         </Grid.Background>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Grid.Column="1" Text="{Binding Title}" Style="{StaticResource BigAndBold}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="450"></TextBlock>
-                                            <TextBlock Grid.Column="2" Text="{Binding Description}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="400" TextWrapping="WrapWholeWords"></TextBlock>
+                                            <TextBlock Grid.Column="2" Text="{Binding Description}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="400" Height="100" ToolTipService.ToolTip="{Binding Description}" TextWrapping="WrapWholeWords" ></TextBlock>
                                             <AppBarButton Margin="20,0,0,0" Icon="Download" ToolTipService.ToolTip="Download episode" Click="OnDownloadClicked" CommandParameter="{Binding Index}" IsEnabled="{Binding IsDownloaded, Converter={StaticResource InverseBooleanConverter}}"></AppBarButton>
                                             <!--AppBarButton Margin="20,0,0,0" Icon="Play" ToolTipService.ToolTip="Play episode" IsEnabled="{Binding IsDownloaded}"></-->
                                             <MediaElement x:Name="mediaPlayer" Source="{Binding FullFileName}" Width="400" AutoPlay="False" AreTransportControlsEnabled="True" AudioCategory="BackgroundCapableMedia"  Stretch="Fill"/>
