@@ -1,7 +1,9 @@
 ﻿using PodCatch.Common;
+using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -15,8 +17,10 @@ using Windows.UI.Xaml.Shapes;
 namespace PodCatch.Data
 {
     [DataContract]
-    public class EpisodeDataItem
+    public class EpisodeDataItem : BaseData
     {
+        
+        private EpisodePlayOption m_PlayOption;
         public EpisodeDataItem(string podcastUniqueId, string title, string description, DateTimeOffset publishDate, Uri uri, ObservableCollection<EpisodeDataItem> parentCollection)
         {
             PodcastUniqueId = podcastUniqueId;
@@ -40,11 +44,11 @@ namespace PodCatch.Data
             try
             {
                 await localFolder.GetFileAsync(FileName);
-                IsDownloaded = true;
+                PlayOption = EpisodePlayOption.Play;
             }
             catch (FileNotFoundException e)
             {
-                IsDownloaded = false;
+                PlayOption = EpisodePlayOption.Download;
             }
         }
 
@@ -54,18 +58,9 @@ namespace PodCatch.Data
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile localFile = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.ReplaceExisting);
             BackgroundDownloader downloader = new BackgroundDownloader();
-            try
-            {
-                DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
-                IsDownloaded = true;
-                await downloadOperation.StartAsync();
-            }
-            catch (Exception ex)
-            {
-                IsDownloaded = false;
-            }
-          
-        }
+            DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
+            await downloadOperation.StartAsync();
+         }
 
         public string FullFileName
         {
@@ -93,6 +88,18 @@ namespace PodCatch.Data
         public string PodcastUniqueId { get; private set; }
         [DataMember]
         public string Description { get; private set; }
+        public EpisodePlayOption PlayOption
+        {
+            get
+            {
+                return m_PlayOption;
+            }
+            set
+            {
+                m_PlayOption = value;
+                NotifyPropertyChanged("PlayOption");
+            }
+        }
         public string UniqueId
         {
             get
@@ -102,13 +109,6 @@ namespace PodCatch.Data
         }
         [DataMember]
         public Uri Uri { get; private set; }
-
-        [DataMember]
-        public bool IsDownloaded
-        {
-            get;
-            private set;
-        }
 
         public int Index
         {

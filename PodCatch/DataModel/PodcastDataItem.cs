@@ -113,6 +113,7 @@ namespace PodCatch.Data
         {
             // use cached data if we have it
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            bool failed = false;
             StorageFile xmlFile = await localFolder.CreateFileAsync(string.Format("{0}.xml", UniqueId), CreationCollisionOption.OpenIfExists);
             using (Stream stream = await xmlFile.OpenStreamForReadAsync())
             {
@@ -135,7 +136,13 @@ namespace PodCatch.Data
                     }
                 }
                 catch (Exception)
-                { }
+                {
+                    failed = true;
+                }
+                if (failed)
+                {
+                    await xmlFile.DeleteAsync();
+                }
             }
         }
 

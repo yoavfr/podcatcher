@@ -26,10 +26,13 @@
         </Style>
         <common:AltBackgroundConverter x:Key="AltBGConverter" />
         <common:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <common:EpisodePlayOptionConverter x:Key="EpisodePlayOptionConverter"/>
     </Page.Resources>
 
+   
+
     <Page.BottomAppBar>
-        <AppBar Padding="10,0,10,0" Name="BottomAppBar">
+        <AppBar Padding="10,0,10,0">
             <Grid>
                 <StackPanel Orientation="Horizontal">
                     <AppBarButton Label="Add to Favorites" Icon="Add" Name="AddToFavoritesAppBarButton"/>
@@ -44,6 +47,7 @@
         * Row 0 contains the back button and page title
         * Row 1 contains the rest of the page layout
     -->
+    
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
         DataContext="{Binding Item}"
@@ -63,7 +67,7 @@
             TODO: Content should be placed within the following grid 
                   to show details for the current item
         -->
-
+            <MediaElement x:Name="MediaPlayer" Width="400" AutoPlay="False" AreTransportControlsEnabled="True" AudioCategory="BackgroundCapableMedia" Visibility="Collapsed"  Stretch="Fill"/>
             <Grid Grid.Row="1" x:Name="contentRegion">
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal" Margin="120,0,0,0" VerticalAlignment="Top">
@@ -87,11 +91,8 @@
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Grid.Column="1" Text="{Binding Title}" Style="{StaticResource BigAndBold}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="450"></TextBlock>
                                             <TextBlock Grid.Column="2" Text="{Binding Description}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="400" Height="100" ToolTipService.ToolTip="{Binding Description}" TextWrapping="WrapWholeWords" ></TextBlock>
-                                            <AppBarButton Margin="20,0,0,0" Icon="Download" ToolTipService.ToolTip="Download episode" Click="OnDownloadClicked" CommandParameter="{Binding Index}" IsEnabled="{Binding IsDownloaded, Converter={StaticResource InverseBooleanConverter}}"></AppBarButton>
-                                            <!--AppBarButton Margin="20,0,0,0" Icon="Play" ToolTipService.ToolTip="Play episode" IsEnabled="{Binding IsDownloaded}"></-->
-                                            <MediaElement x:Name="mediaPlayer" Source="{Binding FullFileName}" Width="400" AutoPlay="False" AreTransportControlsEnabled="True" AudioCategory="BackgroundCapableMedia"  Stretch="Fill"/>
-
-
+                                            <!--AppBarButton Margin="20,0,0,0" Icon="Download" ToolTipService.ToolTip="Download episode" Click="OnDownloadClicked" CommandParameter="{Binding Index}" IsEnabled="{Binding IsDownloaded, Converter={StaticResource InverseBooleanConverter}}"></-->
+                                            <AppBarButton Margin="20,0,0,0" Icon="{Binding PlayOption, Converter={StaticResource EpisodePlayOptionConverter}}" ToolTipService.ToolTip="Play episode" Click="PlayButton_Clicked"/>
                                         </StackPanel>
                                     </Grid>
                                 </DataTemplate>

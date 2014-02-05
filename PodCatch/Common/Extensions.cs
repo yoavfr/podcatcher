@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using Windows.Data.Xml.Dom;
 
 namespace PodCatch.Common
 {
-    public static class StringExtensions
+    public static class Extensions
     {
         public static int IndexOfOccurence(this string s, string match, int occurence)
         {

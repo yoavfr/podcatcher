@@ -151,5 +151,13 @@ namespace PodCatch
                 Clipboard.SetContent(dataPackage);
             }
         }
+        private void RemoveFromFavoritesButton_Click(object sender, RoutedEventArgs e)
+        {
+            BottomAppBar.IsOpen = false;
+            PodcastDataItem selectedItem = (PodcastDataItem)itemGridView.SelectedItem;
+            PodcastDataSource.RemoveItem("Favorites", selectedItem);
+            PodcastDataSource.Store();
+            NavigationHelper.GoBack();
+        }
     }
 }

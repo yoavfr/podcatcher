@@ -1,5 +1,6 @@
 ﻿using PodCatch.Common;
 using PodCatch.Data;
+using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -116,12 +117,6 @@ namespace PodCatch
             NavigationHelper.GoBack();
         }
 
-        private async void OnDownloadClicked(object sender, RoutedEventArgs e)
-        {
-            EpisodeDataItem episode = (EpisodeDataItem)((AppBarButton)sender).DataContext;
-            await episode.DownloadAsync();
-        }
-
         private void RssFeedToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
@@ -129,6 +124,48 @@ namespace PodCatch
             DataPackage dataPackage = new DataPackage();
             dataPackage.SetText(podcastDataItem.Uri);
             Clipboard.SetContent(dataPackage);
+        }
+
+        private async void PlayButton_Clicked (object sender, RoutedEventArgs e)
+        {
+            AppBarButton playButton = (AppBarButton)sender;
+            EpisodeDataItem episode = (EpisodeDataItem)playButton.DataContext;
+            switch (episode.PlayOption)
+            {
+                case EpisodePlayOption.Download:
+                    {
+                        try
+                        {
+                            playButton.IsEnabled = false;
+                            await episode.DownloadAsync();
+                            episode.PlayOption = EpisodePlayOption.Play;
+                        }
+                        catch (Exception)
+                        {
+                        }
+                        finally
+                        {
+                            playButton.IsEnabled = true;
+                        }
+                        break;
+                    }
+                case (EpisodePlayOption.Play):
+                    {
+                        MediaPlayer.AutoPlay = true;
+                        MediaPlayer.Source = new Uri(episode.FullFileName);
+                        MediaPlayer.Play();
+                        episode.PlayOption = EpisodePlayOption.Stop;
+                        break;
+                    }
+                case (EpisodePlayOption.Stop):
+                    {
+                        MediaPlayer.AutoPlay = false;
+                        MediaPlayer.Stop();
+                        playButton.Icon = new SymbolIcon(Symbol.Play);
+                        episode.PlayOption = EpisodePlayOption.Play;
+                        break;
+                    }
+            }
         }
     }
 }
