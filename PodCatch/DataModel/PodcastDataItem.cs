@@ -51,6 +51,7 @@ namespace PodCatch.Data
         [DataMember]
         public DateTime LastUpdatedTime { get; private set; }
 
+
         public async Task LoadFromRssAsync()
         {
             

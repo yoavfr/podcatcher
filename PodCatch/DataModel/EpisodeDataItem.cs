@@ -109,6 +109,8 @@ namespace PodCatch.Data
         }
         [DataMember]
         public Uri Uri { get; private set; }
+        [DataMember]
+        public TimeSpan Location { get; set; }
 
         public int Index
         {

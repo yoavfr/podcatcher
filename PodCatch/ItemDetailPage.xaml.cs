@@ -151,18 +151,22 @@ namespace PodCatch
                     }
                 case (EpisodePlayOption.Play):
                     {
-                        MediaPlayer.AutoPlay = true;
+                        //
                         MediaPlayer.Source = new Uri(episode.FullFileName);
+                        MediaPlayer.Position = episode.Location;
+                        MediaPlayer.AutoPlay = true;
                         MediaPlayer.Play();
                         episode.PlayOption = EpisodePlayOption.Stop;
                         break;
                     }
                 case (EpisodePlayOption.Stop):
                     {
-                        MediaPlayer.AutoPlay = false;
+                        //MediaPlayer.AutoPlay = false;
                         MediaPlayer.Stop();
+                        episode.Location = MediaPlayer.Position;
                         playButton.Icon = new SymbolIcon(Symbol.Play);
                         episode.PlayOption = EpisodePlayOption.Play;
+                        //episode.Store();
                         break;
                     }
             }
