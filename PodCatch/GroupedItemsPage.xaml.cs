@@ -26,7 +26,6 @@ namespace PodCatch
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
-
         /// <summary>
         /// NavigationHelper is used on each page to aid in navigation and 
         /// process lifetime management
@@ -133,11 +132,24 @@ namespace PodCatch
             BottomAppBar.IsOpen = false;
             AddToFavoritesAppBarButton.Flyout.Hide();
             PodcastDataItem newItem = new PodcastDataItem(string.Empty, RssUrl.Text, string.Empty, string.Empty);
-            await newItem.LoadFromRssAsync();
             PodcastDataSource.AddItem("Favorites", newItem);
-            //var podcastDataGroups = await PodcastDataSource.GetWebGroupsAsync();
-            this.DefaultViewModel["Groups"] = PodcastDataSource.Instance.Groups;
-            PodcastDataSource.Store();
+            try
+            {
+                await newItem.LoadFromRssAsync();
+            }
+            catch (Exception ex)
+            {
+                PodcastDataSource.RemoveItem("Favorites", newItem);
+                return;
+            }
+            try
+            {
+                PodcastDataSource.Store();
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
         private void RssFeedToClipboardButton_Click(object sender, RoutedEventArgs e)
@@ -153,11 +165,11 @@ namespace PodCatch
         }
         private void RemoveFromFavoritesButton_Click(object sender, RoutedEventArgs e)
         {
-            BottomAppBar.IsOpen = false;
-            PodcastDataItem selectedItem = (PodcastDataItem)itemGridView.SelectedItem;
+            /*BottomAppBar.IsOpen = false;
+            PodcastDataItem selectedItem = m_RightClickedPodcast;
             PodcastDataSource.RemoveItem("Favorites", selectedItem);
             PodcastDataSource.Store();
-            NavigationHelper.GoBack();
+            NavigationHelper.GoBack();*/
         }
     }
 }

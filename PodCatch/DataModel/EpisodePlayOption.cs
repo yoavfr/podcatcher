@@ -10,6 +10,6 @@ namespace PodCatch.DataModel
     {
         Download,
         Play,
-        Stop,
+        Pause,
     }
 }

@@ -30,6 +30,8 @@ namespace PodCatch
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
+        private MediaElement MediaPlayer { get; set; }
+
         /// <summary>
         /// NavigationHelper is used on each page to aid in navigation and 
         /// process lifetime management
@@ -68,7 +70,7 @@ namespace PodCatch
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
-            var item = await PodcastDataSource.GetItemAsync((String)e.NavigationParameter);
+            var item = await PodcastDataSource.GetItemAsync((String)e.NavigationParameter); 
             this.DefaultViewModel["Item"] = item;
             this.DefaultViewModel["Episodes"] = item.Episodes;
 
@@ -83,6 +85,10 @@ namespace PodCatch
                 AddToFavoritesAppBarButton.IsEnabled = true;
                 RemoveFromFavoritesAppBarButton.IsEnabled = false;
             }
+
+            DependencyObject rootGrid = VisualTreeHelper.GetChild(Window.Current.Content, 0);
+           MediaPlayer = (MediaElement)VisualTreeHelper.GetChild(rootGrid, 0);
+ 
         }
 
         #region NavigationHelper registration
@@ -156,13 +162,12 @@ namespace PodCatch
                         MediaPlayer.Position = episode.Location;
                         MediaPlayer.AutoPlay = true;
                         MediaPlayer.Play();
-                        episode.PlayOption = EpisodePlayOption.Stop;
+                        episode.PlayOption = EpisodePlayOption.Pause;
                         break;
                     }
-                case (EpisodePlayOption.Stop):
+                case (EpisodePlayOption.Pause):
                     {
-                        //MediaPlayer.AutoPlay = false;
-                        MediaPlayer.Stop();
+                        MediaPlayer.Pause();
                         episode.Location = MediaPlayer.Position;
                         playButton.Icon = new SymbolIcon(Symbol.Play);
                         episode.PlayOption = EpisodePlayOption.Play;

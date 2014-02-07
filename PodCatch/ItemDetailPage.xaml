@@ -50,6 +50,7 @@
     
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+        Name="contentGrid"
         DataContext="{Binding Item}"
         d:DataContext="{Binding Groups[0].Items[0], Source={d:DesignData Source=/DataModel/Podcasts.json, Type=data:PodcastDataSource}}">
             <Grid.ChildrenTransitions>
@@ -67,7 +68,7 @@
             TODO: Content should be placed within the following grid 
                   to show details for the current item
         -->
-            <MediaElement x:Name="MediaPlayer" Width="400" AutoPlay="False" AreTransportControlsEnabled="True" AudioCategory="BackgroundCapableMedia" Visibility="Collapsed"  Stretch="Fill"/>
+            
             <Grid Grid.Row="1" x:Name="contentRegion">
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal" Margin="120,0,0,0" VerticalAlignment="Top">

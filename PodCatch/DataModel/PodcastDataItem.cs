@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PodCatch.DataModel;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -16,8 +17,12 @@ using Windows.Web.Syndication;
 namespace PodCatch.Data
 {
     [DataContract]
-    public class PodcastDataItem
+    public class PodcastDataItem : BaseData
     {
+        private string m_Title;
+        private string m_Description;
+        private string m_ImagePath;
+
         public PodcastDataItem(String title, String uri, String imagePath, String description)
             : this(uri)
         {
@@ -40,12 +45,24 @@ namespace PodCatch.Data
             }
         }
         [DataMember]
-        public string Title { get; private set; }
+        public string Title
+        {
+            get { return m_Title; }
+            private set { m_Title = value; NotifyPropertyChanged("Title"); }
+        }
         public string Uri { get; private set; }
         [DataMember]
-        public string Description { get; private set; }
+        public string Description
+        {
+            get { return m_Description; }
+            private set { m_Description = value; NotifyPropertyChanged("Description"); }
+        }
         [DataMember]
-        public string ImagePath { get; private set; }
+        public string ImagePath 
+        {
+            get { return m_ImagePath; }
+            private set { m_ImagePath = value; NotifyPropertyChanged("ImagePath"); }
+        }
         [DataMember]
         public ObservableCollection<EpisodeDataItem> Episodes {get; private set;}
         [DataMember]

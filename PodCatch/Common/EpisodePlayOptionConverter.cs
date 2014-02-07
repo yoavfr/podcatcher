@@ -22,8 +22,8 @@ namespace PodCatch.Common
                     return new SymbolIcon(Symbol.Download);
                 case EpisodePlayOption.Play:
                     return new SymbolIcon(Symbol.Play);
-                case EpisodePlayOption.Stop:
-                    return new SymbolIcon(Symbol.Stop);
+                case EpisodePlayOption.Pause:
+                    return new SymbolIcon(Symbol.Pause);
             }
             return null;
         }

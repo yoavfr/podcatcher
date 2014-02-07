@@ -69,6 +69,8 @@ namespace PodCatch
 
                 rootFrame.NavigationFailed += OnNavigationFailed;
 
+                rootFrame.Style = Resources["RootFrameStyle"] as Style;
+
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
                     // Restore the saved session state only when appropriate
