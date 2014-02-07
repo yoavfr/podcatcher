@@ -7,6 +7,7 @@ using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -152,24 +153,43 @@ namespace PodCatch
             }
         }
 
-        private void RssFeedToClipboardButton_Click(object sender, RoutedEventArgs e)
-        {
-            BottomAppBar.IsOpen = false;
-            PodcastDataItem selectedItem = (PodcastDataItem)itemGridView.SelectedItem;
-            if (selectedItem != null)
-            {
-                DataPackage dataPackage = new DataPackage();
-                dataPackage.SetText(selectedItem.Uri);
-                Clipboard.SetContent(dataPackage);
-            }
-        }
         private void RemoveFromFavoritesButton_Click(object sender, RoutedEventArgs e)
         {
             /*BottomAppBar.IsOpen = false;
             PodcastDataItem selectedItem = m_RightClickedPodcast;
-            PodcastDataSource.RemoveItem("Favorites", selectedItem);
-            PodcastDataSource.Store();
-            NavigationHelper.GoBack();*/
+*/
         }
+
+        private async void PodcastRightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            e.Handled = true;
+            PopupMenu popupMenu = new PopupMenu();
+            popupMenu.Commands.Add(new UICommand(){Id=1, Label="Copy RSS feed to clipboard"});
+            popupMenu.Commands.Add(new UICommand() {Id = 2, Label = "Remove from favorites"});
+            //GeneralTransform pointTransform = ((GridView)sender).TransformToVisual(Window.Current.Content);
+            //Point screenCoords = pointTransform.TransformPoint(new Point(50, 10));
+            Grid grid = (Grid)sender;
+            IUICommand selectedCommand = await popupMenu.ShowAsync(e.GetPosition(this));
+            if (selectedCommand == null)
+            {
+                return;
+            }
+            PodcastDataItem selectedItem = (PodcastDataItem)grid.DataContext;
+            switch ((int)selectedCommand.Id)
+            {
+                case 1:
+                    DataPackage dataPackage = new DataPackage();
+                    dataPackage.SetText(selectedItem.Uri);
+                    Clipboard.SetContent(dataPackage);
+                    break;
+                case 2:
+                    PodcastDataSource.RemoveItem("Favorites", selectedItem);
+                    PodcastDataSource.Store();
+                    NavigationHelper.GoBack();
+                    break;
+            }
+
+        }
+        
     }
 }
