@@ -9,21 +9,21 @@ using Windows.UI.Xaml.Data;
 
 namespace PodCatch.Common
 {
-    public class EpisodePlayOptionConverter : IValueConverter
+    public class EpisodePlayOptionToolTipConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (targetType != typeof(IconElement))
-                throw new InvalidOperationException("The target must be an IconElement");
-
-            switch ((EpisodePlayOption)value)
+            if (value != null && value is EpisodePlayOption)
             {
-                case EpisodePlayOption.Download:
-                    return new SymbolIcon(Symbol.Download);
-                case EpisodePlayOption.Play:
-                    return new SymbolIcon(Symbol.Play);
-                case EpisodePlayOption.Pause:
-                    return new SymbolIcon(Symbol.Pause);
+                switch ((EpisodePlayOption)value)
+                {
+                    case EpisodePlayOption.Download:
+                        return "Download";
+                    case EpisodePlayOption.Play:
+                        return "Play";
+                    case EpisodePlayOption.Pause:
+                        return "Pause";
+                }
             }
             return null;
         }

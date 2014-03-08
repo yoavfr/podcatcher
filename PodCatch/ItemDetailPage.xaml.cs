@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -132,6 +133,7 @@ namespace PodCatch
             Clipboard.SetContent(dataPackage);
         }
 
+
         private async void PlayButton_Clicked (object sender, RoutedEventArgs e)
         {
             AppBarButton playButton = (AppBarButton)sender;
@@ -143,8 +145,23 @@ namespace PodCatch
                         try
                         {
                             playButton.IsEnabled = false;
-                            await episode.DownloadAsync();
-                            episode.PlayOption = EpisodePlayOption.Play;
+                            var parent = VisualTreeHelper.GetParent((DependencyObject)sender);
+                            ProgressBar progressBar = VisualTreeHelperExt.GetChild<ProgressBar>(parent, "DownloadEpisodeProgressBar");
+                            progressBar.Visibility = Visibility.Visible;
+                            var progress = new Progress<DownloadOperation>((operation) =>
+                            {
+                                double at = (double)operation.Progress.BytesReceived / operation.Progress.TotalBytesToReceive;
+                                progressBar.Value = at;
+                            });
+                            try
+                            {
+                                await episode.DownloadAsync(progress);
+                                episode.PlayOption = EpisodePlayOption.Play;
+                            }
+                            finally
+                            {
+                                progressBar.Visibility = Visibility.Collapsed;
+                            }
                         }
                         catch (Exception)
                         {
@@ -158,11 +175,16 @@ namespace PodCatch
                 case (EpisodePlayOption.Play):
                     {
                         //
-                        MediaPlayer.Source = new Uri(episode.FullFileName);
+                        Uri episodeUri = new Uri(episode.FullFileName);
+                        if (MediaPlayer.Source == null || !MediaPlayer.Source.Equals(episodeUri))
+                        {
+                            MediaPlayer.Source = episodeUri;
+                            MediaPlayer.AutoPlay = true;
+                        }
                         MediaPlayer.Position = episode.Location;
-                        MediaPlayer.AutoPlay = true;
                         MediaPlayer.Play();
                         episode.PlayOption = EpisodePlayOption.Pause;
+                        playButton.Icon = new SymbolIcon(Symbol.Pause);
                         break;
                     }
                 case (EpisodePlayOption.Pause):

@@ -1,18 +1,14 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Html;
+using Windows.Foundation;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
-using Windows.UI.Xaml.Shapes;
 
 namespace PodCatch.Data
 {
@@ -52,14 +48,13 @@ namespace PodCatch.Data
             }
         }
 
-        public async Task DownloadAsync()
+        public async Task DownloadAsync(Progress<DownloadOperation> progress)
         {
-
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile localFile = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.ReplaceExisting);
             BackgroundDownloader downloader = new BackgroundDownloader();
             DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
-            await downloadOperation.StartAsync();
+            await downloadOperation.StartAsync().AsTask(progress);
          }
 
         public string FullFileName
