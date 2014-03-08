@@ -17,7 +17,14 @@ namespace PodCatch.Data
     {
         
         private EpisodePlayOption m_PlayOption;
-        public EpisodeDataItem(string podcastUniqueId, string title, string description, DateTimeOffset publishDate, Uri uri, ObservableCollection<EpisodeDataItem> parentCollection)
+        public EpisodeDataItem(
+            string podcastUniqueId, 
+            string title, 
+            string description, 
+            DateTimeOffset publishDate, 
+            Uri uri, 
+            BaseData parent, 
+            ObservableCollection<EpisodeDataItem> parentCollection) : base(parent)
         {
             PodcastUniqueId = podcastUniqueId;
             Title = title;

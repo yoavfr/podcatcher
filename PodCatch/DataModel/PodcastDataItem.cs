@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -23,15 +24,15 @@ namespace PodCatch.Data
         private string m_Description;
         private string m_ImagePath;
 
-        public PodcastDataItem(String title, String uri, String imagePath, String description)
-            : this(uri)
+        public PodcastDataItem(String title, String uri, String imagePath, String description, BaseData parent)
+            : this(uri, parent)
         {
             this.Title = title;
             this.Description = description;
             this.ImagePath = imagePath;
         }
 
-        public PodcastDataItem(String uri)
+        public PodcastDataItem(String uri, BaseData parent) : base (parent)
         {
             this.Episodes = new ObservableCollection<EpisodeDataItem>();
             Uri = uri;
@@ -108,7 +109,7 @@ namespace PodCatch.Data
                     }
                     if (uri != null && count++ <3)
                     {
-                        EpisodeDataItem episode = new EpisodeDataItem(UniqueId, item.Title.Text, item.Summary.Text, item.PublishedDate, uri, Episodes);
+                        EpisodeDataItem episode = new EpisodeDataItem(UniqueId, item.Title.Text, item.Summary.Text, item.PublishedDate, uri, this, Episodes);
                         Episodes.Add(episode);
                     }
                     if (count>=3)
@@ -118,6 +119,7 @@ namespace PodCatch.Data
                 }
                 // Store changes locally
                 await StoreToCacheAsync();
+                await StoreImageToCacheAsync();
             }
         }
 
@@ -132,10 +134,10 @@ namespace PodCatch.Data
             // use cached data if we have it
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             bool failed = false;
-            StorageFile xmlFile = await localFolder.CreateFileAsync(string.Format("{0}.xml", UniqueId), CreationCollisionOption.OpenIfExists);
+            StorageFile xmlFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.OpenIfExists);
             using (Stream stream = await xmlFile.OpenStreamForReadAsync())
             {
-                DataContractSerializer serializer = new DataContractSerializer(typeof(PodcastDataItem));
+                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PodcastDataItem));
                 try
                 {
                     PodcastDataItem readItem = (PodcastDataItem)serializer.ReadObject(stream);
@@ -150,6 +152,7 @@ namespace PodCatch.Data
                     ImagePath = imageFile.Path;
                     foreach (EpisodeDataItem episode in Episodes)
                     {
+                        episode.Parent = this;
                         await episode.LoadStateAsync(Episodes);
                     }
                 }
@@ -164,16 +167,25 @@ namespace PodCatch.Data
             }
         }
 
-        private async Task StoreToCacheAsync()
+        override public async Task StoreToCacheAsync()
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            StorageFile xmlFile = await localFolder.CreateFileAsync(string.Format("{0}.xml", UniqueId), CreationCollisionOption.ReplaceExisting);
-            DataContractSerializer serializer = new DataContractSerializer(typeof(PodcastDataItem));
+            StorageFile xmlFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.ReplaceExisting);
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PodcastDataItem));
             using (Stream stream = await xmlFile.OpenStreamForWriteAsync())
             {
                 serializer.WriteObject(stream, this);
             }
 
+            foreach (EpisodeDataItem episode in Episodes)
+            {
+                
+            }
+        }
+
+        public async Task StoreImageToCacheAsync()
+        {
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             if (!string.IsNullOrEmpty(ImagePath))
             { 
                 string imageExtension = Path.GetExtension(ImagePath);

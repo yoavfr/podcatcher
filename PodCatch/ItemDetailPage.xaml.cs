@@ -30,9 +30,13 @@ namespace PodCatch
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
-
-        private MediaElement MediaPlayer { get; set; }
-
+        private MediaElementWrapper MediaPlayer
+        {
+            get
+            {
+                return MediaElementWrapper.Instance;
+            }
+        }
         /// <summary>
         /// NavigationHelper is used on each page to aid in navigation and 
         /// process lifetime management
@@ -86,11 +90,9 @@ namespace PodCatch
                 AddToFavoritesAppBarButton.IsEnabled = true;
                 RemoveFromFavoritesAppBarButton.IsEnabled = false;
             }
-
-            DependencyObject rootGrid = VisualTreeHelper.GetChild(Window.Current.Content, 0);
-           MediaPlayer = (MediaElement)VisualTreeHelper.GetChild(rootGrid, 0);
- 
         }
+
+
 
         #region NavigationHelper registration
 
@@ -179,7 +181,6 @@ namespace PodCatch
                         if (MediaPlayer.Source == null || !MediaPlayer.Source.Equals(episodeUri))
                         {
                             MediaPlayer.Source = episodeUri;
-                            MediaPlayer.AutoPlay = true;
                         }
                         MediaPlayer.Position = episode.Location;
                         MediaPlayer.Play();
@@ -193,7 +194,7 @@ namespace PodCatch
                         episode.Location = MediaPlayer.Position;
                         playButton.Icon = new SymbolIcon(Symbol.Play);
                         episode.PlayOption = EpisodePlayOption.Play;
-                        //episode.Store();
+                        await episode.StoreToCacheAsync();
                         break;
                     }
             }

@@ -132,7 +132,7 @@ namespace PodCatch
         {
             BottomAppBar.IsOpen = false;
             AddToFavoritesAppBarButton.Flyout.Hide();
-            PodcastDataItem newItem = new PodcastDataItem(string.Empty, RssUrl.Text, string.Empty, string.Empty);
+            PodcastDataItem newItem = new PodcastDataItem(string.Empty, RssUrl.Text, string.Empty, string.Empty, null);
             PodcastDataSource.AddItem("Favorites", newItem);
             try
             {

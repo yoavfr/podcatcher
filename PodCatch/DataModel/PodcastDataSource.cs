@@ -140,7 +140,7 @@ namespace PodCatch.Data
                     {
                         continue;
                     }
-                    PodcastDataItem item = new PodcastDataItem(uriString);
+                    PodcastDataItem item = new PodcastDataItem(uriString, null);
                     favorites.Items.Add(item);
                 }
                 foreach (PodcastDataGroup group in Groups)

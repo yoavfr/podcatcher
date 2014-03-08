@@ -20,5 +20,20 @@ namespace PodCatch.DataModel
                     new PropertyChangedEventArgs(propertyName));
             }
         }
+
+        public BaseData Parent { get; set; } 
+        
+        public BaseData (BaseData parent)
+        {
+            Parent = parent;
+        }
+
+        public virtual async Task StoreToCacheAsync()
+        {
+            if (Parent != null)
+            {
+                await Parent.StoreToCacheAsync();
+            }
+        }
     }
 }
