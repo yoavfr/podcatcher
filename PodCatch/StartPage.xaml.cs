@@ -23,7 +23,7 @@ namespace PodCatch
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
-    public sealed partial class GroupedItemsPage : Page
+    public sealed partial class StartPage : Page
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
@@ -44,7 +44,7 @@ namespace PodCatch
             get { return this.defaultViewModel; }
         }
 
-        public GroupedItemsPage()
+        public StartPage()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
@@ -88,7 +88,7 @@ namespace PodCatch
 
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
-            this.Frame.Navigate(typeof(GroupDetailPage), ((PodcastDataGroup)group).UniqueId);
+            this.Frame.Navigate(typeof(GroupPage), ((PodcastDataGroup)group).UniqueId);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace PodCatch
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
             var itemId = ((PodcastDataItem)e.ClickedItem).UniqueId;
-            this.Frame.Navigate(typeof(ItemDetailPage), itemId);
+            this.Frame.Navigate(typeof(PodcatchPath), itemId);
         }
 
         #region NavigationHelper registration

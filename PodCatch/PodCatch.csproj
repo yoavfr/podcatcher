@@ -125,14 +125,14 @@
     <Compile Include="DataModel\PodcastDataGroup.cs" />
     <Compile Include="DataModel\PodcastDataItem.cs" />
     <Compile Include="DataModel\PodcastDataSource.cs" />
-    <Compile Include="GroupedItemsPage.xaml.cs">
-      <DependentUpon>GroupedItemsPage.xaml</DependentUpon>
+    <Compile Include="StartPage.xaml.cs">
+      <DependentUpon>StartPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GroupDetailPage.xaml.cs">
-      <DependentUpon>GroupDetailPage.xaml</DependentUpon>
+    <Compile Include="GroupPage.xaml.cs">
+      <DependentUpon>GroupPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ItemDetailPage.xaml.cs">
-      <DependentUpon>ItemDetailPage.xaml</DependentUpon>
+    <Compile Include="PodcastPage.xaml.cs">
+      <DependentUpon>PodcastPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="MediaElementWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -164,15 +164,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="GroupedItemsPage.xaml">
+    <Page Include="StartPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="GroupDetailPage.xaml">
+    <Page Include="GroupPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ItemDetailPage.xaml">
+    <Page Include="PodcastPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

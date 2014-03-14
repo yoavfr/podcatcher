@@ -22,7 +22,7 @@ namespace PodCatch
     /// A page that displays an overview of a single group, including a preview of the items
     /// within the group.
     /// </summary>
-    public sealed partial class GroupDetailPage : Page
+    public sealed partial class GroupPage : Page
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
@@ -45,7 +45,7 @@ namespace PodCatch
         }
 
 
-        public GroupDetailPage()
+        public GroupPage()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
@@ -81,7 +81,7 @@ namespace PodCatch
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
             var itemId = ((PodcastDataItem)e.ClickedItem).UniqueId;
-            this.Frame.Navigate(typeof(ItemDetailPage), itemId);
+            this.Frame.Navigate(typeof(PodcatchPath), itemId);
         }
 
         #region NavigationHelper registration

@@ -26,7 +26,7 @@ namespace PodCatch
     /// <summary>
     /// A page that displays details for a single item within a group.
     /// </summary>
-    public sealed partial class ItemDetailPage : Page
+    public sealed partial class PodcatchPath : Page
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
@@ -54,7 +54,7 @@ namespace PodCatch
             get { return this.defaultViewModel; }
         }
 
-        public ItemDetailPage()
+        public PodcatchPath()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
