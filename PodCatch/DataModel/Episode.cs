@@ -10,21 +10,21 @@ using Windows.Foundation;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 
-namespace PodCatch.Data
+namespace PodCatch.DataModel
 {
     [DataContract]
-    public class EpisodeDataItem : BaseData
+    public class Episode : BaseData
     {
         
-        private EpisodePlayOption m_PlayOption;
-        public EpisodeDataItem(
+        private EpisodeState m_State;
+        public Episode(
             string podcastUniqueId, 
             string title, 
             string description, 
             DateTimeOffset publishDate, 
             Uri uri, 
             BaseData parent, 
-            ObservableCollection<EpisodeDataItem> parentCollection) : base(parent)
+            ObservableCollection<Episode> parentCollection) : base(parent)
         {
             PodcastUniqueId = podcastUniqueId;
             Title = title;
@@ -40,18 +40,23 @@ namespace PodCatch.Data
 
         }
 
-        public async Task LoadStateAsync(ObservableCollection<EpisodeDataItem> parentCollection)
+        public async Task LoadStateAsync(ObservableCollection<Episode> parentCollection)
         {
+            bool failed = false;
             ParentCollection = parentCollection;
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             try
             {
                 await localFolder.GetFileAsync(FileName);
-                PlayOption = EpisodePlayOption.Play;
+                SetState(EpisodeState.Downloaded);
             }
             catch (FileNotFoundException e)
             {
-                PlayOption = EpisodePlayOption.Download;
+                failed = true;
+            }
+            if (failed)
+            {
+                SetState(EpisodeState.PendingDownload);
             }
         }
 
@@ -62,6 +67,7 @@ namespace PodCatch.Data
             BackgroundDownloader downloader = new BackgroundDownloader();
             DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
             await downloadOperation.StartAsync().AsTask(progress);
+            SetState(EpisodeState.Downloaded);
          }
 
         public string FullFileName
@@ -81,7 +87,7 @@ namespace PodCatch.Data
             }
         }
 
-        private ObservableCollection<EpisodeDataItem> ParentCollection { get; set; }
+        private ObservableCollection<Episode> ParentCollection { get; set; }
         [DataMember]
         public string Title { get; private set; }
         [DataMember]
@@ -90,18 +96,38 @@ namespace PodCatch.Data
         public string PodcastUniqueId { get; private set; }
         [DataMember]
         public string Description { get; private set; }
-        public EpisodePlayOption PlayOption
+        public EpisodeState State
         {
             get
             {
-                return m_PlayOption;
-            }
-            set
-            {
-                m_PlayOption = value;
-                NotifyPropertyChanged("PlayOption");
+                return m_State;
             }
         }
+        private void SetState(EpisodeState state)
+        {
+            m_State = state;
+            NotifyPropertyChanged("State");
+        }
+
+        public void Play()
+        {
+            if (State != EpisodeState.Downloaded)
+            {
+                return;
+            }
+            SetState(EpisodeState.Playing);
+        }
+
+        public async Task PauseAsync()
+        {
+            if (State != EpisodeState.Playing)
+            {
+                return;
+            }
+            SetState(EpisodeState.Downloaded);
+            await StoreToCacheAsync();
+        }
+
         public string UniqueId
         {
             get

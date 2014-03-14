@@ -5,7 +5,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:PodCatch"
-    xmlns:data="using:PodCatch.Data"
+    xmlns:data="using:PodCatch.DataModel"
     xmlns:common="using:PodCatch.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -16,8 +16,7 @@
         <!-- Collection of items displayed by this page -->
         <CollectionViewSource
             x:Name="episodesViewSource"
-            Source="{Binding  Episodes}"
-            d:Source="{Binding Groups[0].Items, Source={d:DesignData Source=/DataModel/Podcasts.json, Type=data:PodcastDataSource}}"/>
+            Source="{Binding  Episodes}"/>
         <Style x:Key="BigAndBold" BasedOn="{StaticResource BaseTextBlockStyle}" TargetType="TextBlock">
             <Setter Property="FontSize" Value="20"/>
             <Setter Property="FontWeight" Value="Light"/>
@@ -26,8 +25,8 @@
         </Style>
         <common:AltBackgroundConverter x:Key="AltBGConverter" />
         <common:InverseBooleanConverter x:Key="InverseBooleanConverter" />
-        <common:EpisodePlayOptionIconConverter x:Key="EpisodePlayOptionIconConverter"/>
-        <common:EpisodePlayOptionToolTipConverter x:Key="EpisodePlayOptionToolTipConverter"/>
+        <common:EpisodeStateIconConverter x:Key="EpisodeStateIconConverter"/>
+        <common:EpisodeStateToolTipConverter x:Key="EpisodeStateToolTipConverter"/>
     </Page.Resources>
 
    
@@ -52,8 +51,7 @@
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
         Name="contentGrid"
-        DataContext="{Binding Item}"
-        d:DataContext="{Binding Groups[0].Items[0], Source={d:DesignData Source=/DataModel/Podcasts.json, Type=data:PodcastDataSource}}">
+        DataContext="{Binding Item}">
             <Grid.ChildrenTransitions>
                 <TransitionCollection>
                     <EntranceThemeTransition/>
@@ -93,9 +91,8 @@
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Grid.Column="1" Text="{Binding Title}" Style="{StaticResource BigAndBold}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="450"></TextBlock>
                                             <TextBlock Grid.Column="2" Text="{Binding Description}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="400" Height="100" ToolTipService.ToolTip="{Binding Description}" TextWrapping="WrapWholeWords" ></TextBlock>
-                                            <!--AppBarButton Margin="20,0,0,0" Icon="Download" ToolTipService.ToolTip="Download episode" Click="OnDownloadClicked" CommandParameter="{Binding Index}" IsEnabled="{Binding IsDownloaded, Converter={StaticResource InverseBooleanConverter}}"></-->
                                             <StackPanel Orientation="Vertical">
-                                                        <AppBarButton Margin="20,0,0,0" Icon="{Binding PlayOption, Converter={StaticResource EpisodePlayOptionIconConverter}}" ToolTipService.ToolTip="{Binding PlayOption, Converter={StaticResource EpisodePlayOptionToolTipConverter}}" Click="PlayButton_Clicked"/>
+                                                <AppBarButton Margin="20,0,0,0" Icon="{Binding State, Converter={StaticResource EpisodeStateIconConverter}}" ToolTipService.ToolTip="{Binding State, Converter={StaticResource EpisodeStateToolTipConverter}}" Click="PlayButton_Clicked"/>
                                                 <ProgressBar Margin="20,10,0,0" Name="DownloadEpisodeProgressBar" Visibility="Collapsed" Maximum="1" IsIndeterminate="False"/>
                                             </StackPanel>
                                         </StackPanel>

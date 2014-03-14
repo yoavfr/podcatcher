@@ -18,7 +18,7 @@ using Windows.UI.Xaml.Media.Imaging;
 // responsiveness by initiating the data loading task in the code behind for App.xaml when the app 
 // is first launched.
 
-namespace PodCatch.Data
+namespace PodCatch.DataModel
 {
     /// <summary>
     /// Creates a collection of groups and items with content read from a static json file.
@@ -31,11 +31,11 @@ namespace PodCatch.Data
         private static PodcastDataSource _podcastDataSource = new PodcastDataSource();
 
         [XmlIgnore]
-        public ObservableCollection<PodcastDataGroup> Groups { get; private set; }
+        public ObservableCollection<PodcastGroup> Groups { get; private set; }
 
         private PodcastDataSource()
         {
-            Groups = new ObservableCollection<PodcastDataGroup>();
+            Groups = new ObservableCollection<PodcastGroup>();
         }
 
         public static PodcastDataSource Instance
@@ -45,42 +45,42 @@ namespace PodCatch.Data
                 return _podcastDataSource;
             }
         }
-        public static async Task<IEnumerable<PodcastDataGroup>> LoadGroupsFromCacheAsync()
+        public static async Task<IEnumerable<PodcastGroup>> LoadGroupsFromCacheAsync()
         {
             await _podcastDataSource.LoadFromCacheAsync();
 
             return _podcastDataSource.Groups;
         }
 
-        public static async Task<IEnumerable<PodcastDataGroup>> LoadGroupsFromRssAsync()
+        public static async Task<IEnumerable<PodcastGroup>> LoadGroupsFromRssAsync()
         {
             await _podcastDataSource.LoadFromRssAsync();
 
             return _podcastDataSource.Groups;
         }
 
-        public static void AddItem(string groupUniqueId, PodcastDataItem item)
+        public static void AddItem(string groupUniqueId, Podcast item)
         {
             var groups = _podcastDataSource.Groups.Where(g => g.UniqueId == groupUniqueId);
             if (groups.Count() > 0)
             {
-                if (!groups.First<PodcastDataGroup>().Items.Any(i => i.Uri == item.Uri))
+                if (!groups.First<PodcastGroup>().Items.Any(i => i.Uri == item.Uri))
                 {
-                    groups.First<PodcastDataGroup>().Items.Add(item);
+                    groups.First<PodcastGroup>().Items.Add(item);
                 }
             }
         }
 
-        public static void RemoveItem(string groupUniqueId, PodcastDataItem item)
+        public static void RemoveItem(string groupUniqueId, Podcast item)
         {
             var groups = _podcastDataSource.Groups.Where(g => g.UniqueId == groupUniqueId);
             if (groups.Count() > 0)
             {
-                groups.First<PodcastDataGroup>().Items.Remove(item);
+                groups.First<PodcastGroup>().Items.Remove(item);
             }
         }
 
-        public static async Task<PodcastDataGroup> GetGroupAsync(string uniqueId)
+        public static async Task<PodcastGroup> GetGroupAsync(string uniqueId)
         {
             //await _podcastDataSource.LoadFromCacheAsync();
             // Simple linear search is acceptable for small data sets
@@ -89,7 +89,7 @@ namespace PodCatch.Data
             return null;
         }
 
-        public static async Task<PodcastDataItem> GetItemAsync(string uniqueId)
+        public static async Task<Podcast> GetItemAsync(string uniqueId)
         {
             //await _podcastDataSource.LoadFromCacheAsync();
             // Simple linear search is acceptable for small data sets
@@ -111,9 +111,9 @@ namespace PodCatch.Data
 
         private async Task LoadFromRssAsync()
         {
-            foreach (PodcastDataGroup podcastDataGroup in _podcastDataSource.Groups)
+            foreach (PodcastGroup podcastDataGroup in _podcastDataSource.Groups)
             {
-                foreach (PodcastDataItem podcastDataItem in podcastDataGroup.Items)
+                foreach (Podcast podcastDataItem in podcastDataGroup.Items)
                 {
                     await podcastDataItem.LoadFromRssAsync();
                 }
@@ -126,7 +126,7 @@ namespace PodCatch.Data
                 return;
 
              
-            PodcastDataGroup favorites = new PodcastDataGroup("Favorites", "Favorites", "My favorite podcasts", "Assets/DarkGray.png", "Podcasts I have subscribed to");
+            PodcastGroup favorites = new PodcastGroup("Favorites", "Favorites", "My favorite podcasts", "Assets/DarkGray.png", "Podcasts I have subscribed to");
             _podcastDataSource.Groups.Add(favorites);
 
             Windows.Storage.ApplicationDataContainer roamingSettings = Windows.Storage.ApplicationData.Current.RoamingSettings;
@@ -140,12 +140,12 @@ namespace PodCatch.Data
                     {
                         continue;
                     }
-                    PodcastDataItem item = new PodcastDataItem(uriString, null);
+                    Podcast item = new Podcast(uriString, null);
                     favorites.Items.Add(item);
                 }
-                foreach (PodcastDataGroup group in Groups)
+                foreach (PodcastGroup group in Groups)
                 {
-                    foreach (PodcastDataItem item in group.Items)
+                    foreach (Podcast item in group.Items)
                     {
                         try
                         {

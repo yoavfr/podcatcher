@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PodCatch.DataModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ namespace PodCatch
     public class MediaElementWrapper
     {
         private static MediaElementWrapper s_Insatnce;
+        private Episode m_NowPlaying; 
         private TimeSpan m_Position;
         private MediaElement MediaElement { get; set; }
         public TimeSpan Position {
@@ -36,14 +38,32 @@ namespace PodCatch
                 MediaElement.Source = value;
             }
         }
-        public void Play()
+        public async Task PlayAsync(Episode episode)
         {
+            if (m_NowPlaying != null && m_NowPlaying != episode)
+            {
+                await PauseAsync(m_NowPlaying);
+            }
+            Uri episodeUri = new Uri(episode.FullFileName);
+            if (Source == null || !Source.Equals(episodeUri))
+            {
+                Source = episodeUri;
+            }
+            Position = episode.Location;
+            m_NowPlaying = episode;
+            episode.Play();
             MediaElement.Play();
         }
 
-        public void Pause()
+        public async Task PauseAsync(Episode episode)
         {
             MediaElement.Pause();
+            episode.Location = Position;
+            await episode.PauseAsync();
+            if (m_NowPlaying == episode)
+            {
+                m_NowPlaying = null;
+            }
         }
 
         public static MediaElementWrapper Instance

@@ -114,16 +114,16 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\AltBackgroundConverter.cs" />
-    <Compile Include="Common\EpisodePlayOptionToolTipConverter.cs" />
-    <Compile Include="Common\EpisodePlayOptionIconConverter.cs" />
+    <Compile Include="Common\EpisodeStateToolTipConverter.cs" />
+    <Compile Include="Common\EpisodeStateIconConverter.cs" />
     <Compile Include="Common\InverseBooleanConverter.cs" />
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\VisualTreeHelperExt.cs" />
     <Compile Include="DataModel\BaseData.cs" />
-    <Compile Include="DataModel\EpisodeDataItem.cs" />
-    <Compile Include="DataModel\EpisodePlayOption.cs" />
-    <Compile Include="DataModel\PodcastDataGroup.cs" />
-    <Compile Include="DataModel\PodcastDataItem.cs" />
+    <Compile Include="DataModel\Episode.cs" />
+    <Compile Include="DataModel\EpisodeState.cs" />
+    <Compile Include="DataModel\PodcastGroup.cs" />
+    <Compile Include="DataModel\Podcast.cs" />
     <Compile Include="DataModel\PodcastDataSource.cs" />
     <Compile Include="StartPage.xaml.cs">
       <DependentUpon>StartPage.xaml</DependentUpon>
@@ -146,9 +146,7 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <None Include="Common\ReadMe.txt" />
-    <Content Include="DataModel\Podcasts.json" />
     <None Include="PodCatch_TemporaryKey.pfx" />
-    <Content Include="DataModel\SampleData.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Logo.scale-100.png" />

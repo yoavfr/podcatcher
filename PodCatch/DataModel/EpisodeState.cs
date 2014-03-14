@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace PodCatch.DataModel
 {
-    public enum EpisodePlayOption
+    public enum EpisodeState
     {
-        Download,
-        Play,
-        Pause,
+        PendingDownload,
+        Downloaded,
+        Playing
     }
 }

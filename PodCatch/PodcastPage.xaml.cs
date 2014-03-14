@@ -1,5 +1,5 @@
 ﻿using PodCatch.Common;
-using PodCatch.Data;
+using PodCatch.DataModel;
 using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
@@ -121,7 +121,7 @@ namespace PodCatch
         private void RemoveFromFavoritesButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
-            PodcastDataSource.RemoveItem("Favorites", (PodcastDataItem)DefaultViewModel["Item"]);
+            PodcastDataSource.RemoveItem("Favorites", (Podcast)DefaultViewModel["Item"]);
             PodcastDataSource.Store();
             NavigationHelper.GoBack();
         }
@@ -129,7 +129,7 @@ namespace PodCatch
         private void RssFeedToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
-            PodcastDataItem podcastDataItem = (PodcastDataItem)DefaultViewModel["Item"];
+            Podcast podcastDataItem = (Podcast)DefaultViewModel["Item"];
             DataPackage dataPackage = new DataPackage();
             dataPackage.SetText(podcastDataItem.Uri);
             Clipboard.SetContent(dataPackage);
@@ -139,10 +139,10 @@ namespace PodCatch
         private async void PlayButton_Clicked (object sender, RoutedEventArgs e)
         {
             AppBarButton playButton = (AppBarButton)sender;
-            EpisodeDataItem episode = (EpisodeDataItem)playButton.DataContext;
-            switch (episode.PlayOption)
+            Episode episode = (Episode)playButton.DataContext;
+            switch (episode.State)
             {
-                case EpisodePlayOption.Download:
+                case EpisodeState.PendingDownload:
                     {
                         try
                         {
@@ -158,7 +158,6 @@ namespace PodCatch
                             try
                             {
                                 await episode.DownloadAsync(progress);
-                                episode.PlayOption = EpisodePlayOption.Play;
                             }
                             finally
                             {
@@ -174,27 +173,14 @@ namespace PodCatch
                         }
                         break;
                     }
-                case (EpisodePlayOption.Play):
+                case (EpisodeState.Downloaded):
                     {
-                        //
-                        Uri episodeUri = new Uri(episode.FullFileName);
-                        if (MediaPlayer.Source == null || !MediaPlayer.Source.Equals(episodeUri))
-                        {
-                            MediaPlayer.Source = episodeUri;
-                        }
-                        MediaPlayer.Position = episode.Location;
-                        MediaPlayer.Play();
-                        episode.PlayOption = EpisodePlayOption.Pause;
-                        playButton.Icon = new SymbolIcon(Symbol.Pause);
+                        await MediaPlayer.PlayAsync(episode);
                         break;
                     }
-                case (EpisodePlayOption.Pause):
+                case (EpisodeState.Playing):
                     {
-                        MediaPlayer.Pause();
-                        episode.Location = MediaPlayer.Position;
-                        playButton.Icon = new SymbolIcon(Symbol.Play);
-                        episode.PlayOption = EpisodePlayOption.Play;
-                        await episode.StoreToCacheAsync();
+                        await MediaPlayer.PauseAsync(episode);
                         break;
                     }
             }

@@ -9,19 +9,19 @@ using Windows.UI.Xaml.Data;
 
 namespace PodCatch.Common
 {
-    public class EpisodePlayOptionToolTipConverter : IValueConverter
+    public class EpisodeStateToolTipConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value != null && value is EpisodePlayOption)
+            if (value != null && value is EpisodeState)
             {
-                switch ((EpisodePlayOption)value)
+                switch ((EpisodeState)value)
                 {
-                    case EpisodePlayOption.Download:
+                    case EpisodeState.PendingDownload:
                         return "Download";
-                    case EpisodePlayOption.Play:
+                    case EpisodeState.Downloaded:
                         return "Play";
-                    case EpisodePlayOption.Pause:
+                    case EpisodeState.Playing:
                         return "Pause";
                 }
             }

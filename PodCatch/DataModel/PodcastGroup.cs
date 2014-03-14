@@ -5,18 +5,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PodCatch.Data
+namespace PodCatch.DataModel
 {
-    public class PodcastDataGroup
+    public class PodcastGroup
     {
-        public PodcastDataGroup(String uniqueId, String title, String subtitle, String imagePath, String description)
+        public PodcastGroup(String uniqueId, String title, String subtitle, String imagePath, String description)
         {
             this.UniqueId = uniqueId;
             this.Title = title;
             this.Subtitle = subtitle;
             this.Description = description;
             this.ImagePath = imagePath;
-            this.Items = new ObservableCollection<PodcastDataItem>();
+            this.Items = new ObservableCollection<Podcast>();
         }
 
         public string UniqueId { get; private set; }
@@ -24,7 +24,7 @@ namespace PodCatch.Data
         public string Subtitle { get; private set; }
         public string Description { get; private set; }
         public string ImagePath { get; private set; }
-        public ObservableCollection<PodcastDataItem> Items { get; private set; }
+        public ObservableCollection<Podcast> Items { get; private set; }
 
         public override string ToString()
         {

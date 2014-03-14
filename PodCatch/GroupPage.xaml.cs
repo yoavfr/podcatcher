@@ -1,5 +1,5 @@
 ﻿using PodCatch.Common;
-using PodCatch.Data;
+using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -80,7 +80,7 @@ namespace PodCatch
         {
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
-            var itemId = ((PodcastDataItem)e.ClickedItem).UniqueId;
+            var itemId = ((Podcast)e.ClickedItem).UniqueId;
             this.Frame.Navigate(typeof(PodcatchPath), itemId);
         }
 

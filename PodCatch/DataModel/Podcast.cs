@@ -15,16 +15,16 @@ using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 using Windows.Web.Syndication;
 
-namespace PodCatch.Data
+namespace PodCatch.DataModel
 {
     [DataContract]
-    public class PodcastDataItem : BaseData
+    public class Podcast : BaseData
     {
         private string m_Title;
         private string m_Description;
         private string m_ImagePath;
 
-        public PodcastDataItem(String title, String uri, String imagePath, String description, BaseData parent)
+        public Podcast(String title, String uri, String imagePath, String description, BaseData parent)
             : this(uri, parent)
         {
             this.Title = title;
@@ -32,9 +32,9 @@ namespace PodCatch.Data
             this.ImagePath = imagePath;
         }
 
-        public PodcastDataItem(String uri, BaseData parent) : base (parent)
+        public Podcast(String uri, BaseData parent) : base (parent)
         {
-            this.Episodes = new ObservableCollection<EpisodeDataItem>();
+            this.Episodes = new ObservableCollection<Episode>();
             Uri = uri;
         }
 
@@ -65,7 +65,7 @@ namespace PodCatch.Data
             private set { m_ImagePath = value; NotifyPropertyChanged("ImagePath"); }
         }
         [DataMember]
-        public ObservableCollection<EpisodeDataItem> Episodes {get; private set;}
+        public ObservableCollection<Episode> Episodes {get; private set;}
         [DataMember]
         public DateTime LastUpdatedTime { get; private set; }
 
@@ -109,7 +109,7 @@ namespace PodCatch.Data
                     }
                     if (uri != null && count++ <3)
                     {
-                        EpisodeDataItem episode = new EpisodeDataItem(UniqueId, item.Title.Text, item.Summary.Text, item.PublishedDate, uri, this, Episodes);
+                        Episode episode = new Episode(UniqueId, item.Title.Text, item.Summary.Text, item.PublishedDate, uri, this, Episodes);
                         Episodes.Add(episode);
                     }
                     if (count>=3)
@@ -137,10 +137,10 @@ namespace PodCatch.Data
             StorageFile xmlFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.OpenIfExists);
             using (Stream stream = await xmlFile.OpenStreamForReadAsync())
             {
-                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PodcastDataItem));
+                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Podcast));
                 try
                 {
-                    PodcastDataItem readItem = (PodcastDataItem)serializer.ReadObject(stream);
+                    Podcast readItem = (Podcast)serializer.ReadObject(stream);
                     Title = readItem.Title;
                     Description = readItem.Description;
                     Episodes = readItem.Episodes;
@@ -150,7 +150,7 @@ namespace PodCatch.Data
                     imagePath = string.Format("{0}{1}", UniqueId, imageExtension);
                     StorageFile imageFile = await localFolder.GetFileAsync(imagePath);
                     ImagePath = imageFile.Path;
-                    foreach (EpisodeDataItem episode in Episodes)
+                    foreach (Episode episode in Episodes)
                     {
                         episode.Parent = this;
                         await episode.LoadStateAsync(Episodes);
@@ -171,15 +171,10 @@ namespace PodCatch.Data
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile xmlFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.ReplaceExisting);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PodcastDataItem));
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Podcast));
             using (Stream stream = await xmlFile.OpenStreamForWriteAsync())
             {
                 serializer.WriteObject(stream, this);
-            }
-
-            foreach (EpisodeDataItem episode in Episodes)
-            {
-                
             }
         }
 

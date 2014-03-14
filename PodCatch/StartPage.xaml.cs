@@ -1,5 +1,5 @@
 ﻿using PodCatch.Common;
-using PodCatch.Data;
+using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -88,7 +88,7 @@ namespace PodCatch
 
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
-            this.Frame.Navigate(typeof(GroupPage), ((PodcastDataGroup)group).UniqueId);
+            this.Frame.Navigate(typeof(GroupPage), ((PodcastGroup)group).UniqueId);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace PodCatch
         {
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
-            var itemId = ((PodcastDataItem)e.ClickedItem).UniqueId;
+            var itemId = ((Podcast)e.ClickedItem).UniqueId;
             this.Frame.Navigate(typeof(PodcatchPath), itemId);
         }
 
@@ -132,7 +132,7 @@ namespace PodCatch
         {
             BottomAppBar.IsOpen = false;
             AddToFavoritesAppBarButton.Flyout.Hide();
-            PodcastDataItem newItem = new PodcastDataItem(string.Empty, RssUrl.Text, string.Empty, string.Empty, null);
+            Podcast newItem = new Podcast(string.Empty, RssUrl.Text, string.Empty, string.Empty, null);
             PodcastDataSource.AddItem("Favorites", newItem);
             try
             {
@@ -174,7 +174,7 @@ namespace PodCatch
             {
                 return;
             }
-            PodcastDataItem selectedItem = (PodcastDataItem)grid.DataContext;
+            Podcast selectedItem = (Podcast)grid.DataContext;
             switch ((int)selectedCommand.Id)
             {
                 case 1:
