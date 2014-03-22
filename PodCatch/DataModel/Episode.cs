@@ -17,6 +17,7 @@ namespace PodCatch.DataModel
     {
         
         private EpisodeState m_State;
+        private TimeSpan m_Position;
         public Episode(
             string podcastUniqueId, 
             string title, 
@@ -138,7 +139,34 @@ namespace PodCatch.DataModel
         [DataMember]
         public Uri Uri { get; private set; }
         [DataMember]
-        public TimeSpan Location { get; set; }
+        public TimeSpan Position 
+        { 
+            get
+            {
+                return m_Position;
+            }
+            set
+            {
+                m_Position = value;
+                NotifyPropertyChanged("Position");
+                NotifyPropertyChanged("Progress");
+            }
+        }
+        [DataMember]
+        public TimeSpan Duration { get; set; }
+
+        public double Progress
+        {
+            get
+            {
+                long durationTicks = Duration.Ticks;
+                if (Duration.Ticks > 0)
+                {
+                    return (double)Position.Ticks / Duration.Ticks;
+                }
+                return 0;
+            }
+        }
 
         public int Index
         {

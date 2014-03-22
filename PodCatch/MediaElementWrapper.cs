@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.System.Threading;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -15,8 +16,10 @@ namespace PodCatch
         private static MediaElementWrapper s_Insatnce;
         private Episode m_NowPlaying; 
         private TimeSpan m_Position;
+        private DateTime m_LastSaveTime;
         private MediaElement MediaElement { get; set; }
-        public TimeSpan Position {
+        public TimeSpan Position 
+        {
             get
             {
                 return MediaElement.Position;
@@ -27,6 +30,15 @@ namespace PodCatch
                 MediaElement.Position = value;
             }
         }
+
+        public TimeSpan Duration 
+        { 
+            get
+            {
+                return MediaElement.NaturalDuration.TimeSpan;
+            }
+        }
+
         public Uri Source 
         {
             get
@@ -49,7 +61,7 @@ namespace PodCatch
             {
                 Source = episodeUri;
             }
-            Position = episode.Location;
+            Position = episode.Position;
             m_NowPlaying = episode;
             episode.Play();
             MediaElement.Play();
@@ -58,7 +70,7 @@ namespace PodCatch
         public async Task PauseAsync(Episode episode)
         {
             MediaElement.Pause();
-            episode.Location = Position;
+            episode.Position = Position;
             await episode.PauseAsync();
             if (m_NowPlaying == episode)
             {
@@ -85,6 +97,23 @@ namespace PodCatch
         {
             MediaElement = mediaElement;
             MediaElement.MediaOpened += MediaElement_MediaOpened;
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromMilliseconds(500);
+            timer.Tick += (sender, e) =>
+            {
+                Episode episode = m_NowPlaying;
+                if (episode != null)
+                {
+                    episode.Duration = Duration;
+                    episode.Position = Position;
+                    if (DateTime.UtcNow.AddSeconds(-10) > m_LastSaveTime)
+                    {
+                        episode.StoreToCacheAsync();
+                        m_LastSaveTime = DateTime.UtcNow;
+                    }
+                }
+            };
+            timer.Start();
         }
 
         void MediaElement_MediaOpened(object sender, RoutedEventArgs e)

@@ -74,7 +74,6 @@ namespace PodCatch
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            // TODO: Create an appropriate data model for your problem domain to replace the sample data
             var item = await PodcastDataSource.GetItemAsync((String)e.NavigationParameter); 
             this.DefaultViewModel["Item"] = item;
             this.DefaultViewModel["Episodes"] = item.Episodes;
@@ -148,6 +147,7 @@ namespace PodCatch
                         {
                             playButton.IsEnabled = false;
                             var parent = VisualTreeHelper.GetParent((DependencyObject)sender);
+                            parent = VisualTreeHelper.GetParent((DependencyObject)parent);
                             ProgressBar progressBar = VisualTreeHelperExt.GetChild<ProgressBar>(parent, "DownloadEpisodeProgressBar");
                             progressBar.Visibility = Visibility.Visible;
                             var progress = new Progress<DownloadOperation>((operation) =>

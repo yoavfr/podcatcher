@@ -114,6 +114,8 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\AltBackgroundConverter.cs" />
+    <Compile Include="Common\EpisodePositionConverter.cs" />
+    <Compile Include="Common\PlayEpisodeProgressVisiblityConverter.cs" />
     <Compile Include="Common\EpisodeStateToolTipConverter.cs" />
     <Compile Include="Common\EpisodeStateIconConverter.cs" />
     <Compile Include="Common\InverseBooleanConverter.cs" />
@@ -149,13 +151,13 @@
     <None Include="PodCatch_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\DarkGray.png" />
     <Content Include="Assets\Logo.scale-100.png" />
     <Content Include="Assets\SmallLogo.scale-100.png" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
     <Content Include="Assets\StoreLogo.scale-100.png" />
     <Content Include="Assets\LightGray.png" />
     <Content Include="Assets\MediumGray.png" />
-    <Content Include="Assets\DarkGray.png" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

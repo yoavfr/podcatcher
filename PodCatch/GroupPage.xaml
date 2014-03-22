@@ -15,8 +15,7 @@
         <!-- Collection of items displayed by this page -->
         <CollectionViewSource
             x:Name="itemsViewSource"
-            Source="{Binding Items}"
-            d:Source="{Binding Groups[0].Items, Source={d:DesignData Source=/DataModel/Podcasts.json, Type=data:PodcastDataSource}}"/>
+            Source="{Binding Items}"/>
     </Page.Resources>
 
     <!--
@@ -25,8 +24,7 @@
         * Row 1 contains the rest of the page layout
     -->
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-        DataContext="{Binding Group}"
-        d:DataContext="{Binding Groups[0], Source={d:DesignData Source=/DataModel/Podcasts.json, Type=data:PodcastDataSource}}" Margin="0,1,0,-1">
+        DataContext="{Binding Group}" Margin="0,1,0,-1">
         <Grid.ChildrenTransitions>
             <TransitionCollection>
                 <EntranceThemeTransition/>
