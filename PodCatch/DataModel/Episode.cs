@@ -129,6 +129,16 @@ namespace PodCatch.DataModel
             await StoreToCacheAsync();
         }
 
+        public void StartScan()
+        {
+            SetState(EpisodeState.Scanning);
+        }
+
+        public void EndScan()
+        {
+            SetState(EpisodeState.Playing);
+        }
+
         public string UniqueId
         {
             get
@@ -149,24 +159,11 @@ namespace PodCatch.DataModel
             {
                 m_Position = value;
                 NotifyPropertyChanged("Position");
-                NotifyPropertyChanged("Progress");
+                NotifyPropertyChanged("Duration");
             }
         }
         [DataMember]
         public TimeSpan Duration { get; set; }
-
-        public double Progress
-        {
-            get
-            {
-                long durationTicks = Duration.Ticks;
-                if (Duration.Ticks > 0)
-                {
-                    return (double)Position.Ticks / Duration.Ticks;
-                }
-                return 0;
-            }
-        }
 
         public int Index
         {

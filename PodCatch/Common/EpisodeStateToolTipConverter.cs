@@ -23,6 +23,8 @@ namespace PodCatch.Common
                         return "Play";
                     case EpisodeState.Playing:
                         return "Pause";
+                    default:
+                        return string.Empty;
                 }
             }
             return null;

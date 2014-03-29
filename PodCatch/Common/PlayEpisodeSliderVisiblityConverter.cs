@@ -10,7 +10,7 @@ using Windows.UI.Xaml.Data;
 
 namespace PodCatch.Common
 {
-    public class PlayEpisodeProgressVisiblityConverter : IValueConverter
+    public class PlayEpisodeSliderVisiblityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
@@ -21,8 +21,8 @@ namespace PodCatch.Common
                     case EpisodeState.PendingDownload:
                         return Visibility.Collapsed;
                     case EpisodeState.Downloaded:
-                        return Visibility.Visible;
                     case EpisodeState.Playing:
+                    case EpisodeState.Scanning:
                         return Visibility.Visible;
                 }
             }

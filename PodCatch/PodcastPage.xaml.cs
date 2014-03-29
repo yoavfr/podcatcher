@@ -185,5 +185,37 @@ namespace PodCatch
                     }
             }
         }
+
+        private void PlayEpisodeSlider_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+        {
+            Slider slider = (Slider)sender;
+            Episode episode = (Episode)slider.DataContext;
+            if (MediaPlayer.IsEpisodePlaying(episode))
+            {
+                episode.StartScan();
+            }
+        }
+
+        private void PlayEpisodeSlider_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+        {
+            Slider slider = (Slider)sender;
+            Episode episode = (Episode)slider.DataContext;
+            if (MediaPlayer.IsEpisodePlaying(episode))
+            {
+                episode.EndScan();
+                MediaPlayer.Position = TimeSpan.FromTicks((long)slider.Value);
+            }
+        }
+
+        private void PlayEpisodeSlider_PointerCaptureLost(object sender, PointerRoutedEventArgs e)
+        {
+            Slider slider = (Slider)sender;
+            Episode episode = (Episode)slider.DataContext;
+            if (MediaPlayer.IsEpisodePlaying(episode))
+            {
+                MediaPlayer.Position = TimeSpan.FromTicks((long)slider.Value);
+                episode.EndScan();
+            }
+        }
     }
 }

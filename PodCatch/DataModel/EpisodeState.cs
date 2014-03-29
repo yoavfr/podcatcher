@@ -10,6 +10,7 @@ namespace PodCatch.DataModel
     {
         PendingDownload,
         Downloaded,
-        Playing
+        Playing,
+        Scanning
     }
 }

@@ -97,6 +97,8 @@ namespace PodCatch
         {
             MediaElement = mediaElement;
             MediaElement.MediaOpened += MediaElement_MediaOpened;
+            
+            // Periodically update position and duration in playing episode and every 10 seconds save state too
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(500);
             timer.Tick += (sender, e) =>
@@ -105,7 +107,12 @@ namespace PodCatch
                 if (episode != null)
                 {
                     episode.Duration = Duration;
-                    episode.Position = Position;
+                    // don't update position when slider is being manipulated 
+                    if (episode.State == EpisodeState.Playing && 
+                        (episode.Position - Position).Duration() < TimeSpan.FromSeconds(1)) // hack - clicking directly on the slider will cause a big difference
+                    {
+                        episode.Position = Position;
+                    }
                     if (DateTime.UtcNow.AddSeconds(-10) > m_LastSaveTime)
                     {
                         episode.StoreToCacheAsync();
@@ -119,6 +126,11 @@ namespace PodCatch
         void MediaElement_MediaOpened(object sender, RoutedEventArgs e)
         {
             ((MediaElement)sender).Position = m_Position;
+        }
+
+        public bool IsEpisodePlaying(Episode episode)
+        {
+            return m_NowPlaying == episode;
         }
     }
 }

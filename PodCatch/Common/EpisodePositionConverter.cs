@@ -11,11 +11,19 @@ namespace PodCatch.Common
 {
     public class EpisodePositionConverter : IValueConverter
     {
+        private const string c_TimeFormat = @"hh\:mm\:ss";
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value != null && value is TimeSpan)
+            if (value != null)
             {
-                return ((TimeSpan)value).ToString(@"hh\:mm\:ss");
+                if (value is TimeSpan)
+                {
+                    return ((TimeSpan)value).ToString(c_TimeFormat);
+                }
+                else if (value is double)
+                {
+                    return (TimeSpan.FromTicks((long)(double)value).ToString(c_TimeFormat));
+                }
             }
             return null;
         }

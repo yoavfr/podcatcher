@@ -27,8 +27,9 @@
         <common:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <common:EpisodeStateIconConverter x:Key="EpisodeStateIconConverter"/>
         <common:EpisodeStateToolTipConverter x:Key="EpisodeStateToolTipConverter"/>
-        <common:PlayEpisodeProgressVisiblityConverter x:Key="PlayEpisodeProgressVisiblityConverter"/>
+        <common:PlayEpisodeSliderVisiblityConverter x:Key="PlayEpisodeSliderVisiblityConverter"/>
         <common:EpisodePositionConverter x:Key="EpisodePositionConverter"/>
+        <common:TimespanToTicksConverter x:Key="TimespanToTicksConverter"/>
     </Page.Resources>
 
    
@@ -99,14 +100,21 @@
                                             <StackPanel Orientation="Vertical">
                                                 <StackPanel Orientation="Horizontal">
                                                     <!-- Download/Play/Pause button -->
-                                                    <AppBarButton Margin="0,0,0,0" Icon="Previous"/>
                                                     <AppBarButton Margin="0,0,0,0" Icon="{Binding State, Converter={StaticResource EpisodeStateIconConverter}}" ToolTipService.ToolTip="{Binding State, Converter={StaticResource EpisodeStateToolTipConverter}}" Click="PlayButton_Clicked"/>
-                                                    <AppBarButton Margin="0,0,0,0" Icon="Next"/>
                                                     <TextBlock Text="{Binding Position, Converter={StaticResource EpisodePositionConverter}}" ToolTipService.ToolTip="Elapsed time"/>
                                                     <!-- Progress Bar -->
                                                 </StackPanel>
                                                 <ProgressBar Margin="20,10,0,0" Name="DownloadEpisodeProgressBar" Visibility="Collapsed" Maximum="1" IsIndeterminate="False"/>
-                                                <ProgressBar Margin="20,10,0,0" Name="PlayEpisodeProgressBar" Value="{Binding Progress}" Visibility="{Binding State, Converter={StaticResource PlayEpisodeProgressVisiblityConverter}}" Maximum="1" IsIndeterminate="False"/>
+                                                <Slider Margin="0,0,0,0" 
+                                                        Name="PlayEpisodeSlider" 
+                                                        Maximum="{Binding Duration, Converter={StaticResource TimespanToTicksConverter}}" 
+                                                        Value="{Binding Position, Converter={StaticResource TimespanToTicksConverter}, Mode=TwoWay}" 
+                                                        Visibility="{Binding State, Converter={StaticResource PlayEpisodeSliderVisiblityConverter}}"
+                                                        ManipulationMode="All" 
+                                                        PointerCaptureLost="PlayEpisodeSlider_PointerCaptureLost" 
+                                                        ManipulationStarted="PlayEpisodeSlider_ManipulationStarted" 
+                                                        ThumbToolTipValueConverter="{StaticResource EpisodePositionConverter}"
+                                                        />
                                             </StackPanel>
                                         </StackPanel>
                                     </Grid>

@@ -115,7 +115,8 @@
     </Compile>
     <Compile Include="Common\AltBackgroundConverter.cs" />
     <Compile Include="Common\EpisodePositionConverter.cs" />
-    <Compile Include="Common\PlayEpisodeProgressVisiblityConverter.cs" />
+    <Compile Include="Common\TimespanToTicksConverter.cs" />
+    <Compile Include="Common\PlayEpisodeSliderVisiblityConverter.cs" />
     <Compile Include="Common\EpisodeStateToolTipConverter.cs" />
     <Compile Include="Common\EpisodeStateIconConverter.cs" />
     <Compile Include="Common\InverseBooleanConverter.cs" />

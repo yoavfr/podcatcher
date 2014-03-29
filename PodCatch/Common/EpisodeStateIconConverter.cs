@@ -26,6 +26,8 @@ namespace PodCatch.Common
                         return new SymbolIcon(Symbol.Play);
                     case EpisodeState.Playing:
                         return new SymbolIcon(Symbol.Pause);
+                    case EpisodeState.Scanning:
+                        return new SymbolIcon(Symbol.Find);
                 }
             }
             return null;
