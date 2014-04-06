@@ -1,10 +1,8 @@
 ﻿using PodCatch.DataModel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Windows.System.Threading;
+using Windows.Media;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -18,6 +16,9 @@ namespace PodCatch
         private TimeSpan m_Position;
         private DateTime m_LastSaveTime;
         private MediaElement MediaElement { get; set; }
+        private SystemMediaTransportControls SystemMediaTransportControls { get; set;}
+        public CoreDispatcher Dispatcher { private get; set; }
+
         public TimeSpan Position 
         {
             get
@@ -72,10 +73,6 @@ namespace PodCatch
             MediaElement.Pause();
             episode.Position = Position;
             await episode.PauseAsync();
-            if (m_NowPlaying == episode)
-            {
-                m_NowPlaying = null;
-            }
         }
 
         public static MediaElementWrapper Instance
@@ -97,7 +94,13 @@ namespace PodCatch
         {
             MediaElement = mediaElement;
             MediaElement.MediaOpened += MediaElement_MediaOpened;
-            
+            MediaElement.CurrentStateChanged += MediaElement_CurrentStateChanged;
+
+            SystemMediaTransportControls = SystemMediaTransportControls.GetForCurrentView();
+            SystemMediaTransportControls.ButtonPressed += SystemMediaTransportControls_ButtonPressed;
+            SystemMediaTransportControls.IsPlayEnabled = true;
+            SystemMediaTransportControls.IsPauseEnabled = true;
+
             // Periodically update position and duration in playing episode and every 10 seconds save state too
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(500);
@@ -123,14 +126,104 @@ namespace PodCatch
             timer.Start();
         }
 
+        private void MediaElement_CurrentStateChanged(object sender, RoutedEventArgs e)
+        {
+            switch (MediaElement.CurrentState)
+            {
+                case MediaElementState.Playing:
+                    SystemMediaTransportControls.PlaybackStatus = MediaPlaybackStatus.Playing;
+                    break;
+                case MediaElementState.Paused:
+                    SystemMediaTransportControls.PlaybackStatus = MediaPlaybackStatus.Paused;
+                    break;
+                case MediaElementState.Stopped:
+                    SystemMediaTransportControls.PlaybackStatus = MediaPlaybackStatus.Stopped;
+                    break;
+                case MediaElementState.Closed:
+                    SystemMediaTransportControls.PlaybackStatus = MediaPlaybackStatus.Closed;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private async void SystemMediaTransportControls_ButtonPressed(Windows.Media.SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)
+        {
+            Episode episode = m_NowPlaying;
+            if (episode == null || Dispatcher == null)
+            {
+                return;
+            }
+            switch (args.Button)
+            {
+                case SystemMediaTransportControlsButton.Play:
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                        {
+                            await PlayAsync(episode);
+                        });
+                    break;
+                case SystemMediaTransportControlsButton.Pause:
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                        {
+                            await PauseAsync(episode);
+                        });
+                    break;
+                case SystemMediaTransportControlsButton.Next:
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        {
+                            SkipForward(episode);
+                        });
+                    break;
+                case SystemMediaTransportControlsButton.Previous:
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        {
+                            SkipBackward(episode);
+                        });
+                    break;
+                    
+            }
+        }
+
         void MediaElement_MediaOpened(object sender, RoutedEventArgs e)
         {
             ((MediaElement)sender).Position = m_Position;
+            Episode episode = m_NowPlaying;
+            if (episode != null)
+            {
+                SystemMediaTransportControlsDisplayUpdater updater = SystemMediaTransportControls.DisplayUpdater;
+                updater.Type = MediaPlaybackType.Music;
+                updater.MusicProperties.Title = episode.Title;
+                updater.Update();
+                SystemMediaTransportControls.IsNextEnabled = true;
+                SystemMediaTransportControls.IsPreviousEnabled = true;
+            }
         }
 
         public bool IsEpisodePlaying(Episode episode)
         {
             return m_NowPlaying == episode;
         }
+
+        public void SkipForward(Episode episode)
+        {
+            long positionTicks = Position.Ticks;
+            long durationTicks = Duration.Ticks;
+            long increment = durationTicks / 10;
+            positionTicks = Math.Min(durationTicks, positionTicks + increment);
+            Position = TimeSpan.FromTicks(positionTicks);
+            episode.Position = Position;
+        }
+
+        public void SkipBackward(Episode episode)
+        {
+            long positionTicks = Position.Ticks;
+            long durationTicks = Duration.Ticks;
+            long increment = durationTicks / 10;
+            positionTicks = Math.Max(0, positionTicks - increment);
+            Position = TimeSpan.FromTicks(positionTicks);
+            episode.Position = Position;
+        }
+
+
     }
 }
