@@ -1,6 +1,7 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
 using PodCatch.DataModel;
+using PodCatch.Strings;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -78,7 +79,7 @@ namespace PodCatch
             this.DefaultViewModel["Item"] = item;
             this.DefaultViewModel["Episodes"] = item.Episodes;
 
-            bool inFavorites = PodcastDataSource.Instance.Groups.First(group => group.UniqueId == "Favorites").Items.Any(i => i.UniqueId == item.UniqueId);
+            bool inFavorites = PodcastDataSource.Instance.Groups.First(group => group.UniqueId == Constants.FavoritesGroupId).Items.Any(i => i.UniqueId == item.UniqueId);
             if (inFavorites)
             {
                 AddToFavoritesAppBarButton.IsEnabled = false;

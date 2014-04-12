@@ -143,6 +143,8 @@
     <Compile Include="Common\NavigationHelper.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Common\ObservableDictionary.cs" />
+    <Compile Include="Strings\Constants.cs" />
+    <Compile Include="Strings\Strings.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -150,6 +152,7 @@
     </AppxManifest>
     <None Include="Common\ReadMe.txt" />
     <None Include="PodCatch_TemporaryKey.pfx" />
+    <PRIResource Include="Strings\en-US\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\DarkGray.png" />

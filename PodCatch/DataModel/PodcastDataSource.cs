@@ -9,6 +9,7 @@ using Windows.Data.Json;
 using Windows.Storage;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+using PodCatch.Strings;
 
 // The data model defined by this file serves as a representative example of a strongly-typed
 // model.  The property names chosen coincide with data bindings in the standard item templates.
@@ -104,7 +105,7 @@ namespace PodCatch.DataModel
         public static void Store()
         {
             StringWriter stringWriter = new StringWriter();
-            string favoritesString = string.Join(",", _podcastDataSource.Groups.First(g => g.Title == "Favorites").Items.Select(item => item.Uri));
+            string favoritesString = string.Join(",", _podcastDataSource.Groups.First(g => g.UniqueId == Constants.FavoritesGroupId).Items.Select(item => item.Uri));
             Windows.Storage.ApplicationDataContainer roamingSettings = Windows.Storage.ApplicationData.Current.RoamingSettings;
             roamingSettings.Values["PodcastDataSource"] = favoritesString;
         }
@@ -124,9 +125,14 @@ namespace PodCatch.DataModel
         {
             if (Groups.Count != 0)
                 return;
+            // adding from itunes search term https://itunes.apple.com/search?term=freakonomics&media=podcast&entity=podcast&attribute=titleTerm
 
-             
-            PodcastGroup favorites = new PodcastGroup("Favorites", "Favorites", "My favorite podcasts", "Assets/DarkGray.png", "Podcasts I have subscribed to");
+            PodcastGroup favorites = new PodcastGroup(
+                Constants.FavoritesGroupId, 
+                LocalizedStrings.FavoritesPodcastGroupName, 
+                "My favorite podcasts", 
+                "Assets/DarkGray.png", 
+                "Podcasts I have subscribed to");
             _podcastDataSource.Groups.Add(favorites);
 
             Windows.Storage.ApplicationDataContainer roamingSettings = Windows.Storage.ApplicationData.Current.RoamingSettings;
@@ -158,52 +164,6 @@ namespace PodCatch.DataModel
                     }
                 }
             }
-
-            /*PodcastDataGroup favorites = new PodcastDataGroup("Favorites", "Favorites", "My favorite podcasts", "Assets/DarkGray.png", "Podcasts I have subscribed to");
-            //PodcastDataItem item1 = new PodcastDataItem(favorites.UniqueId, "The Moth", "http://feeds.themoth.org/themothpodcast", String.Empty, String.Empty);
-            //favorites.Items.Add(item1);
-            //PodcastDataItem item2 = new PodcastDataItem(favorites.UniqueId, "Blastoff", "http://www.npr.org/rss/podcast.php?id=510289", String.Empty, String.Empty);
-            //favorites.Items.Add(item2);
-
-            Groups.Add(favorites);
-            foreach (PodcastDataGroup group in Groups)
-            {
-                foreach (PodcastDataItem item in group.Items)
-                {
-                    await item.GetPodcastDataAsync();
-                }
-            }
-            
-
-            /*Uri dataUri = new Uri("ms-appx:///DataModel/Podcasts.json");
-
-            StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(dataUri);
-            string jsonText = await FileIO.ReadTextAsync(file);
-            JsonObject jsonObject = JsonObject.Parse(jsonText);
-            JsonArray jsonArray = jsonObject["Groups"].GetArray();
-
-            foreach (JsonValue groupValue in jsonArray)
-            {
-                JsonObject groupObject = groupValue.GetObject();
-                PodcastDataGroup group = new PodcastDataGroup(groupObject["UniqueId"].GetString(),
-                                                            groupObject["Title"].GetString(),
-                                                            groupObject["Subtitle"].GetString(),
-                                                            groupObject["ImagePath"].GetString(),
-                                                            groupObject["Description"].GetString());
-
-                foreach (JsonValue itemValue in groupObject["Items"].GetArray())
-                {
-                    JsonObject itemObject = itemValue.GetObject();
-                    PodcastDataItem podcast = new PodcastDataItem(group.UniqueId,
-                                                       itemObject["Title"].GetString(),
-                                                       itemObject["Uri"].GetString(),
-                                                       itemObject["ImagePath"].GetString(),
-                                                       itemObject["Description"].GetString());
-                    await podcast.GetPodcastDataAsync();
-                    group.Items.Add(podcast);
-                }
-                this.Groups.Add(group);
-            }*/
         }
     }
 }

@@ -17,7 +17,7 @@ namespace PodCatch
         private DateTime m_LastSaveTime;
         private MediaElement MediaElement { get; set; }
         private SystemMediaTransportControls SystemMediaTransportControls { get; set;}
-        public CoreDispatcher Dispatcher { private get; set; }
+        public static CoreDispatcher Dispatcher { private get; set; }
 
         public TimeSpan Position 
         {

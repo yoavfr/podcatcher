@@ -1,6 +1,8 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
+using PodCatch.Strings;
 using System;
+using System.Collections.Generic;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
@@ -56,11 +58,15 @@ namespace PodCatch
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            var podcastDataGroups = await PodcastDataSource.LoadGroupsFromCacheAsync();
+            // MediaElementWrapper needs the dispatcher to conrtol the MediaElement on this thread
+            MediaElementWrapper.Dispatcher = Dispatcher;
+            
+            // load from cache
+            IEnumerable<PodcastGroup> podcastDataGroups = await PodcastDataSource.LoadGroupsFromCacheAsync();
             this.DefaultViewModel["Groups"] = podcastDataGroups;
             try
             {
-                MediaElementWrapper.Instance.Dispatcher = Dispatcher;
+                // refresh from RSS source
                 podcastDataGroups = await PodcastDataSource.LoadGroupsFromRssAsync();
             }
             catch (Exception ex)
@@ -126,14 +132,14 @@ namespace PodCatch
             BottomAppBar.IsOpen = false;
             AddToFavoritesAppBarButton.Flyout.Hide();
             Podcast newItem = new Podcast(string.Empty, RssUrl.Text, string.Empty, string.Empty, null);
-            PodcastDataSource.AddItem("Favorites", newItem);
+            PodcastDataSource.AddItem(Constants.FavoritesGroupId, newItem);
             try
             {
                 await newItem.LoadFromRssAsync();
             }
             catch (Exception ex)
             {
-                PodcastDataSource.RemoveItem("Favorites", newItem);
+                PodcastDataSource.RemoveItem(Constants.FavoritesGroupId, newItem);
                 return;
             }
             try
@@ -176,7 +182,7 @@ namespace PodCatch
                     Clipboard.SetContent(dataPackage);
                     break;
                 case 2:
-                    PodcastDataSource.RemoveItem("Favorites", selectedItem);
+                    PodcastDataSource.RemoveItem(Constants.FavoritesGroupId, selectedItem);
                     PodcastDataSource.Store();
                     NavigationHelper.GoBack();
                     break;
