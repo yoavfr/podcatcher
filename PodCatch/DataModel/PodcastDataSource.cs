@@ -29,10 +29,10 @@ namespace PodCatch.DataModel
     /// </summary>
     public sealed class PodcastDataSource
     {
-        private static PodcastDataSource _podcastDataSource = new PodcastDataSource();
+        private static PodcastDataSource s_PodcastDataSource = new PodcastDataSource();
 
         [XmlIgnore]
-        public ObservableCollection<PodcastGroup> Groups { get; private set; }
+        private ObservableCollection<PodcastGroup> Groups { get; set; }
 
         private PodcastDataSource()
         {
@@ -43,58 +43,80 @@ namespace PodCatch.DataModel
         {
             get
             {
-                return _podcastDataSource;
+                return s_PodcastDataSource;
             }
         }
-        public static async Task<IEnumerable<PodcastGroup>> LoadGroupsFromCacheAsync()
+        public async Task<IEnumerable<PodcastGroup>> LoadGroupsFromCacheAsync()
         {
-            await _podcastDataSource.LoadFromCacheAsync();
+            await LoadFromCacheAsync();
 
-            return _podcastDataSource.Groups;
+            return Groups;
         }
 
-        public static async Task<IEnumerable<PodcastGroup>> LoadGroupsFromRssAsync()
+        public async Task<IEnumerable<PodcastGroup>> LoadGroupsFromRssAsync()
         {
-            await _podcastDataSource.LoadFromRssAsync();
+            await LoadFromRssAsync();
 
-            return _podcastDataSource.Groups;
+            return Groups;
         }
 
-        public static void AddItem(string groupUniqueId, Podcast item)
+        public void AddGroup(string uniqueId, string title, string subTitle, string imagePath, string description)
         {
-            var groups = _podcastDataSource.Groups.Where(g => g.UniqueId == groupUniqueId);
+            var groups = Groups.Where(g => g.UniqueId == uniqueId);
+            if (groups.Count() > 0 )
+            {
+                return;
+            }
+            PodcastGroup podcastGroup = new PodcastGroup(uniqueId, title, subTitle, imagePath, description);
+            Groups.Add(podcastGroup);
+        }
+
+        public bool IsPodcastInGroup (string groupUniqueId, string podcastUniqueId)
+        {
+            return Groups.Where(g => g.UniqueId == groupUniqueId).First().Items.Any(i => i.UniqueId == podcastUniqueId);
+        }
+
+        public void ClearGroup(string groupUniqueId)
+        {
+            PodcastGroup group = Groups.Where(g => g.UniqueId == groupUniqueId).First();
+            group.Items.Clear();
+        }
+
+        public void AddItem(string groupUniqueId, Podcast item)
+        {
+            var groups = Groups.Where(g => g.UniqueId == groupUniqueId);
             if (groups.Count() > 0)
             {
-                if (!groups.First<PodcastGroup>().Items.Any(i => i.Uri == item.Uri))
+                if (!groups.First<PodcastGroup>().Items.Any(i => i.Uri.ToLower() == item.Uri.ToLower()))
                 {
                     groups.First<PodcastGroup>().Items.Add(item);
                 }
             }
         }
 
-        public static void RemoveItem(string groupUniqueId, Podcast item)
+        public void RemoveItem(string groupUniqueId, Podcast item)
         {
-            var groups = _podcastDataSource.Groups.Where(g => g.UniqueId == groupUniqueId);
+            var groups = Groups.Where(g => g.UniqueId == groupUniqueId);
             if (groups.Count() > 0)
             {
                 groups.First<PodcastGroup>().Items.Remove(item);
             }
         }
 
-        public static async Task<PodcastGroup> GetGroupAsync(string uniqueId)
+        public async Task<PodcastGroup> GetGroupAsync(string uniqueId)
         {
             //await _podcastDataSource.LoadFromCacheAsync();
             // Simple linear search is acceptable for small data sets
-            var matches = _podcastDataSource.Groups.Where((group) => group.UniqueId.Equals(uniqueId));
+            var matches = Groups.Where((group) => group.UniqueId.Equals(uniqueId));
             if (matches.Count() == 1) return matches.First();
             return null;
         }
 
-        public static async Task<Podcast> GetItemAsync(string uniqueId)
+        public async Task<Podcast> GetItemAsync(string uniqueId)
         {
             //await _podcastDataSource.LoadFromCacheAsync();
             // Simple linear search is acceptable for small data sets
-            var matches = _podcastDataSource.Groups.SelectMany(group => group.Items).Where((item) => item.UniqueId.Equals(uniqueId));
+            var matches = Groups.SelectMany(group => group.Items).Where((item) => item.UniqueId.Equals(uniqueId));
             if (matches.Count() > 0)
             {
                 return matches.First();
@@ -102,17 +124,17 @@ namespace PodCatch.DataModel
             return null;
         }
 
-        public static void Store()
+        public void Store()
         {
             StringWriter stringWriter = new StringWriter();
-            string favoritesString = string.Join(",", _podcastDataSource.Groups.First(g => g.UniqueId == Constants.FavoritesGroupId).Items.Select(item => item.Uri));
+            string favoritesString = string.Join(",", Groups.First(g => g.UniqueId == Constants.FavoritesGroupId).Items.Select(item => item.Uri));
             Windows.Storage.ApplicationDataContainer roamingSettings = Windows.Storage.ApplicationData.Current.RoamingSettings;
             roamingSettings.Values["PodcastDataSource"] = favoritesString;
         }
 
         private async Task LoadFromRssAsync()
         {
-            foreach (PodcastGroup podcastDataGroup in _podcastDataSource.Groups)
+            foreach (PodcastGroup podcastDataGroup in Groups)
             {
                 foreach (Podcast podcastDataItem in podcastDataGroup.Items)
                 {
@@ -125,7 +147,6 @@ namespace PodCatch.DataModel
         {
             if (Groups.Count != 0)
                 return;
-            // adding from itunes search term https://itunes.apple.com/search?term=freakonomics&media=podcast&entity=podcast&attribute=titleTerm
 
             PodcastGroup favorites = new PodcastGroup(
                 Constants.FavoritesGroupId, 
@@ -133,7 +154,7 @@ namespace PodCatch.DataModel
                 "My favorite podcasts", 
                 "Assets/DarkGray.png", 
                 "Podcasts I have subscribed to");
-            _podcastDataSource.Groups.Add(favorites);
+            Groups.Add(favorites);
 
             Windows.Storage.ApplicationDataContainer roamingSettings = Windows.Storage.ApplicationData.Current.RoamingSettings;
             if (roamingSettings.Values.ContainsKey("PodcastDataSource"))

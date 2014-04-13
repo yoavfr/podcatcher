@@ -1,5 +1,6 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
+using PodCatch.Search;
 using PodCatch.Strings;
 using System;
 using System.Collections.Generic;
@@ -62,12 +63,12 @@ namespace PodCatch
             MediaElementWrapper.Dispatcher = Dispatcher;
             
             // load from cache
-            IEnumerable<PodcastGroup> podcastDataGroups = await PodcastDataSource.LoadGroupsFromCacheAsync();
+            IEnumerable<PodcastGroup> podcastDataGroups = await PodcastDataSource.Instance.LoadGroupsFromCacheAsync();
             this.DefaultViewModel["Groups"] = podcastDataGroups;
             try
             {
                 // refresh from RSS source
-                podcastDataGroups = await PodcastDataSource.LoadGroupsFromRssAsync();
+                podcastDataGroups = await PodcastDataSource.Instance.LoadGroupsFromRssAsync();
             }
             catch (Exception ex)
             {
@@ -131,20 +132,20 @@ namespace PodCatch
         {
             BottomAppBar.IsOpen = false;
             AddToFavoritesAppBarButton.Flyout.Hide();
-            Podcast newItem = new Podcast(string.Empty, RssUrl.Text, string.Empty, string.Empty, null);
-            PodcastDataSource.AddItem(Constants.FavoritesGroupId, newItem);
+            Podcast newItem = new Podcast(string.Empty, RssUrl.Text, string.Empty, string.Empty);
+            PodcastDataSource.Instance.AddItem(Constants.FavoritesGroupId, newItem);
             try
             {
                 await newItem.LoadFromRssAsync();
             }
             catch (Exception ex)
             {
-                PodcastDataSource.RemoveItem(Constants.FavoritesGroupId, newItem);
+                PodcastDataSource.Instance.RemoveItem(Constants.FavoritesGroupId, newItem);
                 return;
             }
             try
             {
-                PodcastDataSource.Store();
+                PodcastDataSource.Instance.Store();
             }
             catch (Exception ex)
             {
@@ -152,11 +153,31 @@ namespace PodCatch
             }
         }
 
-        private void RemoveFromFavoritesButton_Click(object sender, RoutedEventArgs e)
+        private async void SearchForPodcastButtonClicked(object sender, RoutedEventArgs e)
         {
-            /*BottomAppBar.IsOpen = false;
-            PodcastDataItem selectedItem = m_RightClickedPodcast;
-*/
+            BottomAppBar.IsOpen = false;
+            SearchForPodcastAppBarButton.Flyout.Hide();
+            ITunesSearch iTunesSearch = new ITunesSearch();
+            ICollection<Podcast> matches = await iTunesSearch.FindAsync(SearchTerm.Text, 50);
+            
+            PodcastDataSource.Instance.AddGroup("Search", "Search", "Search", string.Empty, "found");
+            PodcastDataSource.Instance.ClearGroup("Search");
+            
+            foreach (Podcast podcast in matches)
+            {
+                PodcastDataSource.Instance.AddItem("Search", podcast);
+            }
+
+            foreach (Podcast podcast in matches)
+            {
+                await podcast.LoadFromCacheAsync();
+            }
+
+            foreach (Podcast podcast in matches)
+            {
+                await podcast.LoadFromRssAsync();
+                await podcast.StoreToCacheAsync();
+            }
         }
 
         private async void PodcastRightTapped(object sender, RightTappedRoutedEventArgs e)
@@ -182,13 +203,11 @@ namespace PodCatch
                     Clipboard.SetContent(dataPackage);
                     break;
                 case 2:
-                    PodcastDataSource.RemoveItem(Constants.FavoritesGroupId, selectedItem);
-                    PodcastDataSource.Store();
+                    PodcastDataSource.Instance.RemoveItem(Constants.FavoritesGroupId, selectedItem);
+                    PodcastDataSource.Instance.Store();
                     NavigationHelper.GoBack();
                     break;
             }
-
         }
-        
     }
 }

@@ -24,17 +24,19 @@ namespace PodCatch.DataModel
         private string m_Description;
         private string m_ImagePath;
 
-        public Podcast(String title, String uri, String imagePath, String description, BaseData parent)
-            : this(uri, parent)
+        public Podcast(String title, String uri, String imagePath, String description)
+            : this(uri, null)
         {
-            this.Title = title;
-            this.Description = description;
-            this.ImagePath = imagePath;
+            Title = title;
+            Description = description;
+            ImagePath = imagePath;
+            LastUpdatedTime = DateTime.MinValue + TimeSpan.FromDays(1);
+            LastStoreTime = DateTime.MinValue + TimeSpan.FromDays(1);
         }
 
-        public Podcast(String uri, BaseData parent) : base (parent)
+        public Podcast(String uri, BaseData parent) : base (null)
         {
-            this.Episodes = new ObservableCollection<Episode>();
+            Episodes = new ObservableCollection<Episode>();
             Uri = uri;
         }
 
@@ -67,17 +69,25 @@ namespace PodCatch.DataModel
         [DataMember]
         public ObservableCollection<Episode> Episodes {get; private set;}
         [DataMember]
-        public DateTime LastUpdatedTime { get; private set; }
+        private DateTime LastUpdatedTime { get; set; }
+        [DataMember]
+        private DateTime LastStoreTime { get; set; }
 
 
         public async Task LoadFromRssAsync()
         {
-            
+            // limit refreshs to every 2 hours
+            if (DateTime.UtcNow - LastUpdatedTime < TimeSpan.FromHours(2))
+            {
+                return;
+            }
+
             // Update data from actual RSS feed
             SyndicationFeed syndicationFeed = new SyndicationFeed();
             XmlDocument feedXml = await XmlDocument.LoadFromUriAsync(new Uri(Uri));
             syndicationFeed.LoadFromXml(feedXml);
 
+            // don't refresh if feed has not been updated since
             if (syndicationFeed.LastUpdatedTime.DateTime > LastUpdatedTime)
             {
                 Title = syndicationFeed.Title.Text;
@@ -117,10 +127,13 @@ namespace PodCatch.DataModel
                         break;
                     }
                 }
-                // Store changes locally
-                await StoreToCacheAsync();
-                await StoreImageToCacheAsync();
             }
+
+            // keep record of last update time
+            LastUpdatedTime = DateTime.UtcNow;
+
+            // and store changes locally (including LastUpdateTime)
+            await StoreToCacheAsync();
         }
 
         
@@ -169,6 +182,8 @@ namespace PodCatch.DataModel
 
         override public async Task StoreToCacheAsync()
         {
+            await StoreImageToCacheAsync();
+
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile xmlFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.ReplaceExisting);
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Podcast));
@@ -178,19 +193,29 @@ namespace PodCatch.DataModel
             }
         }
 
-        public async Task StoreImageToCacheAsync()
+        private async Task StoreImageToCacheAsync()
         {
+            if (DateTime.UtcNow - LastStoreTime < TimeSpan.FromDays(1))
+            {
+                return;
+            }
+
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            if (!string.IsNullOrEmpty(ImagePath))
+
+            // if we have an image and it hasn't already been stored to the cache (it will be rooted if it is)
+            if (!string.IsNullOrEmpty(ImagePath) && !Path.IsPathRooted(ImagePath))
             { 
                 string imageExtension = Path.GetExtension(ImagePath);
                 string localImagePath = string.Format("{0}{1}", UniqueId, imageExtension);
+
+                // the image we have is from the cache
                 StorageFile localImageFile = await localFolder.CreateFileAsync(localImagePath, CreationCollisionOption.ReplaceExisting);
                 BackgroundDownloader downloader = new BackgroundDownloader();
                 try
                 {
                     DownloadOperation downloadOperation = downloader.CreateDownload(new Uri(ImagePath), localImageFile);
                     await downloadOperation.StartAsync();
+                    LastStoreTime = DateTime.UtcNow;
                 }
                 catch (Exception e)
                 {

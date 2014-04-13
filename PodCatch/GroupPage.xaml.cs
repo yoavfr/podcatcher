@@ -66,7 +66,7 @@ namespace PodCatch
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
-            var group = await PodcastDataSource.GetGroupAsync((String)e.NavigationParameter);
+            var group = await PodcastDataSource.Instance.GetGroupAsync((String)e.NavigationParameter);
             this.DefaultViewModel["Group"] = group;
             this.DefaultViewModel["Items"] = group.Items;
         }

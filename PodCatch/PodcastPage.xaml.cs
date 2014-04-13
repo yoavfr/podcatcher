@@ -75,11 +75,11 @@ namespace PodCatch
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            var item = await PodcastDataSource.GetItemAsync((String)e.NavigationParameter); 
+            var item = await PodcastDataSource.Instance.GetItemAsync((String)e.NavigationParameter); 
             this.DefaultViewModel["Item"] = item;
             this.DefaultViewModel["Episodes"] = item.Episodes;
 
-            bool inFavorites = PodcastDataSource.Instance.Groups.First(group => group.UniqueId == Constants.FavoritesGroupId).Items.Any(i => i.UniqueId == item.UniqueId);
+            bool inFavorites = PodcastDataSource.Instance.IsPodcastInGroup(Constants.FavoritesGroupId, item.UniqueId);
             if (inFavorites)
             {
                 AddToFavoritesAppBarButton.IsEnabled = false;
@@ -121,8 +121,8 @@ namespace PodCatch
         private void RemoveFromFavoritesButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
-            PodcastDataSource.RemoveItem("Favorites", (Podcast)DefaultViewModel["Item"]);
-            PodcastDataSource.Store();
+            PodcastDataSource.Instance.RemoveItem("Favorites", (Podcast)DefaultViewModel["Item"]);
+            PodcastDataSource.Instance.Store();
             NavigationHelper.GoBack();
         }
 
