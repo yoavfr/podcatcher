@@ -9,6 +9,6 @@ namespace PodCatch.Search
 {
     public interface ISearch
     {
-        Task<ICollection<Podcast>> FindAsync(string searchTerm, int limit);
+        Task<IEnumerable<Podcast>> FindAsync(string searchTerm, int limit);
     }
 }

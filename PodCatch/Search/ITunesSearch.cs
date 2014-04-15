@@ -13,7 +13,7 @@ namespace PodCatch.Search
 {
     public class ITunesSearch : ISearch
     {
-        public async Task<ICollection<Podcast>> FindAsync(string searchTerm, int limit)
+        public async Task<IEnumerable<Podcast>> FindAsync(string searchTerm, int limit)
         {
             IList<Podcast> results = new List<Podcast>();
             try

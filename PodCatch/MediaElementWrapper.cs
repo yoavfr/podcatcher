@@ -1,5 +1,6 @@
 ﻿using PodCatch.DataModel;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Media;
 using Windows.UI.Core;
@@ -149,38 +150,45 @@ namespace PodCatch
 
         private async void SystemMediaTransportControls_ButtonPressed(Windows.Media.SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)
         {
-            Episode episode = m_NowPlaying;
-            if (episode == null || Dispatcher == null)
+            try
             {
-                return;
+                Episode episode = m_NowPlaying;
+                if (episode == null || Dispatcher == null)
+                {
+                    return;
+                }
+                switch (args.Button)
+                {
+                    case SystemMediaTransportControlsButton.Play:
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                            {
+                                await PlayAsync(episode);
+                            });
+                        break;
+                    case SystemMediaTransportControlsButton.Pause:
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                            {
+                                await PauseAsync(episode);
+                            });
+                        break;
+                    case SystemMediaTransportControlsButton.Next:
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            {
+                                SkipForward(episode);
+                            });
+                        break;
+                    case SystemMediaTransportControlsButton.Previous:
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            {
+                                SkipBackward(episode);
+                            });
+                        break;
+
+                }
             }
-            switch (args.Button)
+            catch (Exception e)
             {
-                case SystemMediaTransportControlsButton.Play:
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                        {
-                            await PlayAsync(episode);
-                        });
-                    break;
-                case SystemMediaTransportControlsButton.Pause:
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                        {
-                            await PauseAsync(episode);
-                        });
-                    break;
-                case SystemMediaTransportControlsButton.Next:
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                        {
-                            SkipForward(episode);
-                        });
-                    break;
-                case SystemMediaTransportControlsButton.Previous:
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                        {
-                            SkipBackward(episode);
-                        });
-                    break;
-                    
+                Debug.WriteLine("{0}",e);
             }
         }
 

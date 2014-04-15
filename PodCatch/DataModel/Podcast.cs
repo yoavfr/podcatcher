@@ -23,6 +23,7 @@ namespace PodCatch.DataModel
         private string m_Title;
         private string m_Description;
         private string m_ImagePath;
+        private string m_CachedImagePath;
 
         public Podcast(String title, String uri, String imagePath, String description)
             : this(uri, null)
@@ -30,8 +31,8 @@ namespace PodCatch.DataModel
             Title = title;
             Description = description;
             ImagePath = imagePath;
-            LastUpdatedTime = DateTime.MinValue + TimeSpan.FromDays(1);
-            LastStoreTime = DateTime.MinValue + TimeSpan.FromDays(1);
+            LastUpdatedTimeTicks = 0;
+            LastStoreTimeTicks = 0;
         }
 
         public Podcast(String uri, BaseData parent) : base (null)
@@ -63,21 +64,45 @@ namespace PodCatch.DataModel
         [DataMember]
         public string ImagePath 
         {
-            get { return m_ImagePath; }
-            private set { m_ImagePath = value; NotifyPropertyChanged("ImagePath"); }
+            get 
+            {
+                return CachedImagePath == null ? m_ImagePath : CachedImagePath; 
+            }
+            private set 
+            {
+                if (m_ImagePath != value)
+                {
+                    m_ImagePath = value; 
+                    NotifyPropertyChanged("ImagePath"); 
+                }
+            }
+        }
+
+        private string CachedImagePath
+        {
+            get
+            {
+                return m_CachedImagePath;
+            }
+            set
+            {
+                m_CachedImagePath = value;
+                NotifyPropertyChanged("ImagePath");
+            }
         }
         [DataMember]
         public ObservableCollection<Episode> Episodes {get; private set;}
         [DataMember]
-        private DateTime LastUpdatedTime { get; set; }
+        private long LastUpdatedTimeTicks { get; set; }
         [DataMember]
-        private DateTime LastStoreTime { get; set; }
+        private long LastStoreTimeTicks { get; set; }
 
 
         public async Task LoadFromRssAsync()
         {
+            DateTime lastUpdatedTime = new DateTime(LastUpdatedTimeTicks);
             // limit refreshs to every 2 hours
-            if (DateTime.UtcNow - LastUpdatedTime < TimeSpan.FromHours(2))
+            if (DateTime.UtcNow - lastUpdatedTime < TimeSpan.FromHours(2))
             {
                 return;
             }
@@ -88,10 +113,9 @@ namespace PodCatch.DataModel
             syndicationFeed.LoadFromXml(feedXml);
 
             // don't refresh if feed has not been updated since
-            if (syndicationFeed.LastUpdatedTime.DateTime > LastUpdatedTime)
+            if (syndicationFeed.LastUpdatedTime.DateTime > lastUpdatedTime)
             {
                 Title = syndicationFeed.Title.Text;
-                LastUpdatedTime = syndicationFeed.LastUpdatedTime.DateTime;
 
                 if (syndicationFeed.Subtitle != null)
                 {
@@ -130,7 +154,7 @@ namespace PodCatch.DataModel
             }
 
             // keep record of last update time
-            LastUpdatedTime = DateTime.UtcNow;
+            LastUpdatedTimeTicks = DateTime.UtcNow.Ticks;
 
             // and store changes locally (including LastUpdateTime)
             await StoreToCacheAsync();
@@ -157,12 +181,15 @@ namespace PodCatch.DataModel
                     Title = readItem.Title;
                     Description = readItem.Description;
                     Episodes = readItem.Episodes;
-                    LastUpdatedTime = readItem.LastUpdatedTime;
-                    string imagePath = readItem.ImagePath;
-                    string imageExtension = Path.GetExtension(imagePath);
-                    imagePath = string.Format("{0}{1}", UniqueId, imageExtension);
-                    StorageFile imageFile = await localFolder.GetFileAsync(imagePath);
-                    ImagePath = imageFile.Path;
+                    LastUpdatedTimeTicks = readItem.LastUpdatedTimeTicks;
+                    ImagePath = readItem.ImagePath;
+                    if (!string.IsNullOrEmpty(ImagePath))
+                    {
+                        string imageExtension = Path.GetExtension(ImagePath);
+                        string cachedImageFileName = string.Format("{0}{1}", UniqueId, imageExtension);
+                        StorageFile imageFile = await localFolder.GetFileAsync(ImagePath);
+                        CachedImagePath = imageFile.Path;
+                    }
                     foreach (Episode episode in Episodes)
                     {
                         episode.Parent = this;
@@ -195,7 +222,8 @@ namespace PodCatch.DataModel
 
         private async Task StoreImageToCacheAsync()
         {
-            if (DateTime.UtcNow - LastStoreTime < TimeSpan.FromDays(1))
+            DateTime lastStoreTime = new DateTime(LastStoreTimeTicks);
+            if (DateTime.UtcNow - lastStoreTime < TimeSpan.FromDays(1))
             {
                 return;
             }
@@ -215,7 +243,7 @@ namespace PodCatch.DataModel
                 {
                     DownloadOperation downloadOperation = downloader.CreateDownload(new Uri(ImagePath), localImageFile);
                     await downloadOperation.StartAsync();
-                    LastStoreTime = DateTime.UtcNow;
+                    lastStoreTime = DateTime.UtcNow;
                 }
                 catch (Exception e)
                 {

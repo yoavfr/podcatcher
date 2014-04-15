@@ -10,6 +10,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
+using System.Linq;
 
 // The Grouped Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234231
 
@@ -158,7 +159,8 @@ namespace PodCatch
             BottomAppBar.IsOpen = false;
             SearchForPodcastAppBarButton.Flyout.Hide();
             ITunesSearch iTunesSearch = new ITunesSearch();
-            ICollection<Podcast> matches = await iTunesSearch.FindAsync(SearchTerm.Text, 50);
+            IEnumerable<Podcast> matches = await iTunesSearch.FindAsync(SearchTerm.Text, 50);
+            matches = matches.Where(podcast => !PodcastDataSource.Instance.IsPodcastInGroup(Constants.FavoritesGroupId, podcast.UniqueId));
             
             PodcastDataSource.Instance.AddGroup("Search", "Search", "Search", string.Empty, "found");
             PodcastDataSource.Instance.ClearGroup("Search");
@@ -183,29 +185,44 @@ namespace PodCatch
         private async void PodcastRightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             e.Handled = true;
+            
+            Grid grid = (Grid)sender;
+            Podcast selectedPodcast = (Podcast)grid.DataContext;
+
             PopupMenu popupMenu = new PopupMenu();
-            popupMenu.Commands.Add(new UICommand(){Id=1, Label="Copy RSS feed to clipboard"});
-            popupMenu.Commands.Add(new UICommand() {Id = 2, Label = "Remove from favorites"});
+            // this is useful for debugging
+            //popupMenu.Commands.Add(new UICommand(){Id=1, Label="Copy RSS feed URL to clipboard"});
+
+            if (PodcastDataSource.Instance.IsPodcastInGroup(Constants.FavoritesGroupId, selectedPodcast.UniqueId))
+            {
+                popupMenu.Commands.Add(new UICommand() {Id = 2, Label = "Remove from favorites"});
+            }
+            else
+            {
+                popupMenu.Commands.Add(new UICommand() { Id = 3, Label = "Add to favorites" });
+            }
             //GeneralTransform pointTransform = ((GridView)sender).TransformToVisual(Window.Current.Content);
             //Point screenCoords = pointTransform.TransformPoint(new Point(50, 10));
-            Grid grid = (Grid)sender;
             IUICommand selectedCommand = await popupMenu.ShowAsync(e.GetPosition(this));
             if (selectedCommand == null)
             {
                 return;
             }
-            Podcast selectedItem = (Podcast)grid.DataContext;
             switch ((int)selectedCommand.Id)
             {
-                case 1:
+                case 1: // Copy RSS feed to clipboard
                     DataPackage dataPackage = new DataPackage();
-                    dataPackage.SetText(selectedItem.Uri);
+                    dataPackage.SetText(selectedPodcast.Uri);
                     Clipboard.SetContent(dataPackage);
                     break;
-                case 2:
-                    PodcastDataSource.Instance.RemoveItem(Constants.FavoritesGroupId, selectedItem);
+                case 2: // Remove from favorites
+                    PodcastDataSource.Instance.RemoveItem(Constants.FavoritesGroupId, selectedPodcast);
                     PodcastDataSource.Instance.Store();
                     NavigationHelper.GoBack();
+                    break;
+                case 3: // Add to favorites
+                    PodcastDataSource.Instance.AddItem(Constants.FavoritesGroupId, selectedPodcast);
+                    PodcastDataSource.Instance.Store();
                     break;
             }
         }
