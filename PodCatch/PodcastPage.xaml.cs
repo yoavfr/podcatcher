@@ -144,34 +144,15 @@ namespace PodCatch
             {
                 case EpisodeState.PendingDownload:
                     {
-                        try
+                        var parent = VisualTreeHelper.GetParent((DependencyObject)sender);
+                        parent = VisualTreeHelper.GetParent((DependencyObject)parent);
+                        ProgressBar progressBar = VisualTreeHelperExt.GetChild<ProgressBar>(parent, "DownloadEpisodeProgressBar");
+                        var progress = new Progress<DownloadOperation>((operation) =>
                         {
-                            playButton.IsEnabled = false;
-                            var parent = VisualTreeHelper.GetParent((DependencyObject)sender);
-                            parent = VisualTreeHelper.GetParent((DependencyObject)parent);
-                            ProgressBar progressBar = VisualTreeHelperExt.GetChild<ProgressBar>(parent, "DownloadEpisodeProgressBar");
-                            progressBar.Visibility = Visibility.Visible;
-                            var progress = new Progress<DownloadOperation>((operation) =>
-                            {
-                                double at = (double)operation.Progress.BytesReceived / operation.Progress.TotalBytesToReceive;
-                                progressBar.Value = at;
-                            });
-                            try
-                            {
-                                await episode.DownloadAsync(progress);
-                            }
-                            finally
-                            {
-                                progressBar.Visibility = Visibility.Collapsed;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                        }
-                        finally
-                        {
-                            playButton.IsEnabled = true;
-                        }
+                            double at = (double)operation.Progress.BytesReceived / operation.Progress.TotalBytesToReceive;
+                            progressBar.Value = at;
+                        });
+                        await episode.DownloadAsync(progress);
                         break;
                     }
                 case (EpisodeState.Downloaded):

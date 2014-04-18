@@ -9,6 +9,7 @@ namespace PodCatch.DataModel
     public enum EpisodeState
     {
         PendingDownload,
+        Downloading,
         Downloaded,
         Playing,
         Scanning

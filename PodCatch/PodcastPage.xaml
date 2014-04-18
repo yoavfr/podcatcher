@@ -27,7 +27,8 @@
         <common:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <common:EpisodeStateIconConverter x:Key="EpisodeStateIconConverter"/>
         <common:EpisodeStateToolTipConverter x:Key="EpisodeStateToolTipConverter"/>
-        <common:PlayEpisodeSliderVisiblityConverter x:Key="PlayEpisodeSliderVisiblityConverter"/>
+        <common:EpisodeStateSliderVisiblityConverter x:Key="EpisodeStateSliderVisiblityConverter"/>
+        <common:EpisodeStateProgressVisiblityConverter x:Key="EpisodeStateProgressVisiblityConverter"/>
         <common:EpisodePositionConverter x:Key="EpisodePositionConverter"/>
         <common:TimespanToTicksConverter x:Key="TimespanToTicksConverter"/>
     </Page.Resources>
@@ -104,12 +105,12 @@
                                                     <TextBlock Text="{Binding Position, Converter={StaticResource EpisodePositionConverter}}" ToolTipService.ToolTip="Elapsed time"/>
                                                     <!-- Progress Bar -->
                                                 </StackPanel>
-                                                <ProgressBar Margin="20,10,0,0" Name="DownloadEpisodeProgressBar" Visibility="Collapsed" Maximum="1" IsIndeterminate="False"/>
+                                                <ProgressBar Margin="20,10,0,0" Name="DownloadEpisodeProgressBar" Visibility="{Binding State, Converter={StaticResource EpisodeStateProgressVisiblityConverter}}" Maximum="1" IsIndeterminate="False"/>
                                                 <Slider Margin="0,0,0,0" 
                                                         Name="PlayEpisodeSlider" 
                                                         Maximum="{Binding Duration, Converter={StaticResource TimespanToTicksConverter}}" 
                                                         Value="{Binding Position, Converter={StaticResource TimespanToTicksConverter}, Mode=TwoWay}" 
-                                                        Visibility="{Binding State, Converter={StaticResource PlayEpisodeSliderVisiblityConverter}}"
+                                                        Visibility="{Binding State, Converter={StaticResource EpisodeStateSliderVisiblityConverter}}"
                                                         ManipulationMode="All" 
                                                         PointerCaptureLost="PlayEpisodeSlider_PointerCaptureLost" 
                                                         ManipulationStarted="PlayEpisodeSlider_ManipulationStarted" 

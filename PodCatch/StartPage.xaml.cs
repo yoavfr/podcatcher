@@ -11,6 +11,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using System.Linq;
+using System.Diagnostics;
 
 // The Grouped Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234231
 
@@ -156,29 +157,36 @@ namespace PodCatch
 
         private async void SearchForPodcastButtonClicked(object sender, RoutedEventArgs e)
         {
-            BottomAppBar.IsOpen = false;
-            SearchForPodcastAppBarButton.Flyout.Hide();
-            ITunesSearch iTunesSearch = new ITunesSearch();
-            IEnumerable<Podcast> matches = await iTunesSearch.FindAsync(SearchTerm.Text, 50);
-            matches = matches.Where(podcast => !PodcastDataSource.Instance.IsPodcastInGroup(Constants.FavoritesGroupId, podcast.UniqueId));
+            try
+            {
+                BottomAppBar.IsOpen = false;
+                SearchForPodcastAppBarButton.Flyout.Hide();
+                ITunesSearch iTunesSearch = new ITunesSearch();
+                IEnumerable<Podcast> matches = await iTunesSearch.FindAsync(SearchTerm.Text, 50);
+                matches = matches.Where(podcast => !PodcastDataSource.Instance.IsPodcastInGroup(Constants.FavoritesGroupId, podcast.UniqueId));
             
-            PodcastDataSource.Instance.AddGroup("Search", "Search", "Search", string.Empty, "found");
-            PodcastDataSource.Instance.ClearGroup("Search");
+                PodcastDataSource.Instance.AddGroup("Search", "Search", "Search", string.Empty, "found");
+                PodcastDataSource.Instance.ClearGroup("Search");
             
-            foreach (Podcast podcast in matches)
-            {
-                PodcastDataSource.Instance.AddItem("Search", podcast);
-            }
+                foreach (Podcast podcast in matches)
+                {
+                    PodcastDataSource.Instance.AddItem("Search", podcast);
+                }
 
-            foreach (Podcast podcast in matches)
-            {
-                await podcast.LoadFromCacheAsync();
-            }
+                foreach (Podcast podcast in matches)
+                {
+                    await podcast.LoadFromCacheAsync();
+                }
 
-            foreach (Podcast podcast in matches)
+                foreach (Podcast podcast in matches)
+                {
+                    await podcast.LoadFromRssAsync();
+                    await podcast.StoreToCacheAsync();
+                }
+            }
+            catch (Exception ex)
             {
-                await podcast.LoadFromRssAsync();
-                await podcast.StoreToCacheAsync();
+                Debug.WriteLine(ex);
             }
         }
 

@@ -16,7 +16,9 @@ namespace PodCatch.Common
             int i = 1;
             int index = 0;
 
-            while (i <= occurence && (index = s.IndexOf(match, index + 1)) != -1)
+            while (i <= occurence && 
+                index < s.Length &&
+                (index = s.IndexOf(match, index + 1)) != -1)
             {
                 if (i == occurence)
                     return index;

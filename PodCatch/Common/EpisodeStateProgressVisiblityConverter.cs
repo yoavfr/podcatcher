@@ -4,34 +4,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 
 namespace PodCatch.Common
 {
-    public class EpisodeStateIconConverter : IValueConverter
+    public class EpisodeStateProgressVisiblityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (targetType != typeof(IconElement))
-                throw new InvalidOperationException("The target must be an IconElement");
-
             if (value != null && value is EpisodeState)
             {
                 switch ((EpisodeState)value)
                 {
                     case EpisodeState.PendingDownload:
-                    case EpisodeState.Downloading:
-                        return new SymbolIcon(Symbol.Download);
                     case EpisodeState.Downloaded:
-                        return new SymbolIcon(Symbol.Play);
                     case EpisodeState.Playing:
-                        return new SymbolIcon(Symbol.Pause);
                     case EpisodeState.Scanning:
-                        return new SymbolIcon(Symbol.Find);
+                        return Visibility.Collapsed;
+                    case EpisodeState.Downloading:
+                        return Visibility.Visible;
                 }
             }
-            return null;
+            return false;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

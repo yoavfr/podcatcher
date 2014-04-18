@@ -66,9 +66,17 @@ namespace PodCatch.DataModel
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile localFile = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.ReplaceExisting);
             BackgroundDownloader downloader = new BackgroundDownloader();
-            DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
-            await downloadOperation.StartAsync().AsTask(progress);
-            SetState(EpisodeState.Downloaded);
+            SetState(EpisodeState.Downloading);
+            try
+            {
+                DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
+                await downloadOperation.StartAsync().AsTask(progress);
+                SetState(EpisodeState.Downloaded);
+            }
+            catch (Exception e)
+            {
+                SetState(EpisodeState.PendingDownload);
+            }
          }
 
         public string FullFileName
