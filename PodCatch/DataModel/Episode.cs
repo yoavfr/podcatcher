@@ -71,6 +71,7 @@ namespace PodCatch.DataModel
             {
                 DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
                 await downloadOperation.StartAsync().AsTask(progress);
+                Position = TimeSpan.FromMilliseconds(0);
                 SetState(EpisodeState.Downloaded);
             }
             catch (Exception e)

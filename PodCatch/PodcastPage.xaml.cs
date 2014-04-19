@@ -149,7 +149,12 @@ namespace PodCatch
                         ProgressBar progressBar = VisualTreeHelperExt.GetChild<ProgressBar>(parent, "DownloadEpisodeProgressBar");
                         var progress = new Progress<DownloadOperation>((operation) =>
                         {
-                            double at = (double)operation.Progress.BytesReceived / operation.Progress.TotalBytesToReceive;
+                            ulong totalBytesToReceive = operation.Progress.TotalBytesToReceive;
+                            double at = 0;
+                            if (totalBytesToReceive > 0)
+                            {
+                                at = (double)operation.Progress.BytesReceived / totalBytesToReceive;
+                            }
                             progressBar.Value = at;
                         });
                         await episode.DownloadAsync(progress);
