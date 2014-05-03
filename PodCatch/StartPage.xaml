@@ -27,42 +27,10 @@
         <AppBar Padding="10,0,10,0">
             <Grid>
                 <StackPanel Orientation="Horizontal">
-                    <!-- Add to favorites by URL --> 
-                    <AppBarButton Label="Add Rss" Icon="Add" Name="AddToFavoritesAppBarButton">
-                        <Button.Flyout>
-                            <Flyout>
-                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="White" Width="{ThemeResource FlyoutThemeMaxWidth}">
-                                    
-                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch" AreScrollSnapPointsRegular="True" Margin="20">
-                                        <Border HorizontalAlignment="Stretch" Background="{ThemeResource  FlyoutBackgroundThemeBrush}">
-                                        <TextBlock HorizontalAlignment="Center" Text="Add to Favorites"/>
-                                        </Border>
-                                        <TextBlock Text="RSS feed URL" Style="{StaticResource CaptionTextBlockStyle}"/>
-                                            <TextBox Name="RssUrl"/>
-                                            <Button Content="Add" Click="AddToFavoritesButtonClicked"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Flyout>
-                        </Button.Flyout>
+                    <!--Search for podcast or URL-->
+                    <AppBarButton Label="Search for podcast" Icon="Find" Name="SearchForPodcastAppBarButton" Click="SearchForPodcastButtonClicked">
                     </AppBarButton>
-                    <!-- Search for podcast -->
-                    <AppBarButton Label="Search for podcast" Icon="Find" Name="SearchForPodcastAppBarButton">
-                        <Button.Flyout>
-                            <Flyout>
-                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="White" Width="{ThemeResource FlyoutThemeMaxWidth}">
-                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch" AreScrollSnapPointsRegular="True" Margin="20">
-                                        <Border HorizontalAlignment="Stretch" Background="{ThemeResource  FlyoutBackgroundThemeBrush}">
-                                            <TextBlock HorizontalAlignment="Center" Text="Search for podcast"/>
-                                        </Border>
-                                        <TextBlock Text="Search for" Style="{StaticResource CaptionTextBlockStyle}"/>
-                                        <TextBox Name="SearchTerm"/>
-                                        <Button Content="Search" Click="SearchForPodcastButtonClicked"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Flyout>
-                        </Button.Flyout>
-                    </AppBarButton>
-                </StackPanel>            
+                </StackPanel>
             </Grid>
         </AppBar>
     </Page.BottomAppBar>

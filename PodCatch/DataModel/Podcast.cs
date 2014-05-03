@@ -231,7 +231,7 @@ namespace PodCatch.DataModel
                         await episode.LoadStateAsync(Episodes);
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     failed = true;
                 }
@@ -267,7 +267,7 @@ namespace PodCatch.DataModel
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
 
             if (!string.IsNullOrEmpty(RssImageUrl))
-            {
+            { 
                 string imageExtension = Path.GetExtension(RssImageUrl);
                 string localImagePath = string.Format("{0}{1}", UniqueId, imageExtension);
 

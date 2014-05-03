@@ -129,6 +129,9 @@
     <Compile Include="DataModel\PodcastGroup.cs" />
     <Compile Include="DataModel\Podcast.cs" />
     <Compile Include="DataModel\PodcastDataSource.cs" />
+    <Compile Include="InputMessageDialog.xaml.cs">
+      <DependentUpon>InputMessageDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Search\ISearch.cs" />
     <Compile Include="Search\ITunesSearch.cs" />
     <Compile Include="StartPage.xaml.cs">
@@ -171,6 +174,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="InputMessageDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="StartPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

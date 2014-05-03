@@ -11,7 +11,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using System.Linq;
-using System.Diagnostics;
+using System.Threading.Tasks;
 
 // The Grouped Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234231
 
@@ -72,7 +72,7 @@ namespace PodCatch
                 // refresh from RSS source
                 podcastDataGroups = await PodcastDataSource.Instance.LoadGroupsFromRssAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // TODO: trace or alert
             }
@@ -130,63 +130,73 @@ namespace PodCatch
 
         #endregion
 
-        private async void AddToFavoritesButtonClicked(object sender, RoutedEventArgs e)
-        {
-            BottomAppBar.IsOpen = false;
-            AddToFavoritesAppBarButton.Flyout.Hide();
-            Podcast newItem = new Podcast(string.Empty, RssUrl.Text, string.Empty, string.Empty);
-            PodcastDataSource.Instance.AddItem(Constants.FavoritesGroupId, newItem);
-            try
-            {
-                await newItem.LoadFromRssAsync();
-            }
-            catch (Exception ex)
-            {
-                PodcastDataSource.Instance.RemoveItem(Constants.FavoritesGroupId, newItem);
-                return;
-            }
-            try
-            {
-                PodcastDataSource.Instance.Store();
-            }
-            catch (Exception ex)
-            {
-
-            }
-        }
-
         private async void SearchForPodcastButtonClicked(object sender, RoutedEventArgs e)
         {
-            try
+            BottomAppBar.IsOpen = false;
+
+            // show input dialog
+            InputMessageDialog dlg = new InputMessageDialog("Search term or RSS feed URL:");
+            bool result = await dlg.ShowAsync();
+
+            // cancel pressed
+            if (result == false)
             {
+                return;
+            }
+
+            // this is the search term
+            string searchTerm = dlg.TextBox.Text;
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return;
+            }
+            
+            // results go in Search group
+            PodcastDataSource.Instance.AddGroup("Search", "Search", "Search", string.Empty, "found");
+            PodcastDataSource.Instance.ClearGroup("Search");
+            IEnumerable<Podcast> matches;
+
+            // RSS feed URL
+            Uri validUri;
+            if (Uri.TryCreate(searchTerm, UriKind.Absolute, out validUri) && 
+                (validUri.Scheme == "http" || validUri.Scheme == "https"))
+            {
+                Podcast newItem = new Podcast(string.Empty, searchTerm, string.Empty, string.Empty);
+                matches = new List<Podcast>() { newItem };
+            }
+            else
+            {
+                // Search term
                 BottomAppBar.IsOpen = false;
-                SearchForPodcastAppBarButton.Flyout.Hide();
                 ITunesSearch iTunesSearch = new ITunesSearch();
-                IEnumerable<Podcast> matches = await iTunesSearch.FindAsync(SearchTerm.Text, 50);
+                matches = await iTunesSearch.FindAsync(searchTerm, 50);
                 matches = matches.Where(podcast => !PodcastDataSource.Instance.IsPodcastInGroup(Constants.FavoritesGroupId, podcast.UniqueId));
+            }
             
-                PodcastDataSource.Instance.AddGroup("Search", "Search", "Search", string.Empty, "found");
-                PodcastDataSource.Instance.ClearGroup("Search");
-            
-                foreach (Podcast podcast in matches)
-                {
-                    PodcastDataSource.Instance.AddItem("Search", podcast);
-                }
+            // add podcasts shell to data source
+            foreach (Podcast podcast in matches)
+            {
+                PodcastDataSource.Instance.AddItem("Search", podcast);
+            }
 
-                foreach (Podcast podcast in matches)
-                {
-                    await podcast.LoadFromCacheAsync();
-                }
+            // load whatever we have cached
+            foreach (Podcast podcast in matches)
+            {
+                await podcast.LoadFromCacheAsync();
+            }
 
-                foreach (Podcast podcast in matches)
+            // load from RSS feed
+            foreach (Podcast podcast in matches)
+            {
+                try
                 {
                     await podcast.LoadFromRssAsync();
-                    await podcast.StoreToCacheAsync();
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
+                catch (Exception)
+                {
+                    PodcastDataSource.Instance.RemoveItem("Search", podcast);
+                }
+                Task t = podcast.StoreToCacheAsync();
             }
         }
 
@@ -209,8 +219,6 @@ namespace PodCatch
             {
                 popupMenu.Commands.Add(new UICommand() { Id = 3, Label = "Add to favorites" });
             }
-            //GeneralTransform pointTransform = ((GridView)sender).TransformToVisual(Window.Current.Content);
-            //Point screenCoords = pointTransform.TransformPoint(new Point(50, 10));
             IUICommand selectedCommand = await popupMenu.ShowAsync(e.GetPosition(this));
             if (selectedCommand == null)
             {
@@ -230,6 +238,7 @@ namespace PodCatch
                     break;
                 case 3: // Add to favorites
                     PodcastDataSource.Instance.AddItem(Constants.FavoritesGroupId, selectedPodcast);
+                    PodcastDataSource.Instance.RemoveItem("Search", selectedPodcast);
                     PodcastDataSource.Instance.Store();
                     break;
             }

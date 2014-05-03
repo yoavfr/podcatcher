@@ -119,7 +119,7 @@ namespace PodCatch
                     }
                     if (DateTime.UtcNow.AddSeconds(-10) > m_LastSaveTime)
                     {
-                        episode.StoreToCacheAsync();
+                        Task t = episode.StoreToCacheAsync();
                         m_LastSaveTime = DateTime.UtcNow;
                     }
                 }
