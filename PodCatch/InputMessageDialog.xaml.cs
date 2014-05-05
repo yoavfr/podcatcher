@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -18,13 +19,14 @@ namespace PodCatch
 
         public Task<bool> ShowAsync()
         {
-            InitFields();
+            Init();
             m_Popup.IsOpen = true;
             m_TaskCompletionSource = new TaskCompletionSource<bool>();
+            m_TextBox.Focus(FocusState.Programmatic);
             return m_TaskCompletionSource.Task;
         }
 
-        public void InitFields()
+        public void Init()
         {
             m_Rect1.Height = Window.Current.Bounds.Height;
             m_Rect1.Width = Window.Current.Bounds.Width;
@@ -54,6 +56,18 @@ namespace PodCatch
         {
             m_TaskCompletionSource.SetResult(false);
             m_Popup.IsOpen = false;
+        }
+
+        private void OnKeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Enter)
+            {
+                OkClicked(sender, e);
+            }
+            else if (e.Key == VirtualKey.Escape)
+            {
+                CancelClicked(sender, e);
+            }
         }
     }
 }

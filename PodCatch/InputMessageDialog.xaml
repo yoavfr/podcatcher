@@ -24,11 +24,11 @@
             <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <TextBlock x:Name="m_TextBlock" FontSize="25" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                    <TextBox x:Name="m_TextBox" Height="20" VerticalAlignment="Center"/>
+                    <TextBox x:Name="m_TextBox" Height="20" VerticalAlignment="Center" TabIndex="0" KeyDown="OnKeyDown"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,20,0,0">
-                    <Button Content="OK" Margin="0,0,20,0" Click="OkClicked"/>
-                    <Button Content="Cancel" Click="CancelClicked"/>
+                    <Button Content="OK" Margin="0,0,20,0" Click="OkClicked" TabIndex="1"/>
+                    <Button Content="Cancel" Click="CancelClicked" TabIndex="2"/>
                 </StackPanel>
             </StackPanel>
         </Grid>
