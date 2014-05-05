@@ -190,13 +190,12 @@ namespace PodCatch
             {
                 try
                 {
-                    await podcast.LoadFromRssAsync();
+                    Task t = podcast.LoadFromRssAsync();
                 }
                 catch (Exception)
                 {
                     PodcastDataSource.Instance.RemoveItem("Search", podcast);
                 }
-                Task t = podcast.StoreToCacheAsync();
             }
         }
 

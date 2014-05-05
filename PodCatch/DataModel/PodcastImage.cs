@@ -44,7 +44,6 @@ namespace PodCatch.DataModel
             }
             Image = imagePath;
             ImageSource = imageSource;
-            NotifyPropertyChanged("Image");
         }
 
         public override async Task StoreToCacheAsync()
