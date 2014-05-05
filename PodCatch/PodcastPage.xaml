@@ -75,7 +75,7 @@
             <Grid Grid.Row="1" x:Name="contentRegion">
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal" Margin="120,0,0,0" VerticalAlignment="Top">
-                        <Image Source="{Binding ImagePath}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"></Image>
+                        <Image Source="{Binding Image}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"></Image>
                         <StackPanel Orientation="Vertical" >
                             <TextBlock x:Name="pageTitle" Width="600" Text="{Binding Title}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
                                 IsHitTestVisible="false" TextWrapping="WrapWholeWords" VerticalAlignment="Top" Margin="120,30,30,40"/>

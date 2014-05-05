@@ -22,16 +22,13 @@ namespace PodCatch.DataModel
     {
         private string m_Title;
         private string m_Description;
-        private string m_RssImageUrl;
-        private string m_CachedImagePath;
-        private string m_SearchImageUrl;
 
-        public Podcast(String title, String uri, String tempImageUrl, String description)
+        public Podcast(String title, String uri, string searchImage, String description)
             : this(uri, null)
         {
             Title = title;
             Description = description;
-            SearchImageUrl = tempImageUrl;
+            PodcastImage.Update(searchImage, ImageSource.Search);
             LastUpdatedTimeTicks = 0;
             LastStoreTimeTicks = 0;
         }
@@ -40,6 +37,7 @@ namespace PodCatch.DataModel
         {
             Episodes = new ObservableCollection<Episode>();
             Uri = uri;
+            PodcastImage = new PodcastImage(null, ImageSource.NotSet, UniqueId);
         }
 
         public string UniqueId 
@@ -63,67 +61,22 @@ namespace PodCatch.DataModel
             private set { m_Description = value; NotifyPropertyChanged("Description"); }
         }
         [DataMember]
-        public string RssImageUrl 
-        {
-            get 
-            {
-                return m_RssImageUrl; 
-            }
-            private set 
-            {
-                if (m_RssImageUrl != value)
-                {
-                    m_RssImageUrl = value; 
-                    NotifyPropertyChanged("ImagePath"); 
-                }
-            }
-        }
-        [DataMember]
-        private string CachedImagePath
+        public PodcastImage PodcastImage { get; private set; }
+
+        public string Image
         {
             get
             {
-                return m_CachedImagePath;
-            }
-            set
-            {
-                m_CachedImagePath = value;
-                NotifyPropertyChanged("ImagePath");
+                return PodcastImage.Image;
             }
         }
 
-        [DataMember]
-        private string SearchImageUrl
-        {
-            get
-            {
-                return m_SearchImageUrl;
-            }
-            set
-            {
-                m_SearchImageUrl = value;
-                NotifyPropertyChanged("ImagePath");
-            }
-
-        }
         [DataMember]
         public ObservableCollection<Episode> Episodes {get; private set;}
         [DataMember]
         private long LastUpdatedTimeTicks { get; set; }
         [DataMember]
         private long LastStoreTimeTicks { get; set; }
-
-        public string ImagePath
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(CachedImagePath))
-                {
-                    return SearchImageUrl;
-                }
-                return CachedImagePath;
-            }
-        }
 
         public async Task LoadFromRssAsync()
         {
@@ -152,12 +105,7 @@ namespace PodCatch.DataModel
             
                 if (syndicationFeed.ImageUri != null)
                 {
-                    RssImageUrl = syndicationFeed.ImageUri.AbsoluteUri;
-                }
-                else
-                {
-                    // if nothing in RSS itself use what we got from the search results
-                    RssImageUrl = SearchImageUrl;
+                    PodcastImage.Update(syndicationFeed.ImageUri.AbsoluteUri, ImageSource.Rss);
                 }
 
                 Episodes.Clear();
@@ -217,12 +165,7 @@ namespace PodCatch.DataModel
                     Description = readItem.Description;
                     Episodes = readItem.Episodes;
                     LastUpdatedTimeTicks = readItem.LastUpdatedTimeTicks;
-                    CachedImagePath = readItem.CachedImagePath;
-                    RssImageUrl = readItem.RssImageUrl;
-                    if (readItem.SearchImageUrl != null)
-                    {
-                        SearchImageUrl = readItem.SearchImageUrl;
-                    }
+                    PodcastImage.Update(readItem.PodcastImage.Image, readItem.PodcastImage.ImageSource);
                     
                     // load episode states
                     foreach (Episode episode in Episodes)
@@ -244,7 +187,11 @@ namespace PodCatch.DataModel
 
         override public async Task StoreToCacheAsync()
         {
-            await StoreImageToCacheAsync();
+            await PodcastImage.StoreToCacheAsync();
+            if (PodcastImage.ImageSource == ImageSource.Rss)
+            {
+                NotifyPropertyChanged("Image");
+            }
 
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile xmlFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.ReplaceExisting);
@@ -252,39 +199,6 @@ namespace PodCatch.DataModel
             using (Stream stream = await xmlFile.OpenStreamForWriteAsync())
             {
                 serializer.WriteObject(stream, this);
-            }
-        }
-
-        private async Task StoreImageToCacheAsync()
-        {
-            DateTime lastStoreTime = new DateTime(LastStoreTimeTicks);
-            if (DateTime.UtcNow - lastStoreTime < TimeSpan.FromDays(1) &&
-                !string.IsNullOrEmpty(CachedImagePath))
-            {
-                return;
-            }
-
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-
-            if (!string.IsNullOrEmpty(RssImageUrl))
-            { 
-                string imageExtension = Path.GetExtension(RssImageUrl);
-                string localImagePath = string.Format("{0}{1}", UniqueId, imageExtension);
-
-                // the image we have is from the cache
-                StorageFile localImageFile = await localFolder.CreateFileAsync(localImagePath, CreationCollisionOption.ReplaceExisting);
-                BackgroundDownloader downloader = new BackgroundDownloader();
-                try
-                {
-                    DownloadOperation downloadOperation = downloader.CreateDownload(new Uri(RssImageUrl), localImageFile);
-                    await downloadOperation.StartAsync();
-                    CachedImagePath = localImageFile.Path;
-                    lastStoreTime = DateTime.UtcNow;
-                }
-                catch (Exception e)
-                {
-
-                }
             }
         }
 

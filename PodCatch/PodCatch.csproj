@@ -129,6 +129,7 @@
     <Compile Include="DataModel\PodcastGroup.cs" />
     <Compile Include="DataModel\Podcast.cs" />
     <Compile Include="DataModel\PodcastDataSource.cs" />
+    <Compile Include="DataModel\PodcastImage.cs" />
     <Compile Include="InputMessageDialog.xaml.cs">
       <DependentUpon>InputMessageDialog.xaml</DependentUpon>
     </Compile>
