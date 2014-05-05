@@ -166,7 +166,8 @@ namespace PodCatch.DataModel
                     Episodes = readItem.Episodes;
                     LastUpdatedTimeTicks = readItem.LastUpdatedTimeTicks;
                     PodcastImage.Update(readItem.PodcastImage.Image, readItem.PodcastImage.ImageSource);
-                    
+                    NotifyPropertyChanged("Image");
+
                     // load episode states
                     foreach (Episode episode in Episodes)
                     {
@@ -188,10 +189,7 @@ namespace PodCatch.DataModel
         override public async Task StoreToCacheAsync()
         {
             await PodcastImage.StoreToCacheAsync();
-            if (PodcastImage.ImageSource == ImageSource.Rss)
-            {
-                NotifyPropertyChanged("Image");
-            }
+            NotifyPropertyChanged("Image");
 
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile xmlFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.ReplaceExisting);
