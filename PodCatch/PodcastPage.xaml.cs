@@ -2,6 +2,7 @@
 using PodCatch.DataModel;
 using PodCatch.Strings;
 using System;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Networking.BackgroundTransfer;
 using Windows.UI.Xaml;
@@ -65,7 +66,7 @@ namespace PodCatch
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            var item = await PodcastDataSource.Instance.GetItemAsync((String)e.NavigationParameter); 
+            Podcast item = await PodcastDataSource.Instance.GetItemAsync((String)e.NavigationParameter); 
             this.DefaultViewModel["Item"] = item;
             this.DefaultViewModel["Episodes"] = item.Episodes;
 
@@ -126,7 +127,7 @@ namespace PodCatch
         }
 
 
-        private async void PlayButton_Clicked (object sender, RoutedEventArgs e)
+        private void PlayButton_Clicked (object sender, RoutedEventArgs e)
         {
             AppBarButton playButton = (AppBarButton)sender;
             Episode episode = (Episode)playButton.DataContext;
@@ -134,30 +135,17 @@ namespace PodCatch
             {
                 case EpisodeState.PendingDownload:
                     {
-                        var parent = VisualTreeHelper.GetParent((DependencyObject)sender);
-                        parent = VisualTreeHelper.GetParent((DependencyObject)parent);
-                        ProgressBar progressBar = VisualTreeHelperExt.GetChild<ProgressBar>(parent, "DownloadEpisodeProgressBar");
-                        var progress = new Progress<DownloadOperation>((operation) =>
-                        {
-                            ulong totalBytesToReceive = operation.Progress.TotalBytesToReceive;
-                            double at = 0;
-                            if (totalBytesToReceive > 0)
-                            {
-                                at = (double)operation.Progress.BytesReceived / totalBytesToReceive;
-                            }
-                            progressBar.Value = at;
-                        });
-                        await episode.DownloadAsync(progress);
+                        Task t = episode.DownloadAsync();
                         break;
                     }
                 case (EpisodeState.Downloaded):
                     {
-                        await MediaPlayer.PlayAsync(episode);
+                        Task t = MediaPlayer.PlayAsync(episode);
                         break;
                     }
                 case (EpisodeState.Playing):
                     {
-                        await MediaPlayer.PauseAsync(episode);
+                        Task t = MediaPlayer.PauseAsync(episode);
                         break;
                     }
             }

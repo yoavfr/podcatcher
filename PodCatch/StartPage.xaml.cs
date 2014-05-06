@@ -238,6 +238,10 @@ namespace PodCatch
                 case 3: // Add to favorites
                     PodcastDataSource.Instance.AddItem(Constants.FavoritesGroupId, selectedPodcast);
                     PodcastDataSource.Instance.RemoveItem("Search", selectedPodcast);
+                    foreach (Episode episode in selectedPodcast.Episodes)
+                    {
+                        episode.DownloadAsync();
+                    }
                     PodcastDataSource.Instance.Store();
                     break;
             }

@@ -31,6 +31,7 @@
         <common:EpisodeStateProgressVisiblityConverter x:Key="EpisodeStateProgressVisiblityConverter"/>
         <common:EpisodePositionConverter x:Key="EpisodePositionConverter"/>
         <common:TimespanToTicksConverter x:Key="TimespanToTicksConverter"/>
+        <common:EpisodeStateButtonEnabledConverter x:Key="EpisodeStateButtonEnabledConverter"/>
     </Page.Resources>
 
    
@@ -101,11 +102,20 @@
                                             <StackPanel Orientation="Vertical">
                                                 <StackPanel Orientation="Horizontal">
                                                     <!-- Download/Play/Pause button -->
-                                                    <AppBarButton Margin="0,0,0,0" Icon="{Binding State, Converter={StaticResource EpisodeStateIconConverter}}" ToolTipService.ToolTip="{Binding State, Converter={StaticResource EpisodeStateToolTipConverter}}" Click="PlayButton_Clicked"/>
+                                                    <AppBarButton Margin="0,0,0,0" 
+                                                                  Icon="{Binding State, Converter={StaticResource EpisodeStateIconConverter}}" 
+                                                                  ToolTipService.ToolTip="{Binding State, Converter={StaticResource EpisodeStateToolTipConverter}}" 
+                                                                  IsEnabled="{Binding State, Converter={StaticResource EpisodeStateButtonEnabledConverter}}"
+                                                                  Click="PlayButton_Clicked"/>
                                                     <TextBlock Text="{Binding Position, Converter={StaticResource EpisodePositionConverter}}" ToolTipService.ToolTip="Elapsed time"/>
                                                     <!-- Progress Bar -->
                                                 </StackPanel>
-                                                <ProgressBar Margin="20,10,0,0" Name="DownloadEpisodeProgressBar" Visibility="{Binding State, Converter={StaticResource EpisodeStateProgressVisiblityConverter}}" Maximum="1" IsIndeterminate="False"/>
+                                                <ProgressBar Margin="20,10,0,0" 
+                                                             Name="DownloadEpisodeProgressBar" 
+                                                             Visibility="{Binding State, Converter={StaticResource EpisodeStateProgressVisiblityConverter}, ConverterParameter={Binding CurrentItem}}" 
+                                                             Value="{Binding DownloadProgress}"
+                                                             Maximum="1" 
+                                                             IsIndeterminate="False"/>
                                                 <Slider Margin="0,0,0,0" 
                                                         Name="PlayEpisodeSlider" 
                                                         Maximum="{Binding Duration, Converter={StaticResource TimespanToTicksConverter}}" 

@@ -18,6 +18,8 @@ namespace PodCatch.DataModel
         
         private EpisodeState m_State;
         private TimeSpan m_Position;
+        private double m_DownloadProgress;
+
         public Episode(
             string podcastUniqueId, 
             string title, 
@@ -38,7 +40,6 @@ namespace PodCatch.DataModel
             Description = descriptionAsPlainString;
             Uri = uri;
             ParentCollection = parentCollection;
-
         }
 
         public async Task LoadStateAsync(ObservableCollection<Episode> parentCollection)
@@ -61,14 +62,25 @@ namespace PodCatch.DataModel
             }
         }
 
-        public async Task DownloadAsync(Progress<DownloadOperation> progress)
+        public async Task DownloadAsync()
         {
+            Progress<DownloadOperation> progress = new Progress<DownloadOperation>((operation) =>
+            {
+                ulong totalBytesToReceive = operation.Progress.TotalBytesToReceive;
+                double at = 0;
+                if (totalBytesToReceive > 0)
+                {
+                    at = (double)operation.Progress.BytesReceived / totalBytesToReceive;
+                }
+                DownloadProgress = at;
+            });
+
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            StorageFile localFile = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.ReplaceExisting);
-            BackgroundDownloader downloader = new BackgroundDownloader();
-            SetState(EpisodeState.Downloading);
             try
             {
+                StorageFile localFile = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.ReplaceExisting);
+                BackgroundDownloader downloader = new BackgroundDownloader();
+                SetState(EpisodeState.Downloading);
                 DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
                 await downloadOperation.StartAsync().AsTask(progress);
                 Position = TimeSpan.FromMilliseconds(0);
@@ -94,6 +106,19 @@ namespace PodCatch.DataModel
             get
             {
                 return System.IO.Path.Combine(PodcastUniqueId, System.IO.Path.GetFileName(Uri.ToString()));
+            }
+        }
+
+        public double DownloadProgress
+        {
+            get
+            {
+                return m_DownloadProgress;
+            }
+            set
+            {
+                m_DownloadProgress = value;
+                NotifyPropertyChanged("DownloadProgress");
             }
         }
 
