@@ -127,6 +127,10 @@
     <Compile Include="DataModel\BaseData.cs" />
     <Compile Include="DataModel\Episode.cs" />
     <Compile Include="DataModel\EpisodeState.cs" />
+    <Compile Include="DataModel\GlobalDataMemberAttribute.cs" />
+    <Compile Include="DataModel\GlobalDataMemberContractResolver.cs" />
+    <Compile Include="DataModel\LocalDataMemberAttribute.cs" />
+    <Compile Include="DataModel\LocalDataMemberContractResolver.cs" />
     <Compile Include="DataModel\PodcastGroup.cs" />
     <Compile Include="DataModel\Podcast.cs" />
     <Compile Include="DataModel\PodcastDataSource.cs" />
@@ -159,6 +163,7 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <None Include="Common\ReadMe.txt" />
+    <None Include="packages.config" />
     <None Include="PodCatch_TemporaryKey.pfx" />
     <PRIResource Include="Strings\en-US\Resources.resw" />
   </ItemGroup>
@@ -192,6 +197,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>packages\Newtonsoft.Json.6.0.3\lib\netcore45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>

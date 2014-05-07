@@ -117,7 +117,7 @@ namespace PodCatch
             NavigationHelper.GoBack();
         }
 
-        private void RssFeedToClipboardButton_Click(object sender, RoutedEventArgs e)
+/*        private void RssFeedToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
             Podcast podcastDataItem = (Podcast)DefaultViewModel["Item"];
@@ -125,7 +125,7 @@ namespace PodCatch
             dataPackage.SetText(podcastDataItem.Uri);
             Clipboard.SetContent(dataPackage);
         }
-
+        */
 
         private void PlayButton_Clicked (object sender, RoutedEventArgs e)
         {
@@ -181,6 +181,13 @@ namespace PodCatch
                 MediaPlayer.Position = TimeSpan.FromTicks((long)slider.Value);
                 episode.EndScan();
             }
+        }
+
+        private void ShowMoreButtonClicked(object sender, RoutedEventArgs e)
+        {
+            BottomAppBar.IsOpen = false;
+            Podcast podcastDataItem = (Podcast)DefaultViewModel["Item"];
+            podcastDataItem.DisplayNextEpisodes(10);
         }
     }
 }

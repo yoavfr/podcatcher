@@ -10,6 +10,8 @@ using Windows.Storage;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using PodCatch.Strings;
+using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 // The data model defined by this file serves as a representative example of a strongly-typed
 // model.  The property names chosen coincide with data bindings in the standard item templates.
@@ -27,11 +29,14 @@ namespace PodCatch.DataModel
     /// SampleDataSource initializes with data read from a static json file included in the 
     /// project.  This provides sample data at both design-time and run-time.
     /// </summary>
+    [DataContract]
     public sealed class PodcastDataSource
     {
         private static PodcastDataSource s_PodcastDataSource = new PodcastDataSource();
 
-        [XmlIgnore]
+        //[XmlIgnore]
+        [GlobalDataMember]
+        [DataMember]
         private ObservableCollection<PodcastGroup> Groups { get; set; }
 
         private PodcastDataSource()
@@ -126,10 +131,12 @@ namespace PodCatch.DataModel
 
         public void Store()
         {
-            StringWriter stringWriter = new StringWriter();
-            string favoritesString = string.Join(",", Groups.First(g => g.UniqueId == Constants.FavoritesGroupId).Items.Select(item => item.Uri));
+            JsonSerializerSettings settings = new JsonSerializerSettings();
+            settings.ContractResolver = new GlobalDataMemberContractResolver();
+            string thisAsJson = JsonConvert.SerializeObject(this, settings);
+            
             Windows.Storage.ApplicationDataContainer roamingSettings = Windows.Storage.ApplicationData.Current.RoamingSettings;
-            roamingSettings.Values["PodcastDataSource"] = favoritesString;
+            roamingSettings.Values["PodcastDataSource"] = thisAsJson;
         }
 
         private async Task LoadFromRssAsync()
@@ -148,43 +155,57 @@ namespace PodCatch.DataModel
             if (Groups.Count != 0)
                 return;
 
-            PodcastGroup favorites = new PodcastGroup(
-                Constants.FavoritesGroupId, 
-                LocalizedStrings.FavoritesPodcastGroupName, 
-                "My favorite podcasts", 
-                "Assets/DarkGray.png", 
-                "Podcasts I have subscribed to");
-            Groups.Add(favorites);
-
             Windows.Storage.ApplicationDataContainer roamingSettings = Windows.Storage.ApplicationData.Current.RoamingSettings;
-            if (roamingSettings.Values.ContainsKey("PodcastDataSource"))
+            if (!roamingSettings.Values.ContainsKey("PodcastDataSource"))
             {
-                string podcastDataSourceString = roamingSettings.Values["PodcastDataSource"].ToString();
-                
-                foreach (string uriString in podcastDataSourceString.Split(','))
+                AddDefaultGroups();
+            }
+            else
+            {
+                string thisAsJson = roamingSettings.Values["PodcastDataSource"].ToString();
+                PodcastDataSource reconstructed;
+                try
                 {
-                    if (string.IsNullOrEmpty(uriString))
-                    {
-                        continue;
-                    }
-                    Podcast item = new Podcast(uriString, null);
-                    favorites.Items.Add(item);
+                    reconstructed = JsonConvert.DeserializeObject<PodcastDataSource>(thisAsJson);
+                    Groups = reconstructed.Groups;
                 }
-                foreach (PodcastGroup group in Groups)
+                catch (Exception e)
                 {
-                    foreach (Podcast item in group.Items)
+                    AddDefaultGroups();
+                    roamingSettings.Values["PodcastDataSource"] = null;
+                }
+            }
+
+            if (Groups == null || Groups.Count == 0)
+            {
+                AddDefaultGroups();
+            }
+
+            foreach (PodcastGroup group in Groups)
+            {
+                foreach (Podcast item in group.Items)
+                {
+                    try
                     {
-                        try
-                        {
-                            await item.LoadFromCacheAsync();
-                        }
-                        catch (Exception e)
-                        {
-                            favorites.Items.Remove(item);
-                        }
+                        await item.LoadFromCacheAsync();
+                    }
+                    catch (Exception e)
+                    {
+                        group.Items.Remove(item);
                     }
                 }
             }
+        }
+
+        private void AddDefaultGroups()
+        {
+            PodcastGroup favorites = new PodcastGroup(
+                Constants.FavoritesGroupId,
+                LocalizedStrings.FavoritesPodcastGroupName,
+                "My favorite podcasts",
+                "Assets/DarkGray.png",
+                "Podcasts I have subscribed to");
+            Groups.Add(favorites);
         }
     }
 }

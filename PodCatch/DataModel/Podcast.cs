@@ -1,4 +1,5 @@
-﻿using PodCatch.DataModel;
+﻿using Newtonsoft.Json;
+using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,7 +25,7 @@ namespace PodCatch.DataModel
         private string m_Description;
 
         public Podcast(String title, String uri, string searchImage, String description)
-            : this(uri, null)
+            : this(uri)
         {
             Title = title;
             Description = description;
@@ -33,7 +34,8 @@ namespace PodCatch.DataModel
             LastStoreTimeTicks = 0;
         }
 
-        public Podcast(String uri, BaseData parent) : base (null)
+        [JsonConstructor]
+        public Podcast(String uri) : base (null)
         {
             Episodes = new ObservableCollection<Episode>();
             Uri = uri;
@@ -53,6 +55,7 @@ namespace PodCatch.DataModel
             get { return m_Title; }
             private set { m_Title = value; NotifyPropertyChanged("Title"); }
         }
+        [GlobalDataMember]
         public string Uri { get; private set; }
         [DataMember]
         public string Description
@@ -73,10 +76,12 @@ namespace PodCatch.DataModel
 
         [DataMember]
         public ObservableCollection<Episode> Episodes {get; private set;}
-        [DataMember]
         private long LastUpdatedTimeTicks { get; set; }
         [DataMember]
         private long LastStoreTimeTicks { get; set; }
+        private SyndicationFeed SyndicationFeed { get; set; }
+        public int NumberOfEpisodesDisplayed { get; private set; }
+        public int NumberOfAvailableEpisodes { get; private set; }
 
         public async Task LoadFromRssAsync()
         {
@@ -96,6 +101,8 @@ namespace PodCatch.DataModel
             if (syndicationFeed.LastUpdatedTime != null && 
                 syndicationFeed.LastUpdatedTime.DateTime > lastUpdatedTime)
             {
+                SyndicationFeed = syndicationFeed;
+                NumberOfAvailableEpisodes = SyndicationFeed.Items.Count();
                 Title = syndicationFeed.Title.Text;
 
                 if (syndicationFeed.Subtitle != null)
@@ -109,31 +116,7 @@ namespace PodCatch.DataModel
                 }
 
                 Episodes.Clear();
-                int count = 0;
-
-                foreach (SyndicationItem item in syndicationFeed.Items)
-                {
-                    Uri uri=null;
-                    foreach (SyndicationLink link in item.Links)
-                    {
-                        if (link.Relationship == "enclosure" && link.MediaType == "audio/mpeg")
-                        {
-                            uri = link.Uri;
-                            break;
-                        }
-                    }
-                    if (uri != null && count++ <3)
-                    {
-                        string episodeTitle = item.Title != null ? item.Title.Text : "<No Title>";
-                        string episodeSummary = item.Summary != null ? item.Summary.Text : "<No Summary>";
-                        Episode episode = new Episode(UniqueId, episodeTitle, episodeSummary, item.PublishedDate, uri, this, Episodes);
-                        Episodes.Add(episode);
-                    }
-                    if (count>=3)
-                    {
-                        break;
-                    }
-                }
+                DisplayNextEpisodes(5);
             }
 
             // keep record of last update time
@@ -143,7 +126,36 @@ namespace PodCatch.DataModel
             await StoreToCacheAsync();
         }
 
-        
+        public int DisplayNextEpisodes(int increment)
+        {
+            if (NumberOfEpisodesDisplayed >= NumberOfAvailableEpisodes)
+            {
+                return NumberOfEpisodesDisplayed;
+            }
+            int target = NumberOfEpisodesDisplayed + increment;
+            for (; NumberOfEpisodesDisplayed < NumberOfAvailableEpisodes && NumberOfEpisodesDisplayed < target; NumberOfEpisodesDisplayed++)
+            {
+                SyndicationItem item = SyndicationFeed.Items[NumberOfEpisodesDisplayed];
+                Uri uri = null;
+                foreach (SyndicationLink link in item.Links)
+                {
+                    if (link.Relationship == "enclosure" && link.MediaType == "audio/mpeg")
+                    {
+                        uri = link.Uri;
+                        break;
+                    }
+                }
+                if (uri != null)
+                {
+                    string episodeTitle = item.Title != null ? item.Title.Text : "<No Title>";
+                    string episodeSummary = item.Summary != null ? item.Summary.Text : "<No Summary>";
+                    Episode episode = new Episode(UniqueId, episodeTitle, episodeSummary, item.PublishedDate, uri, this, Episodes);
+                    Episodes.Add(episode);
+                }
+            }
+            return NumberOfEpisodesDisplayed;
+        }
+
         /// <summary>
         /// 
         /// Get cached data from local storage
@@ -192,9 +204,9 @@ namespace PodCatch.DataModel
             NotifyPropertyChanged("Image");
 
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            StorageFile xmlFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.ReplaceExisting);
+            StorageFile jsonFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.ReplaceExisting);
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Podcast));
-            using (Stream stream = await xmlFile.OpenStreamForWriteAsync())
+            using (Stream stream = await jsonFile.OpenStreamForWriteAsync())
             {
                 serializer.WriteObject(stream, this);
             }
