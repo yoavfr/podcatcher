@@ -1,6 +1,5 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
-using PodCatch.Strings;
 using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;

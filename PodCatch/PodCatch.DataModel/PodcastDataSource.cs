@@ -9,9 +9,9 @@ using Windows.Data.Json;
 using Windows.Storage;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
-using PodCatch.Strings;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using PodCatch.Localization;
 
 // The data model defined by this file serves as a representative example of a strongly-typed
 // model.  The property names chosen coincide with data bindings in the standard item templates.

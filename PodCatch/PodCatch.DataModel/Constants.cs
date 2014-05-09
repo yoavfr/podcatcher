@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PodCatch.Strings
+namespace PodCatch.DataModel
 {
     public static class Constants
     {

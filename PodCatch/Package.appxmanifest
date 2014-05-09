@@ -3,7 +3,7 @@
   <Identity Name="f5ba21ed-cf91-4e2f-a11a-f1e6e69e5f0f" Publisher="CN=yoav" Version="1.0.0.0" />
   <Properties>
     <DisplayName>PodCatch</DisplayName>
-    <PublisherDisplayName>yoav</PublisherDisplayName>
+    <PublisherDisplayName>Yoav Frandzel</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Prerequisites>
@@ -16,6 +16,7 @@
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="PodCatch.App">
       <m2:VisualElements DisplayName="PodCatch" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="PodCatch" ForegroundText="light" BackgroundColor="#FFFFFF">
+        <m2:LockScreen Notification="badge" BadgeLogo="Assets\StoreLogo.png" />
         <m2:SplashScreen Image="Assets\SplashScreen.png" />
         <m2:InitialRotationPreference>
           <m2:Rotation Preference="landscape" />
@@ -25,6 +26,12 @@
         <Extension Category="windows.backgroundTasks" StartPage="StartPage.xaml">
           <BackgroundTasks>
             <Task Type="audio" />
+          </BackgroundTasks>
+        </Extension>
+        <Extension Category="windows.backgroundTasks" EntryPoint="PodcatchBackgroundTasks.BackgroundTask">
+          <BackgroundTasks>
+            <Task Type="systemEvent" />
+            <Task Type="timer" />
           </BackgroundTasks>
         </Extension>
       </Extensions>

@@ -1,7 +1,6 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
 using PodCatch.Search;
-using PodCatch.Strings;
 using System;
 using System.Collections.Generic;
 using Windows.ApplicationModel.DataTransfer;
@@ -12,6 +11,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Background;
 
 // The Grouped Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234231
 
@@ -118,9 +118,34 @@ namespace PodCatch
         /// The navigation parameter is available in the LoadState method 
         /// in addition to page state preserved during an earlier session.
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             navigationHelper.OnNavigatedTo(e);
+            foreach (var task in BackgroundTaskRegistration.AllTasks)
+            {
+                task.Value.Unregister(true);
+            }
+
+            BackgroundTaskBuilder builder = new BackgroundTaskBuilder();
+            builder.Name = "PodCatchHouseKeeping";
+            builder.TaskEntryPoint = "PodcatchBackgroundTasks.BackgroundTask";
+            builder.SetTrigger(new MaintenanceTrigger(480, false));
+            builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
+            try
+            {
+                BackgroundAccessStatus status = await BackgroundExecutionManager.RequestAccessAsync();
+                IBackgroundTaskRegistration backgroundTaskRegistration = builder.Register();
+                backgroundTaskRegistration.Completed += OnBackgroundTask_Completed;
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        private void OnBackgroundTask_Completed(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
+        {
+            
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)

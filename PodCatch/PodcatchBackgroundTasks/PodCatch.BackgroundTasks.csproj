@@ -4,24 +4,24 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1800724C-F165-4DAE-AB55-0D1B5A954AB8}</ProjectGuid>
-    <OutputType>AppContainerExe</OutputType>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E9C703B2-2B40-4EED-A30E-1DADC6ECA1E0}</ProjectGuid>
+    <OutputType>winmdobj</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PodCatch</RootNamespace>
-    <AssemblyName>PodCatch</AssemblyName>
+    <RootNamespace>PodCatch.BackgroundTasks</RootNamespace>
+    <AssemblyName>PodCatch.BackgroundTasks</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <PackageCertificateKeyFile>PodCatch_TemporaryKey.pfx</PackageCertificateKeyFile>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -31,7 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -107,99 +106,11 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
-    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Common\AltBackgroundConverter.cs" />
-    <Compile Include="Common\EpisodePositionConverter.cs" />
-    <Compile Include="Common\EpisodeStateProgressVisiblityConverter.cs" />
-    <Compile Include="Common\EpisodeStateButtonEnabledConverter.cs" />
-    <Compile Include="Common\TimespanToTicksConverter.cs" />
-    <Compile Include="Common\PlayEpisodeSliderVisiblityConverter.cs" />
-    <Compile Include="Common\EpisodeStateToolTipConverter.cs" />
-    <Compile Include="Common\EpisodeStateIconConverter.cs" />
-    <Compile Include="Common\InverseBooleanConverter.cs" />
-    <Compile Include="Common\VisualTreeHelperExt.cs" />
     <Compile Include="BackgroundTask.cs" />
-    <Compile Include="InputMessageDialog.xaml.cs">
-      <DependentUpon>InputMessageDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Search\ISearch.cs" />
-    <Compile Include="Search\ITunesSearch.cs" />
-    <Compile Include="StartPage.xaml.cs">
-      <DependentUpon>StartPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="GroupPage.xaml.cs">
-      <DependentUpon>GroupPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PodcastPage.xaml.cs">
-      <DependentUpon>PodcastPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="MediaElementWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Common\SuspensionManager.cs" />
-    <Compile Include="Common\NavigationHelper.cs" />
-    <Compile Include="Common\RelayCommand.cs" />
-    <Compile Include="Common\ObservableDictionary.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest">
-      <SubType>Designer</SubType>
-    </AppxManifest>
-    <None Include="Common\ReadMe.txt" />
-    <None Include="packages.config" />
-    <None Include="PodCatch_TemporaryKey.pfx" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Assets\DarkGray.png" />
-    <Content Include="Assets\Logo.scale-100.png" />
-    <Content Include="Assets\SmallLogo.scale-100.png" />
-    <Content Include="Assets\SplashScreen.scale-100.png" />
-    <Content Include="Assets\StoreLogo.scale-100.png" />
-    <Content Include="Assets\LightGray.png" />
-    <Content Include="Assets\MediumGray.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Page Include="InputMessageDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="StartPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="GroupPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="PodcastPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>packages\Newtonsoft.Json.6.0.3\lib\netcore45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="PodCatch.DataModel\PodCatch.DataModel.csproj">
-      <Project>{bdcb6449-faa6-4759-a997-f2af3906a304}</Project>
-      <Name>PodCatch.DataModel</Name>
-    </ProjectReference>
-    <ProjectReference Include="PodcatchBackgroundTasks\PodCatch.BackgroundTasks.csproj">
-      <Project>{e9c703b2-2b40-4eed-a30e-1dadc6eca1e0}</Project>
-      <Name>PodCatch.BackgroundTasks</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>
   </PropertyGroup>

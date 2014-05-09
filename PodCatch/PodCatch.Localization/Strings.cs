@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;
 
-namespace PodCatch.Strings
+namespace PodCatch.Localization
 {
     public static class LocalizedStrings
     {
