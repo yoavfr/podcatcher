@@ -35,14 +35,15 @@
     </Page.Resources>
 
    
-
+    <!-- AppBar -->
     <Page.BottomAppBar>
         <AppBar Padding="10,0,10,0">
             <Grid>
                 <StackPanel Orientation="Horizontal">
                     <AppBarButton Label="Add to Favorites" Icon="Add" Name="AddToFavoritesAppBarButton"/>
                     <AppBarButton Label="Remove from Favorites" Icon="Remove" Name="RemoveFromFavoritesAppBarButton" Click="RemoveFromFavoritesButtonClicked"/>
-                    <AppBarButton Label="More" Icon="ShowBcc" Click="ShowMoreButtonClicked"/>
+                    <AppBarButton Label="Refresh" Icon="Refresh" Click="RefreshButtonClicked"/>
+                     <AppBarButton Label="Show more" Icon="ShowBcc" Click="ShowMoreButtonClicked"/>
                 </StackPanel>
             </Grid>
         </AppBar>

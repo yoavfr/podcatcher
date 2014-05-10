@@ -76,6 +76,7 @@ namespace PodCatch.DataModel
 
         [DataMember]
         public ObservableCollection<Episode> Episodes {get; private set;}
+        [DataMember]
         private long LastUpdatedTimeTicks { get; set; }
         [DataMember]
         private long LastStoreTimeTicks { get; set; }
@@ -115,6 +116,7 @@ namespace PodCatch.DataModel
                     PodcastImage.Update(syndicationFeed.ImageUri.AbsoluteUri, ImageSource.Rss);
                 }
 
+                //todo: merge here with what we have in memory and what we load from RSS
                 Episodes.Clear();
                 DisplayNextEpisodes(5);
             }
@@ -201,7 +203,10 @@ namespace PodCatch.DataModel
         override public async Task StoreToCacheAsync()
         {
             await PodcastImage.StoreToCacheAsync();
-            NotifyPropertyChanged("Image");
+            if (PodcastImage.Changed)
+            {
+                NotifyPropertyChanged("Image");
+            }
 
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile jsonFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.ReplaceExisting);

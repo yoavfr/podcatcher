@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 
 namespace PodCatch.DataModel
 {
@@ -25,6 +26,8 @@ namespace PodCatch.DataModel
 
         [DataMember]
         public ImageSource ImageSource { get; private set;}
+
+        public bool Changed { get; private set; }
 
         private string UniqueId { get; set; }
 
@@ -48,6 +51,7 @@ namespace PodCatch.DataModel
 
         public override async Task StoreToCacheAsync()
         {
+            Changed = false;
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
 
             if (string.IsNullOrEmpty(Image))
@@ -71,6 +75,8 @@ namespace PodCatch.DataModel
             string imageExtension = Path.GetExtension(Image);
             string localImagePath = string.Format("{0}{1}", UniqueId, imageExtension);
 
+            ulong oldFileSize = await GetCachedFileSize(localImagePath);
+
             // the image we have is from the cache
             StorageFile localImageFile = await localFolder.CreateFileAsync(localImagePath, CreationCollisionOption.ReplaceExisting);
             BackgroundDownloader downloader = new BackgroundDownloader();
@@ -79,6 +85,12 @@ namespace PodCatch.DataModel
                 DownloadOperation downloadOperation = downloader.CreateDownload(new Uri(Image), localImageFile);
                 await downloadOperation.StartAsync();
                 Update(localImageFile.Path, ImageSource);
+
+                ulong newFileSize = await GetCachedFileSize(localImagePath);
+                if (newFileSize > oldFileSize)
+                {
+                    Changed = true;
+                }
             }
             catch (Exception e)
             {
@@ -86,6 +98,23 @@ namespace PodCatch.DataModel
             }
         }
 
+        private async Task<ulong> GetCachedFileSize(string path)
+        {
+            ulong fileSize = 0;
+            try
+            {
+                StorageFile existingFile = await ApplicationData.Current.LocalFolder.GetFileAsync(path);
+                if (existingFile != null)
+                {
+                    BasicProperties fileProperties = await existingFile.GetBasicPropertiesAsync();
+                    fileSize = fileProperties.Size;
+                }
+            }
+            catch (Exception)
+            {
 
+            }
+            return fileSize;
+        }
     }
 }

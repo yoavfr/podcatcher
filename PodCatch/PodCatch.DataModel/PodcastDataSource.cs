@@ -37,7 +37,7 @@ namespace PodCatch.DataModel
         //[XmlIgnore]
         [GlobalDataMember]
         [DataMember]
-        private ObservableCollection<PodcastGroup> Groups { get; set; }
+        public ObservableCollection<PodcastGroup> Groups { get; private set; }
 
         private PodcastDataSource()
         {
@@ -51,18 +51,16 @@ namespace PodCatch.DataModel
                 return s_PodcastDataSource;
             }
         }
-        public async Task<IEnumerable<PodcastGroup>> LoadGroupsFromCacheAsync()
+
+        public async Task Load()
         {
             await LoadFromCacheAsync();
-
-            return Groups;
+            Refresh();
         }
 
-        public async Task<IEnumerable<PodcastGroup>> LoadGroupsFromRssAsync()
+        public void Refresh()
         {
-            await LoadFromRssAsync();
-
-            return Groups;
+            LoadFromRssAsync();
         }
 
         public void AddGroup(string uniqueId, string title, string subTitle, string imagePath, string description)
@@ -139,13 +137,13 @@ namespace PodCatch.DataModel
             roamingSettings.Values["PodcastDataSource"] = thisAsJson;
         }
 
-        private async Task LoadFromRssAsync()
+        private void LoadFromRssAsync()
         {
             foreach (PodcastGroup podcastDataGroup in Groups)
             {
                 foreach (Podcast podcastDataItem in podcastDataGroup.Items)
                 {
-                    await podcastDataItem.LoadFromRssAsync();
+                    Task t = podcastDataItem.LoadFromRssAsync();
                 }
             }
         }
@@ -167,7 +165,10 @@ namespace PodCatch.DataModel
                 try
                 {
                     reconstructed = JsonConvert.DeserializeObject<PodcastDataSource>(thisAsJson);
-                    Groups = reconstructed.Groups;
+                    foreach (PodcastGroup group in reconstructed.Groups)
+                    {
+                        Groups.Add(group);
+                    }
                 }
                 catch (Exception e)
                 {

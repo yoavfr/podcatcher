@@ -188,5 +188,12 @@ namespace PodCatch
             Podcast podcastDataItem = (Podcast)DefaultViewModel["Item"];
             podcastDataItem.DisplayNextEpisodes(10);
         }
+
+        private void RefreshButtonClicked(object sender, RoutedEventArgs e)
+        {
+            BottomAppBar.IsOpen = false;
+            Podcast podcastDataItem = (Podcast)DefaultViewModel["Item"];
+            Task t = podcastDataItem.LoadFromRssAsync();
+        }
     }
 }

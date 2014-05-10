@@ -65,17 +65,8 @@ namespace PodCatch
             MediaElementWrapper.Dispatcher = Dispatcher;
             
             // load from cache
-            IEnumerable<PodcastGroup> podcastDataGroups = await PodcastDataSource.Instance.LoadGroupsFromCacheAsync();
-            this.DefaultViewModel["Groups"] = podcastDataGroups;
-            try
-            {
-                // refresh from RSS source
-                podcastDataGroups = await PodcastDataSource.Instance.LoadGroupsFromRssAsync();
-            }
-            catch (Exception)
-            {
-                // TODO: trace or alert
-            }
+            this.DefaultViewModel["Groups"] = PodcastDataSource.Instance.Groups;
+            await PodcastDataSource.Instance.Load();
         }
 
         /// <summary>
