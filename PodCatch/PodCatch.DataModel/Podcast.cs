@@ -56,6 +56,7 @@ namespace PodCatch.DataModel
             private set { m_Title = value; NotifyPropertyChanged("Title"); }
         }
         [GlobalDataMember]
+        [DataMember]
         public string Uri { get; private set; }
         [DataMember]
         public string Description
@@ -169,34 +170,40 @@ namespace PodCatch.DataModel
             // use cached data if we have it
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             bool failed = false;
-            StorageFile xmlFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.OpenIfExists);
-            using (Stream stream = await xmlFile.OpenStreamForReadAsync())
+            StorageFile jsonFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.OpenIfExists);
+            using (Stream stream = await jsonFile.OpenStreamForReadAsync())
             {
-                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Podcast));
-                try
+                using (StreamReader reader = new StreamReader(stream))
                 {
-                    Podcast readItem = (Podcast)serializer.ReadObject(stream);
-                    Title = readItem.Title;
-                    Description = readItem.Description;
-                    Episodes = readItem.Episodes;
-                    LastUpdatedTimeTicks = readItem.LastUpdatedTimeTicks;
-                    PodcastImage.Update(readItem.PodcastImage.Image, readItem.PodcastImage.ImageSource);
-                    NotifyPropertyChanged("Image");
-
-                    // load episode states
-                    foreach (Episode episode in Episodes)
+                    using (JsonTextReader jsonReader = new JsonTextReader(reader))
                     {
-                        episode.Parent = this;
-                        await episode.LoadStateAsync(Episodes);
+                        JsonSerializer serializer = new JsonSerializer();
+                        Podcast readItem = serializer.Deserialize<Podcast>(jsonReader);
+                        try
+                        {
+                            Title = readItem.Title;
+                            Description = readItem.Description;
+                            Episodes = readItem.Episodes;
+                            LastUpdatedTimeTicks = readItem.LastUpdatedTimeTicks;
+                            PodcastImage.Update(readItem.PodcastImage.Image, readItem.PodcastImage.ImageSource);
+                            NotifyPropertyChanged("Image");
+
+                            // load episode states
+                            foreach (Episode episode in Episodes)
+                            {
+                                episode.Parent = this;
+                                await episode.LoadStateAsync(Episodes);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            failed = true;
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    failed = true;
                 }
                 if (failed)
                 {
-                    await xmlFile.DeleteAsync();
+                    await jsonFile.DeleteAsync();
                 }
             }
         }
@@ -211,10 +218,17 @@ namespace PodCatch.DataModel
 
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile jsonFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.ReplaceExisting);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Podcast));
             using (Stream stream = await jsonFile.OpenStreamForWriteAsync())
             {
-                serializer.WriteObject(stream, this);
+                using (StreamWriter writer = new StreamWriter(stream))
+                {
+                    using (JsonWriter jsonWriter = new JsonTextWriter(writer))
+                    {
+                        JsonSerializer serializer = new JsonSerializer();
+                        serializer.Formatting = Formatting.Indented;
+                        serializer.Serialize(jsonWriter, this);
+                    }
+                }
             }
         }
 

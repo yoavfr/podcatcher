@@ -131,7 +131,7 @@ namespace PodCatch.DataModel
         {
             JsonSerializerSettings settings = new JsonSerializerSettings();
             settings.ContractResolver = new GlobalDataMemberContractResolver();
-            string thisAsJson = JsonConvert.SerializeObject(this, settings);
+            string thisAsJson = JsonConvert.SerializeObject(this, Formatting.Indented, settings);
             
             Windows.Storage.ApplicationDataContainer roamingSettings = Windows.Storage.ApplicationData.Current.RoamingSettings;
             roamingSettings.Values["PodcastDataSource"] = thisAsJson;
@@ -192,7 +192,7 @@ namespace PodCatch.DataModel
                     }
                     catch (Exception e)
                     {
-                        group.Items.Remove(item);
+                        //group.Items.Remove(item);
                     }
                 }
             }
