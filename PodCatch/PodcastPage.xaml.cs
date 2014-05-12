@@ -193,7 +193,7 @@ namespace PodCatch
         {
             BottomAppBar.IsOpen = false;
             Podcast podcastDataItem = (Podcast)DefaultViewModel["Item"];
-            Task t = podcastDataItem.LoadFromRssAsync();
+            Task t = podcastDataItem.LoadFromRssAsync(true);
         }
     }
 }

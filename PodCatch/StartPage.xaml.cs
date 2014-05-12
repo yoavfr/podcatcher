@@ -206,7 +206,7 @@ namespace PodCatch
             {
                 try
                 {
-                    Task t = podcast.LoadFromRssAsync();
+                    Task t = podcast.LoadFromRssAsync(false);
                 }
                 catch (Exception)
                 {
@@ -256,7 +256,7 @@ namespace PodCatch
                     PodcastDataSource.Instance.RemoveItem("Search", selectedPodcast);
                     foreach (Episode episode in selectedPodcast.Episodes)
                     {
-                        episode.DownloadAsync();
+                        await episode.DownloadAsync();
                     }
                     PodcastDataSource.Instance.Store();
                     break;

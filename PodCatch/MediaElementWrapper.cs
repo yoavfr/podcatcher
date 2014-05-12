@@ -102,7 +102,7 @@ namespace PodCatch
             SystemMediaTransportControls.IsPlayEnabled = true;
             SystemMediaTransportControls.IsPauseEnabled = true;
 
-            // Periodically update position and duration in playing episode and every 10 seconds save state too
+            // Periodically update position in playing episode and every 10 seconds save state too
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(500);
             timer.Tick += (sender, e) =>
@@ -110,7 +110,6 @@ namespace PodCatch
                 Episode episode = m_NowPlaying;
                 if (episode != null)
                 {
-                    episode.Duration = Duration;
                     // don't update position when slider is being manipulated 
                     if (episode.State == EpisodeState.Playing && 
                         (episode.Position - Position).Duration() < TimeSpan.FromSeconds(1)) // hack - clicking directly on the slider will cause a big difference

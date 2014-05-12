@@ -1,14 +1,13 @@
 ﻿using PodCatch.Common;
-using PodCatch.DataModel;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Windows.Data.Html;
-using Windows.Foundation;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 
 namespace PodCatch.DataModel
 {
@@ -18,6 +17,7 @@ namespace PodCatch.DataModel
         
         private EpisodeState m_State;
         private TimeSpan m_Position;
+        private TimeSpan m_Duration;
         private double m_DownloadProgress;
 
         public Episode(
@@ -84,7 +84,10 @@ namespace PodCatch.DataModel
                 DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
                 await downloadOperation.StartAsync().AsTask(progress);
                 Position = TimeSpan.FromMilliseconds(0);
+                MusicProperties musicProperties = await localFile.Properties.GetMusicPropertiesAsync();
+                Duration = musicProperties.Duration;
                 SetState(EpisodeState.Downloaded);
+                await Parent.StoreToCacheAsync();
             }
             catch (Exception e)
             {
@@ -193,11 +196,21 @@ namespace PodCatch.DataModel
             {
                 m_Position = value;
                 NotifyPropertyChanged("Position");
-                NotifyPropertyChanged("Duration");
             }
         }
         [DataMember]
-        public TimeSpan Duration { get; set; }
+        public TimeSpan Duration 
+        { 
+            get
+            {
+                return m_Duration;
+            }
+            set
+            {
+                m_Duration = value;
+                NotifyPropertyChanged("Duration");
+            }
+        }
 
         public int Index
         {

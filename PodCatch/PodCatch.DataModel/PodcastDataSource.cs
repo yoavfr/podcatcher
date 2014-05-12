@@ -143,7 +143,7 @@ namespace PodCatch.DataModel
             {
                 foreach (Podcast podcastDataItem in podcastDataGroup.Items)
                 {
-                    Task t = podcastDataItem.LoadFromRssAsync();
+                    Task t = podcastDataItem.LoadFromRssAsync(false);
                 }
             }
         }

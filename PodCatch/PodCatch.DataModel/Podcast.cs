@@ -80,15 +80,16 @@ namespace PodCatch.DataModel
         private long LastUpdatedTimeTicks { get; set; }
         [DataMember]
         private long LastStoreTimeTicks { get; set; }
+        [DataMember]
         private SyndicationFeed SyndicationFeed { get; set; }
         public int NumberOfEpisodesDisplayed { get; private set; }
         public int NumberOfAvailableEpisodes { get; private set; }
 
-        public async Task LoadFromRssAsync()
+        public async Task LoadFromRssAsync(bool force)
         {
             DateTime lastUpdatedTime = new DateTime(LastUpdatedTimeTicks);
             // limit refreshs to every 2 hours
-            if (DateTime.UtcNow - lastUpdatedTime < TimeSpan.FromHours(2))
+            if (DateTime.UtcNow - lastUpdatedTime < TimeSpan.FromHours(2) && ! force)
             {
                 return;
             }
