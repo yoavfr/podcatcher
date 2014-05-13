@@ -256,7 +256,7 @@ namespace PodCatch
                     PodcastDataSource.Instance.RemoveItem("Search", selectedPodcast);
                     foreach (Episode episode in selectedPodcast.Episodes)
                     {
-                        await episode.DownloadAsync();
+                        episode.DownloadAsync();
                     }
                     PodcastDataSource.Instance.Store();
                     break;

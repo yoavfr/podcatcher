@@ -64,6 +64,10 @@ namespace PodCatch.DataModel
 
         public async Task DownloadAsync()
         {
+            if (m_State != EpisodeState.PendingDownload)
+            {
+                return;
+            }
             Progress<DownloadOperation> progress = new Progress<DownloadOperation>((operation) =>
             {
                 ulong totalBytesToReceive = operation.Progress.TotalBytesToReceive;
