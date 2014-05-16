@@ -91,6 +91,7 @@ namespace PodCatch.DataModel
             // limit refreshs to every 2 hours
             if (DateTime.UtcNow - lastUpdatedTime < TimeSpan.FromHours(2) && ! force)
             {
+                DisplayNextEpisodes(5);
                 return;
             }
 
@@ -123,6 +124,8 @@ namespace PodCatch.DataModel
 
                 // keep record of last update time
                 LastUpdatedTimeTicks = DateTime.UtcNow.Ticks;
+
+                DisplayNextEpisodes(5);
 
                 // and store changes locally (including LastUpdateTime)
                 await StoreToCacheAsync();
@@ -210,10 +213,10 @@ namespace PodCatch.DataModel
                                 failed = false;
 
                                 // load episode states
-                                foreach (Episode episode in Episodes)
+                                foreach (Episode episode in AllEpisodes)
                                 {
                                     episode.Parent = this;
-                                    await episode.LoadStateAsync(Episodes);
+                                    episode.LoadStateAsync(Episodes);
                                 }
                             }
                         }

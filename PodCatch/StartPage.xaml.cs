@@ -201,7 +201,7 @@ namespace PodCatch
             }
 
             // load whatever we have cached
-            foreach (Podcast podcast in matches)
+            /*foreach (Podcast podcast in matches)
             {
                 await podcast.LoadFromCacheAsync();
             }
@@ -211,14 +211,13 @@ namespace PodCatch
             {
                 try
                 {
-                    await podcast.LoadFromRssAsync(false);
-                    podcast.DisplayNextEpisodes(5);
+                    podcast.LoadFromRssAsync(false);
                 }
                 catch (Exception)
                 {
                     PodcastDataSource.Instance.RemoveItem("Search", podcast);
                 }
-            }
+            }*/
         }
 
         private async void PodcastRightTapped(object sender, RightTappedRoutedEventArgs e)
@@ -260,6 +259,7 @@ namespace PodCatch
                 case 3: // Add to favorites
                     PodcastDataSource.Instance.AddItem(Constants.FavoritesGroupId, selectedPodcast);
                     PodcastDataSource.Instance.RemoveItem("Search", selectedPodcast);
+                    await selectedPodcast.LoadFromRssAsync(false);
                     foreach (Episode episode in selectedPodcast.Episodes)
                     {
                         episode.DownloadAsync();

@@ -59,14 +59,14 @@ namespace PodCatch.DataModel
                 return;
             }
             await LoadFromCacheAsync();
-            Refresh();
+            await Refresh();
             SetInitialEpisodeDisplay();
             m_Loaded = true;
         }
 
-        public void Refresh()
+        public async Task Refresh()
         {
-            LoadFromRssAsync();
+            await LoadFromRssAsync();
         }
 
         public void AddGroup(string uniqueId, string title, string subTitle, string imagePath, string description)
@@ -144,13 +144,13 @@ namespace PodCatch.DataModel
             roamingSettings.Values["PodcastDataSource"] = thisAsJson;
         }
 
-        private async void LoadFromRssAsync()
+        private async Task LoadFromRssAsync()
         {
             foreach (PodcastGroup podcastDataGroup in Groups)
             {
                 foreach (Podcast podcastDataItem in podcastDataGroup.Podcasts)
                 {
-                    Task t = podcastDataItem.LoadFromRssAsync(false);
+                    await podcastDataItem.LoadFromRssAsync(false);
                 }
             }
         }
