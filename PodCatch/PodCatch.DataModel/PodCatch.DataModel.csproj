@@ -128,12 +128,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PodCatch.Localization\PodCatch.Localization.csproj">
-      <Project>{6975f4e1-659b-444e-ae18-d573388a424a}</Project>
-      <Name>PodCatch.Localization</Name>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>
   </PropertyGroup>

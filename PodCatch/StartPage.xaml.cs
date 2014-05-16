@@ -136,7 +136,7 @@ namespace PodCatch
 
         private void OnBackgroundTask_Completed(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
         {
-            
+            Task t = PodcastDataSource.Instance.Load();
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -168,7 +168,12 @@ namespace PodCatch
             }
             
             // results go in Search group
-            PodcastDataSource.Instance.AddGroup("Search", "Search", "Search", string.Empty, "found");
+            PodcastDataSource.Instance.AddGroup(
+                Constants.SearchGroupId, 
+                "SearchTitle", 
+                "SearchSubtitle", 
+                string.Empty, 
+                "SearchDescription");
             PodcastDataSource.Instance.ClearGroup("Search");
             IEnumerable<Podcast> matches;
 
@@ -206,7 +211,8 @@ namespace PodCatch
             {
                 try
                 {
-                    Task t = podcast.LoadFromRssAsync(false);
+                    await podcast.LoadFromRssAsync(false);
+                    podcast.DisplayNextEpisodes(5);
                 }
                 catch (Exception)
                 {

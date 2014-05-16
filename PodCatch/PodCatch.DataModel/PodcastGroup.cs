@@ -11,33 +11,33 @@ namespace PodCatch.DataModel
     [DataContract]
     public class PodcastGroup
     {
-        public PodcastGroup(String uniqueId, String title, String subtitle, String imagePath, String description)
+        public PodcastGroup(String uniqueId, String titleText, String subtitleText, String imagePath, String descriptionText)
         {
             this.UniqueId = uniqueId;
-            this.Title = title;
-            this.Subtitle = subtitle;
-            this.Description = description;
+            this.TitleText = titleText;
+            this.SubtitleText = subtitleText;
+            this.DescriptionText = descriptionText;
             this.ImagePath = imagePath;
-            this.Items = new ObservableCollection<Podcast>();
+            this.Podcasts = new ObservableCollection<Podcast>();
         }
 
         [GlobalDataMember]
         public string UniqueId { get; private set; }
         [GlobalDataMember]
-        public string Title { get; private set; }
+        public string TitleText { get; private set; }
         [GlobalDataMember]
-        public string Subtitle { get; private set; }
+        public string SubtitleText { get; private set; }
         [GlobalDataMember]
-        public string Description { get; private set; }
+        public string DescriptionText { get; private set; }
         [GlobalDataMember]
         public string ImagePath { get; private set; }
         [DataMember]
         [GlobalDataMember]
-        public ObservableCollection<Podcast> Items { get; private set; }
+        public ObservableCollection<Podcast> Podcasts { get; private set; }
 
         public override string ToString()
         {
-            return this.Title;
+            return this.TitleText;
         }
     }
 }

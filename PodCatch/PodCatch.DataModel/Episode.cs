@@ -91,6 +91,7 @@ namespace PodCatch.DataModel
                 MusicProperties musicProperties = await localFile.Properties.GetMusicPropertiesAsync();
                 Duration = musicProperties.Duration;
                 SetState(EpisodeState.Downloaded);
+                // TODO: when run from background task this may cause conflicts
                 await Parent.StoreToCacheAsync();
             }
             catch (Exception e)

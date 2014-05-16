@@ -113,6 +113,7 @@
     <Compile Include="Common\EpisodePositionConverter.cs" />
     <Compile Include="Common\EpisodeStateProgressVisiblityConverter.cs" />
     <Compile Include="Common\EpisodeStateButtonEnabledConverter.cs" />
+    <Compile Include="Common\LocalizationConverter.cs" />
     <Compile Include="Common\TimespanToTicksConverter.cs" />
     <Compile Include="Common\PlayEpisodeSliderVisiblityConverter.cs" />
     <Compile Include="Common\EpisodeStateToolTipConverter.cs" />
@@ -123,6 +124,7 @@
     <Compile Include="InputMessageDialog.xaml.cs">
       <DependentUpon>InputMessageDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Resources\Strings.cs" />
     <Compile Include="Search\ISearch.cs" />
     <Compile Include="Search\ITunesSearch.cs" />
     <Compile Include="StartPage.xaml.cs">
@@ -148,6 +150,7 @@
     <None Include="Common\ReadMe.txt" />
     <None Include="packages.config" />
     <None Include="PodCatch_TemporaryKey.pfx" />
+    <PRIResource Include="Resources\en-US\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\DarkGray.png" />

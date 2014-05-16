@@ -75,14 +75,13 @@ namespace PodCatch.DataModel
             }
         }
 
-        [DataMember]
         public ObservableCollection<Episode> Episodes {get; private set;}
+        [DataMember]
+        private List<Episode> AllEpisodes { get; set; }
         [DataMember]
         private long LastUpdatedTimeTicks { get; set; }
         [DataMember]
         private long LastStoreTimeTicks { get; set; }
-        [DataMember]
-        private SyndicationFeed SyndicationFeed { get; set; }
         public int NumberOfEpisodesDisplayed { get; private set; }
         public int NumberOfAvailableEpisodes { get; private set; }
 
@@ -96,50 +95,49 @@ namespace PodCatch.DataModel
             }
 
             // Update data from actual RSS feed
-            SyndicationFeed syndicationFeed = new SyndicationFeed();
-            XmlDocument feedXml = await XmlDocument.LoadFromUriAsync(new Uri(Uri));
-            syndicationFeed.LoadFromXml(feedXml);
-
-            // don't refresh if feed has not been updated since
-            if (syndicationFeed.LastUpdatedTime != null && 
-                syndicationFeed.LastUpdatedTime.DateTime > lastUpdatedTime)
+            try
             {
-                SyndicationFeed = syndicationFeed;
-                NumberOfAvailableEpisodes = SyndicationFeed.Items.Count();
-                Title = syndicationFeed.Title.Text;
+                SyndicationFeed syndicationFeed = new SyndicationFeed();
+                XmlDocument feedXml = await XmlDocument.LoadFromUriAsync(new Uri(Uri));
+                syndicationFeed.LoadFromXml(feedXml);
 
-                if (syndicationFeed.Subtitle != null)
+                // don't refresh if feed has not been updated since
+                if (syndicationFeed.LastUpdatedTime != null &&
+                    syndicationFeed.LastUpdatedTime.DateTime > lastUpdatedTime)
                 {
-                    Description = syndicationFeed.Subtitle.Text;
-                }
-            
-                if (syndicationFeed.ImageUri != null)
-                {
-                    PodcastImage.Update(syndicationFeed.ImageUri.AbsoluteUri, ImageSource.Rss);
+                    NumberOfAvailableEpisodes = syndicationFeed.Items.Count();
+                    Title = syndicationFeed.Title.Text;
+
+                    if (syndicationFeed.Subtitle != null)
+                    {
+                        Description = syndicationFeed.Subtitle.Text;
+                    }
+
+                    if (syndicationFeed.ImageUri != null)
+                    {
+                        PodcastImage.Update(syndicationFeed.ImageUri.AbsoluteUri, ImageSource.Rss);
+                    }
+
+                    LoadEpisodes(syndicationFeed);
                 }
 
-                //todo: merge here with what we have in memory and what we load from RSS
-                Episodes.Clear();
-                DisplayNextEpisodes(5);
+                // keep record of last update time
+                LastUpdatedTimeTicks = DateTime.UtcNow.Ticks;
+
+                // and store changes locally (including LastUpdateTime)
+                await StoreToCacheAsync();
             }
+            catch (Exception e)
+            {
 
-            // keep record of last update time
-            LastUpdatedTimeTicks = DateTime.UtcNow.Ticks;
-
-            // and store changes locally (including LastUpdateTime)
-            await StoreToCacheAsync();
+            }
         }
 
-        public int DisplayNextEpisodes(int increment)
+        private void LoadEpisodes(SyndicationFeed syndicationFeed)
         {
-            if (NumberOfEpisodesDisplayed >= NumberOfAvailableEpisodes)
+            AllEpisodes = new List<Episode>();
+            foreach (SyndicationItem item in syndicationFeed.Items)
             {
-                return NumberOfEpisodesDisplayed;
-            }
-            int target = NumberOfEpisodesDisplayed + increment;
-            for (; NumberOfEpisodesDisplayed < NumberOfAvailableEpisodes && NumberOfEpisodesDisplayed < target; NumberOfEpisodesDisplayed++)
-            {
-                SyndicationItem item = SyndicationFeed.Items[NumberOfEpisodesDisplayed];
                 Uri uri = null;
                 foreach (SyndicationLink link in item.Links)
                 {
@@ -154,7 +152,25 @@ namespace PodCatch.DataModel
                     string episodeTitle = item.Title != null ? item.Title.Text : "<No Title>";
                     string episodeSummary = item.Summary != null ? item.Summary.Text : "<No Summary>";
                     Episode episode = new Episode(UniqueId, episodeTitle, episodeSummary, item.PublishedDate, uri, this, Episodes);
-                    Episodes.Add(episode);
+                    AllEpisodes.Add(episode);
+                }
+            }
+            NumberOfAvailableEpisodes = AllEpisodes.Count();
+        }
+
+        public int DisplayNextEpisodes(int increment)
+        {
+            if (NumberOfEpisodesDisplayed >= NumberOfAvailableEpisodes)
+            {
+                return NumberOfEpisodesDisplayed;
+            }
+            int target = NumberOfEpisodesDisplayed + increment;
+            for (; NumberOfEpisodesDisplayed < NumberOfAvailableEpisodes && NumberOfEpisodesDisplayed < target; NumberOfEpisodesDisplayed++)
+            {
+                Episode next = AllEpisodes[NumberOfEpisodesDisplayed];
+                if (!Episodes.Contains(next))
+                {
+                    Episodes.Insert(NumberOfEpisodesDisplayed, next);
                 }
             }
             return NumberOfEpisodesDisplayed;
@@ -169,7 +185,7 @@ namespace PodCatch.DataModel
         {
             // use cached data if we have it
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            bool failed = false;
+            bool failed = true;
             StorageFile jsonFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.OpenIfExists);
             using (Stream stream = await jsonFile.OpenStreamForReadAsync())
             {
@@ -178,21 +194,27 @@ namespace PodCatch.DataModel
                     using (JsonTextReader jsonReader = new JsonTextReader(reader))
                     {
                         JsonSerializer serializer = new JsonSerializer();
-                        Podcast readItem = serializer.Deserialize<Podcast>(jsonReader);
                         try
                         {
-                            Title = readItem.Title;
-                            Description = readItem.Description;
-                            Episodes = readItem.Episodes;
-                            LastUpdatedTimeTicks = readItem.LastUpdatedTimeTicks;
-                            PodcastImage.Update(readItem.PodcastImage.Image, readItem.PodcastImage.ImageSource);
-                            NotifyPropertyChanged("Image");
-
-                            // load episode states
-                            foreach (Episode episode in Episodes)
+                            Podcast readItem = serializer.Deserialize<Podcast>(jsonReader);
+                            if (readItem != null)
                             {
-                                episode.Parent = this;
-                                await episode.LoadStateAsync(Episodes);
+                                Title = readItem.Title;
+                                Description = readItem.Description;
+                                AllEpisodes = readItem.AllEpisodes;
+                                NumberOfAvailableEpisodes = AllEpisodes.Count();
+                                LastUpdatedTimeTicks = readItem.LastUpdatedTimeTicks;
+                                PodcastImage.Update(readItem.PodcastImage.Image, readItem.PodcastImage.ImageSource);
+                                NotifyPropertyChanged("Image");
+
+                                failed = false;
+
+                                // load episode states
+                                foreach (Episode episode in Episodes)
+                                {
+                                    episode.Parent = this;
+                                    await episode.LoadStateAsync(Episodes);
+                                }
                             }
                         }
                         catch (Exception ex)

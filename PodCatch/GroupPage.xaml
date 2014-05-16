@@ -13,6 +13,7 @@
 
     <Page.Resources>
         <!-- Collection of items displayed by this page -->
+        <common:LocalizationConverter x:Key="LocalizationConverter"/>
         <CollectionViewSource
             x:Name="itemsViewSource"
             Source="{Binding Items}"/>
@@ -69,9 +70,9 @@
             </GridView.ItemTemplate>
             <GridView.Header>
                 <StackPanel Width="480" Margin="0,4,14,0">
-                    <TextBlock Text="{Binding Subtitle}" Margin="0,0,0,20" Style="{StaticResource SubheaderTextBlockStyle}" MaxHeight="60"/>
+                    <TextBlock Text="{Binding SubtitleText, Converter={StaticResource LocalizationConverter}}" Margin="0,0,0,20" Style="{StaticResource SubheaderTextBlockStyle}" MaxHeight="60"/>
                     <Image Source="{Binding Image}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"/>
-                    <TextBlock Text="{Binding Description}" Margin="0,0,0,0" Style="{StaticResource BodyTextBlockStyle}"/>
+                    <TextBlock Text="{Binding DescriptionText, Converter={StaticResource LocalizationConverter}}" Margin="0,0,0,0" Style="{StaticResource BodyTextBlockStyle}"/>
                 </StackPanel>
             </GridView.Header>
             <GridView.ItemContainerStyle>
@@ -93,7 +94,7 @@
                         AutomationProperties.Name="Back"
                         AutomationProperties.AutomationId="BackButton"
                         AutomationProperties.ItemType="Navigation Button"/>
-            <TextBlock x:Name="pageTitle" Text="{Binding Title}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
+            <TextBlock x:Name="pageTitle" Text="{Binding TitleText, Converter={StaticResource LocalizationConverter}}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
         </Grid>
     </Grid>
