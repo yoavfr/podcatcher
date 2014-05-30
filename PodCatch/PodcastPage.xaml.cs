@@ -128,12 +128,12 @@ namespace PodCatch
                     }
                 case (EpisodeState.Downloaded):
                     {
-                        Task t = MediaPlayer.PlayAsync(episode);
+                        MediaPlayer.Play(episode);
                         break;
                     }
                 case (EpisodeState.Playing):
                     {
-                        Task t = MediaPlayer.PauseAsync(episode);
+                        MediaPlayer.Pause(episode);
                         break;
                     }
             }

@@ -96,11 +96,8 @@ namespace PodCatch.DataModel
                 try
                 {
                     // Json.NET would be more concise, but it doesn't handle this correctly
-                    using (MemoryStream stream = new MemoryStream())
+                    using (MemoryStream stream = new MemoryStream(Encoding.Unicode.GetBytes(favoritesAsJson)))
                     {
-                        var bytes = Encoding.Unicode.GetBytes(favoritesAsJson);
-                        stream.Write(bytes, 0, bytes.Length);
-                        stream.Position = 0;
                         DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Collection<PodcastGroup>));
                         Collection<PodcastGroup> favorites = (Collection<PodcastGroup>)serializer.ReadObject(stream);
                         return favorites;
@@ -129,9 +126,13 @@ namespace PodCatch.DataModel
                 foreach (Podcast podcast in group.Podcasts)
                 {
                     AddPodcast(group.Id, podcast);
-                    await podcast.Load();
-                    await podcast.DownloadEpisodes();
-                    await podcast.Store();
+                    Task t = podcast.Load().ContinueWith((loadTask)=>
+                        {
+                            podcast.DownloadEpisodes().ContinueWith((downloadTask) =>
+                                {
+                                    podcast.Store();
+                                });
+                        });
                 }
             }
         }
@@ -173,7 +174,6 @@ namespace PodCatch.DataModel
             favorites.Podcasts.Add(podcast);
             Store();
             await podcast.RefreshFromRss(true);
-            podcast.DisplayNextEpisodes(3);
             await podcast.DownloadEpisodes();
             await podcast.Store();
             return true;

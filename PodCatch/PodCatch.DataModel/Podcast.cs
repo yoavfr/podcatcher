@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -7,9 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Xml.Dom;
+using Windows.Foundation;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -25,18 +24,24 @@ namespace PodCatch.DataModel
         private string m_Title;
         private string m_Description;
         private string m_Image;
+        int m_numEpisodesToShow = 3;
 
         public Podcast()
         {
             AllEpisodes = new List<Episode>();
-            Episodes = new ObservableCollection<Episode>();
         }
 
         public string Uri { get; set; }
         [DataMember]
         public List<Episode> AllEpisodes { get; set; }
 
-        public ObservableCollection<Episode> Episodes { get; private set; }
+        public ObservableCollection<Episode> Episodes 
+        { 
+            get
+            {
+                return new ObservableCollection<Episode>(AllEpisodes.Where((x,index) => index < m_numEpisodesToShow));
+            }
+        }
 
         public string Id
         {
@@ -89,7 +94,6 @@ namespace PodCatch.DataModel
 
             }
             await RefreshFromRss(false);
-            DisplayNextEpisodes(3);
         }
 
         public async Task RefreshFromRss(bool force)
@@ -129,8 +133,7 @@ namespace PodCatch.DataModel
 
                     ReadRssEpisodes(syndicationFeed);
 
-                    Episodes.Clear();
-                    DisplayNextEpisodes(3);
+                    NotifyPropertyChanged("Episodes");
                 }
 
                 // keep record of last update time
@@ -169,20 +172,21 @@ namespace PodCatch.DataModel
                     episode.Description = episodeSummary;
                     episode.Title = episodeTitle;
                     episode.Uri = uri;
-                    //episode.ParentCollection = AllEpisodes;
                 }
             }
         }
 
         public async Task DownloadEpisodes()
         {
+            List<Task> allEpisodes = new List<Task>();
             foreach (Episode episode in Episodes)
             {
                 if (episode.State == EpisodeState.PendingDownload)
                 {
-                    await episode.Download();
+                    allEpisodes.Add(episode.Download());
                 }
             }
+            await Task.WhenAll(allEpisodes);
         }
 
         private async Task LoadImage(Uri imageUri)
@@ -242,6 +246,10 @@ namespace PodCatch.DataModel
             Description = fromCache.Description;
             Image = fromCache.Image;
             LastRefreshTimeTicks = fromCache.LastRefreshTimeTicks;
+            if (fromCache.AllEpisodes == null)
+            {
+                return;
+            }
 
             foreach (Episode episodeFromCache in fromCache.AllEpisodes)
             {
@@ -279,20 +287,14 @@ namespace PodCatch.DataModel
 
         public int DisplayNextEpisodes(int increment)
         {
-            if (Episodes.Count() >= AllEpisodes.Count())
+            if (m_numEpisodesToShow >= AllEpisodes.Count())
             {
-                return Episodes.Count();
+                return m_numEpisodesToShow;
             }
-            int target = Episodes.Count() + increment;
-            while (Episodes.Count() < Math.Min(AllEpisodes.Count(), target))
-            {
-                Episode next = AllEpisodes[Episodes.Count()];
-                if (!Episodes.Contains(next))
-                {
-                    Episodes.Insert(Episodes.Count(), next);
-                }
-            }
-            return Episodes.Count();
+            int target = m_numEpisodesToShow + increment;
+            m_numEpisodesToShow = Math.Min(AllEpisodes.Count(), target);
+            NotifyPropertyChanged("Episodes");
+            return m_numEpisodesToShow;
         }
 
         public async Task Store()
@@ -304,28 +306,20 @@ namespace PodCatch.DataModel
             {
                 serialzer.WriteObject(stream, this);
             }
-            /*using (Stream stream = await jsonFile.OpenStreamForWriteAsync())
-            {
-                using (StreamWriter writer = new StreamWriter(stream))
-                {
-                    using (JsonWriter jsonWriter = new JsonTextWriter(writer))
-                    {
-                        JsonSerializer serializer = new JsonSerializer();
-                        serializer.Formatting = Formatting.Indented;
-                        serializer.Serialize(jsonWriter, this);
-                    }
-                }
-            }*/
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
+            if (PropertyChanged == null)
+            {
+                return;
+            }
+            IAsyncAction t = Dispatcher.Instance.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 PropertyChanged(this,
                     new PropertyChangedEventArgs(propertyName));
-            }
+            });
         }
 
         public override bool Equals(object obj)

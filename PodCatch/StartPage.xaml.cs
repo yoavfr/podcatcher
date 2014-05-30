@@ -63,6 +63,7 @@ namespace PodCatch
         {
             // MediaElementWrapper needs the dispatcher to conrtol the MediaElement on this thread
             MediaElementWrapper.Dispatcher = Dispatcher;
+            PodCatch.DataModel.Dispatcher.Instance = Dispatcher;
             
             // load from cache
             this.DefaultViewModel["Groups"] = PodcastDataSource.Instance.Groups;

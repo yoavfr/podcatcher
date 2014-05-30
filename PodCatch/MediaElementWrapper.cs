@@ -52,11 +52,11 @@ namespace PodCatch
                 MediaElement.Source = value;
             }
         }
-        public async Task PlayAsync(Episode episode)
+        public void Play(Episode episode)
         {
             if (m_NowPlaying != null && m_NowPlaying != episode)
             {
-                await PauseAsync(m_NowPlaying);
+                Pause(m_NowPlaying);
             }
             Uri episodeUri = new Uri(episode.FullFileName);
             if (Source == null || !Source.Equals(episodeUri))
@@ -69,7 +69,7 @@ namespace PodCatch
             MediaElement.Play();
         }
 
-        public async Task PauseAsync(Episode episode)
+        public void Pause(Episode episode)
         {
             MediaElement.Pause();
             episode.Position = Position;
@@ -160,15 +160,15 @@ namespace PodCatch
                 switch (args.Button)
                 {
                     case SystemMediaTransportControlsButton.Play:
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
-                                await PlayAsync(episode);
+                                Play(episode);
                             });
                         break;
                     case SystemMediaTransportControlsButton.Pause:
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
-                                await PauseAsync(episode);
+                                Pause(episode);
                             });
                         break;
                     case SystemMediaTransportControlsButton.Next:

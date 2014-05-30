@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Html;
+using Windows.Foundation;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -101,10 +98,6 @@ namespace PodCatch.DataModel
         {
             get
             {
-                if (m_Duration.Ticks == 0)
-                {
-                    GetEpisodedDuration();
-                }
                 return m_Duration;
             }
             set
@@ -113,8 +106,6 @@ namespace PodCatch.DataModel
                 NotifyPropertyChanged("Duration");
             }
         }
-
-        //public List<Episode> ParentCollection { get; set; }
 
         public EpisodeState State
         {
@@ -189,13 +180,6 @@ namespace PodCatch.DataModel
                 return System.IO.Path.Combine(PodcastId, System.IO.Path.GetFileName(Uri.ToString()));
             }
         }
-        /*public int Index
-        {
-            get
-            {
-                return ParentCollection.IndexOf(this);
-            }
-        }*/
 
         public async Task Download()
         {
@@ -223,6 +207,12 @@ namespace PodCatch.DataModel
                 State = EpisodeState.Downloading;
                 DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
                 await downloadOperation.StartAsync().AsTask(progress);
+                
+                // set duration
+                MusicProperties musicProperties = await localFile.Properties.GetMusicPropertiesAsync();
+                Duration = musicProperties.Duration;
+                
+                //set position
                 Position = TimeSpan.FromMilliseconds(0);
                 State = EpisodeState.Downloaded;
             }
@@ -232,26 +222,18 @@ namespace PodCatch.DataModel
             }
         }
 
-        private async void GetEpisodedDuration()
-        {
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            string fileName = FileName;
-            if (fileName != null)
-            {
-                StorageFile localFile = await localFolder.GetFileAsync(FileName);
-                MusicProperties musicProperties = await localFile.Properties.GetMusicPropertiesAsync();
-                Duration = musicProperties.Duration;
-            }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
+            if (PropertyChanged == null)
+            {
+                return;
+            }
+            IAsyncAction t = Dispatcher.Instance.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 PropertyChanged(this,
                     new PropertyChangedEventArgs(propertyName));
-            }
+            });
         }
 
     }
