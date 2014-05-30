@@ -1,55 +1,118 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
-using Windows.Data.Json;
 using Windows.Storage;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
-using Newtonsoft.Json;
-using System.Runtime.Serialization;
-
-// The data model defined by this file serves as a representative example of a strongly-typed
-// model.  The property names chosen coincide with data bindings in the standard item templates.
-//
-// Applications may use this model as a starting point and build on it, or discard it entirely and
-// replace it with something appropriate to their needs. If using this model, you might improve app 
-// responsiveness by initiating the data loading task in the code behind for App.xaml when the app 
-// is first launched.
 
 namespace PodCatch.DataModel
 {
-    /// <summary>
-    /// Creates a collection of groups and items with content read from a static json file.
-    /// 
-    /// SampleDataSource initializes with data read from a static json file included in the 
-    /// project.  This provides sample data at both design-time and run-time.
-    /// </summary>
-    [DataContract]
-    public sealed class PodcastDataSource
+    public class PodcastDataSource
     {
-        private static PodcastDataSource s_PodcastDataSource = new PodcastDataSource();
+        private static Lazy<PodcastDataSource> s_Intance = new Lazy<PodcastDataSource>(() => new PodcastDataSource());
         private bool m_Loaded;
-
-        //[XmlIgnore]
-        [GlobalDataMember]
-        [DataMember]
         public ObservableCollection<PodcastGroup> Groups { get; private set; }
-
-        private PodcastDataSource()
-        {
-            Groups = new ObservableCollection<PodcastGroup>();
-        }
-
         public static PodcastDataSource Instance
         {
             get
             {
-                return s_PodcastDataSource;
+                return s_Intance.Value;
             }
+        }
+
+        private PodcastDataSource()
+        {
+            Groups = new ObservableCollection<PodcastGroup>();
+            AddDefaultGroups();
+        }
+
+        private void AddDefaultGroups()
+        {
+            PodcastGroup favorites = new PodcastGroup()
+            {
+                Id = Constants.FavoritesGroupId,
+                TitleText = "FavoritesTitleText",
+                SubtitleText = "FavoritesSubtitleText",
+                DescriptionText = "FavoritesDescriptionText",
+                ImagePath = "..\\Assets\\DarkGrey.png",
+            };
+            Groups.Add(favorites);
+        }
+
+        private PodcastGroup AddSearchResultsGroup()
+        {
+            PodcastGroup searchGroup = new PodcastGroup()
+            {
+                Id = Constants.SearchGroupId,
+                TitleText = "SearchTitleText",
+                SubtitleText = "SearchSubtitleText",
+                DescriptionText = "SearchDescriptionText",
+                ImagePath = "..\\Assets\\DarkGrey.png",
+            };
+            Groups.Add(searchGroup);
+            return searchGroup;
+        }
+
+        public PodcastGroup GetGroup(string groupId)
+        {
+            var matches = Groups.Where((group) => group.Id.Equals(groupId));
+            if (matches.Count() > 0)
+            {
+                return matches.First();
+            }
+            return null;
+        }
+
+        private void AddPodcast(string groupId, Podcast podcast)
+        {
+            PodcastGroup group = GetGroup(groupId);
+            if (group != null)
+            {
+                group.Podcasts.Add(podcast);
+            }
+        }
+
+        public Podcast GetPodcast(string podcastId)
+        {
+            var matches = Groups.SelectMany(group => group.Podcasts).Where((podcast) => podcast.Id.Equals(podcastId));
+            if (matches.Count() > 0)
+            {
+                return matches.First();
+            }
+            return null;
+        }
+
+        private Collection<PodcastGroup> LoadFavorites()
+        {
+            ApplicationDataContainer roamingSettings = ApplicationData.Current.RoamingSettings;
+
+            if (roamingSettings.Values.ContainsKey("PodcastDataSource"))
+            {
+                string favoritesAsJson = roamingSettings.Values["PodcastDataSource"].ToString();
+                try
+                {
+                    // Json.NET would be more concise, but it doesn't handle this correctly
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        var bytes = Encoding.Unicode.GetBytes(favoritesAsJson);
+                        stream.Write(bytes, 0, bytes.Length);
+                        stream.Position = 0;
+                        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Collection<PodcastGroup>));
+                        Collection<PodcastGroup> favorites = (Collection<PodcastGroup>)serializer.ReadObject(stream);
+                        return favorites;
+                    }
+                }
+                catch (Exception e)
+                {
+                    roamingSettings.Values["PodcastDataSource"] = null;
+                    // TODO: report error 
+                }
+            }
+            return new Collection<PodcastGroup>();
         }
 
         public async Task Load()
@@ -58,173 +121,76 @@ namespace PodCatch.DataModel
             {
                 return;
             }
-            await LoadFromCacheAsync();
-            await Refresh();
-            SetInitialEpisodeDisplay();
+
             m_Loaded = true;
-        }
 
-        public async Task Refresh()
-        {
-            await LoadFromRssAsync();
-        }
-
-        public void AddGroup(string uniqueId, string title, string subTitle, string imagePath, string description)
-        {
-            var groups = Groups.Where(g => g.UniqueId == uniqueId);
-            if (groups.Count() > 0 )
+            foreach (PodcastGroup group in LoadFavorites())
             {
-                return;
-            }
-            PodcastGroup podcastGroup = new PodcastGroup(uniqueId, title, subTitle, imagePath, description);
-            Groups.Add(podcastGroup);
-        }
-
-        public bool IsPodcastInGroup (string groupUniqueId, string podcastUniqueId)
-        {
-            return Groups.Where(g => g.UniqueId == groupUniqueId).First().Podcasts.Any(i => i.UniqueId == podcastUniqueId);
-        }
-
-        public void ClearGroup(string groupUniqueId)
-        {
-            PodcastGroup group = Groups.Where(g => g.UniqueId == groupUniqueId).First();
-            group.Podcasts.Clear();
-        }
-
-        public void AddItem(string groupUniqueId, Podcast item)
-        {
-            var groups = Groups.Where(g => g.UniqueId == groupUniqueId);
-            if (groups.Count() > 0)
-            {
-                if (!groups.First<PodcastGroup>().Podcasts.Any(i => i.Uri.ToLower() == item.Uri.ToLower()))
+                foreach (Podcast podcast in group.Podcasts)
                 {
-                    groups.First<PodcastGroup>().Podcasts.Add(item);
+                    AddPodcast(group.Id, podcast);
+                    await podcast.Load();
+                    await podcast.DownloadEpisodes();
+                    await podcast.Store();
                 }
             }
-        }
-
-        public void RemoveItem(string groupUniqueId, Podcast item)
-        {
-            var groups = Groups.Where(g => g.UniqueId == groupUniqueId);
-            if (groups.Count() > 0)
-            {
-                groups.First<PodcastGroup>().Podcasts.Remove(item);
-            }
-        }
-
-        public PodcastGroup GetGroup(string uniqueId)
-        {
-            //await _podcastDataSource.LoadFromCacheAsync();
-            // Simple linear search is acceptable for small data sets
-            var matches = Groups.Where((group) => group.UniqueId.Equals(uniqueId));
-            if (matches.Count() == 1) return matches.First();
-            return null;
-        }
-
-        public async Task<Podcast> GetItemAsync(string uniqueId)
-        {
-            //await _podcastDataSource.LoadFromCacheAsync();
-            // Simple linear search is acceptable for small data sets
-            var matches = Groups.SelectMany(group => group.Podcasts).Where((item) => item.UniqueId.Equals(uniqueId));
-            if (matches.Count() > 0)
-            {
-                return matches.First();
-            }
-            return null;
         }
 
         public void Store()
         {
-            JsonSerializerSettings settings = new JsonSerializerSettings();
-            settings.ContractResolver = new GlobalDataMemberContractResolver();
+            ApplicationDataContainer roamingSettings = ApplicationData.Current.RoamingSettings;
+            Collection<PodcastGroup> favorites = new Collection<PodcastGroup>() { GetGroup(Constants.FavoritesGroupId) };
+            string favoritesAsJson = JsonConvert.SerializeObject(favorites, Formatting.Indented);
+            roamingSettings.Values["PodcastDataSource"] = favoritesAsJson;
+        }
+
+        public void ShowSearchResults(IEnumerable<Podcast> podcasts)
+        {
+            PodcastGroup searchGroup = GetGroup(Constants.SearchGroupId);
+            if (searchGroup == null)
+            {
+                searchGroup = AddSearchResultsGroup();
+            }
+
+            searchGroup.Podcasts.Clear();
+            searchGroup.Podcasts.AddAll(podcasts);
+        }
+
+        public async Task<bool> AddToFavorites(Podcast podcast)
+        {
             PodcastGroup favorites = GetGroup(Constants.FavoritesGroupId);
-            string thisAsJson = JsonConvert.SerializeObject(favorites, Formatting.Indented, settings);
-            
-            Windows.Storage.ApplicationDataContainer roamingSettings = Windows.Storage.ApplicationData.Current.RoamingSettings;
-            roamingSettings.Values["PodcastDataSource"] = thisAsJson;
+            if (favorites.Podcasts.Contains(podcast))
+            {
+                return false;
+            }
+
+            PodcastGroup search = GetGroup(Constants.SearchGroupId);
+            if (search.Podcasts.Contains(podcast))
+            {
+                search.Podcasts.Remove(podcast);
+            }
+
+            favorites.Podcasts.Add(podcast);
+            Store();
+            await podcast.RefreshFromRss(true);
+            podcast.DisplayNextEpisodes(3);
+            await podcast.DownloadEpisodes();
+            await podcast.Store();
+            return true;
         }
 
-        private async Task LoadFromRssAsync()
+        public void RemoveFromFavorites(Podcast podcast)
         {
-            foreach (PodcastGroup podcastDataGroup in Groups)
-            {
-                foreach (Podcast podcastDataItem in podcastDataGroup.Podcasts)
-                {
-                    await podcastDataItem.LoadFromRssAsync(false);
-                }
-            }
+            PodcastGroup favorites = GetGroup(Constants.FavoritesGroupId);
+            favorites.Podcasts.Remove(podcast);
+            Store();
         }
 
-        private async Task LoadFromCacheAsync()
+        public bool IsPodcastInFavorites(Podcast podcast)
         {
-
-            if (Groups.Count != 0)
-                return;
-
-            Windows.Storage.ApplicationDataContainer roamingSettings = Windows.Storage.ApplicationData.Current.RoamingSettings;
-            //roamingSettings.Values["PodcastDataSource"] = null;
-            if (!roamingSettings.Values.ContainsKey("PodcastDataSource"))
-            {
-                AddDefaultGroups();
-            }
-            else
-            {
-                string favoritesAsJson = roamingSettings.Values["PodcastDataSource"].ToString();
-                try
-                {
-                    PodcastGroup favorites = JsonConvert.DeserializeObject<PodcastGroup>(favoritesAsJson);
-                    if (favorites != null) 
-                    {
-                        Groups.Add(favorites);
-                    }
-                }
-                catch (Exception e)
-                {
-                    AddDefaultGroups();
-                    roamingSettings.Values["PodcastDataSource"] = null;
-                }
-            }
-
-            if (Groups == null || Groups.Count == 0)
-            {
-                AddDefaultGroups();
-            }
-
-            foreach (PodcastGroup group in Groups)
-            {
-                foreach (Podcast item in group.Podcasts)
-                {
-                    try
-                    {
-                        await item.LoadFromCacheAsync();
-                    }
-                    catch (Exception e)
-                    {
-                        //group.Items.Remove(item);
-                    }
-                }
-            }
+            PodcastGroup favorites = GetGroup(Constants.FavoritesGroupId);
+            return favorites.Podcasts.Contains(podcast);
         }
 
-        private void SetInitialEpisodeDisplay()
-        {
-            foreach (PodcastGroup group in Groups)
-            {
-                foreach (Podcast podcast in group.Podcasts)
-                {
-                    podcast.DisplayNextEpisodes(5);
-                }
-            }
-        }
-
-        private void AddDefaultGroups()
-        {
-            AddGroup(
-                Constants.FavoritesGroupId,
-                "FavoritesTitle",
-                "FavoritesSubtitle",
-                "Assets/DarkGray.png",
-                "FavoritesDescription");
-        }
     }
 }

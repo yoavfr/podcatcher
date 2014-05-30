@@ -8,7 +8,7 @@ namespace PodCatch.DataModel
 {
     public static class Constants
     {
-        public const string FavoritesGroupId = "Favorites";
-        public const string SearchGroupId = "Search";
+        internal const string FavoritesGroupId = "Favorites";
+        internal const string SearchGroupId = "Search";
     }
 }

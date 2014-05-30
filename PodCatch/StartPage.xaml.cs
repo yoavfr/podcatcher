@@ -81,7 +81,7 @@ namespace PodCatch
 
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
-            this.Frame.Navigate(typeof(GroupPage), ((PodcastGroup)group).UniqueId);
+            this.Frame.Navigate(typeof(GroupPage), ((PodcastGroup)group).Id);
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace PodCatch
         {
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
-            var itemId = ((Podcast)e.ClickedItem).UniqueId;
+            var itemId = ((Podcast)e.ClickedItem).Id;
             this.Frame.Navigate(typeof(PodcatchPath), itemId);
         }
 
@@ -136,7 +136,8 @@ namespace PodCatch
 
         private void OnBackgroundTask_Completed(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
         {
-            Task t = PodcastDataSource.Instance.Load();
+            //Task t = PodcastDataSource.Instance.Load();
+            // TODO sync
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -167,14 +168,6 @@ namespace PodCatch
                 return;
             }
             
-            // results go in Search group
-            PodcastDataSource.Instance.AddGroup(
-                Constants.SearchGroupId, 
-                "SearchTitle", 
-                "SearchSubtitle", 
-                string.Empty, 
-                "SearchDescription");
-            PodcastDataSource.Instance.ClearGroup("Search");
             IEnumerable<Podcast> matches;
 
             // RSS feed URL
@@ -182,7 +175,10 @@ namespace PodCatch
             if (Uri.TryCreate(searchTerm, UriKind.Absolute, out validUri) && 
                 (validUri.Scheme == "http" || validUri.Scheme == "https"))
             {
-                Podcast newItem = new Podcast(string.Empty, searchTerm, string.Empty, string.Empty);
+                Podcast newItem = new Podcast()
+                {
+                    Uri = searchTerm
+                };
                 matches = new List<Podcast>() { newItem };
             }
             else
@@ -191,33 +187,11 @@ namespace PodCatch
                 BottomAppBar.IsOpen = false;
                 ITunesSearch iTunesSearch = new ITunesSearch();
                 matches = await iTunesSearch.FindAsync(searchTerm, 50);
-                matches = matches.Where(podcast => !PodcastDataSource.Instance.IsPodcastInGroup(Constants.FavoritesGroupId, podcast.UniqueId));
+                matches = matches.Where(podcast => !PodcastDataSource.Instance.IsPodcastInFavorites(podcast));
             }
             
             // add podcasts shell to data source
-            foreach (Podcast podcast in matches)
-            {
-                PodcastDataSource.Instance.AddItem("Search", podcast);
-            }
-
-            // load whatever we have cached
-            /*foreach (Podcast podcast in matches)
-            {
-                await podcast.LoadFromCacheAsync();
-            }
-
-            // load from RSS feed
-            foreach (Podcast podcast in matches)
-            {
-                try
-                {
-                    podcast.LoadFromRssAsync(false);
-                }
-                catch (Exception)
-                {
-                    PodcastDataSource.Instance.RemoveItem("Search", podcast);
-                }
-            }*/
+            PodcastDataSource.Instance.ShowSearchResults(matches);
         }
 
         private async void PodcastRightTapped(object sender, RightTappedRoutedEventArgs e)
@@ -231,7 +205,7 @@ namespace PodCatch
             // this is useful for debugging
             //popupMenu.Commands.Add(new UICommand(){Id=1, Label="Copy RSS feed URL to clipboard"});
 
-            if (PodcastDataSource.Instance.IsPodcastInGroup(Constants.FavoritesGroupId, selectedPodcast.UniqueId))
+            if (PodcastDataSource.Instance.IsPodcastInFavorites(selectedPodcast))
             {
                 popupMenu.Commands.Add(new UICommand() {Id = 2, Label = "Remove from favorites"});
             }
@@ -252,19 +226,11 @@ namespace PodCatch
                     Clipboard.SetContent(dataPackage);
                     break;
                 case 2: // Remove from favorites
-                    PodcastDataSource.Instance.RemoveItem(Constants.FavoritesGroupId, selectedPodcast);
-                    PodcastDataSource.Instance.Store();
+                    PodcastDataSource.Instance.RemoveFromFavorites(selectedPodcast);
                     NavigationHelper.GoBack();
                     break;
                 case 3: // Add to favorites
-                    PodcastDataSource.Instance.AddItem(Constants.FavoritesGroupId, selectedPodcast);
-                    PodcastDataSource.Instance.RemoveItem("Search", selectedPodcast);
-                    await selectedPodcast.LoadFromRssAsync(false);
-                    foreach (Episode episode in selectedPodcast.Episodes)
-                    {
-                        episode.DownloadAsync();
-                    }
-                    PodcastDataSource.Instance.Store();
+                    await PodcastDataSource.Instance.AddToFavorites(selectedPodcast);
                     break;
             }
         }

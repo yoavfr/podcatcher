@@ -105,15 +105,14 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
-    <ProjectReference Include="..\PodCatch.DataModel\PodCatch.DataModel.csproj">
-      <Project>{bdcb6449-faa6-4759-a997-f2af3906a304}</Project>
-      <Name>PodCatch.DataModel</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="BackgroundTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PodCatch.DataModel\PodCatch.DataModel.csproj">
+      <Project>{a0237286-45e6-4e83-8591-82d5822ac8d4}</Project>
+      <Name>PodCatch.DataModel</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>

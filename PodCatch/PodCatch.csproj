@@ -190,15 +190,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="PodCatch.DataModel\PodCatch.DataModel.csproj">
-      <Project>{bdcb6449-faa6-4759-a997-f2af3906a304}</Project>
+      <Project>{a0237286-45e6-4e83-8591-82d5822ac8d4}</Project>
       <Name>PodCatch.DataModel</Name>
     </ProjectReference>
-    <ProjectReference Include="PodcatchBackgroundTasks\PodCatch.BackgroundTasks.csproj">
-      <Project>{e9c703b2-2b40-4eed-a30e-1dadc6eca1e0}</Project>
-      <Name>PodCatch.BackgroundTasks</Name>
-    </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>
   </PropertyGroup>

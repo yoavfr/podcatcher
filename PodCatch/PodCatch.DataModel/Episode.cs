@@ -1,8 +1,11 @@
-﻿using PodCatch.Common;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Html;
 using Windows.Networking.BackgroundTransfer;
@@ -12,108 +15,117 @@ using Windows.Storage.FileProperties;
 namespace PodCatch.DataModel
 {
     [DataContract]
-    public class Episode : BaseData
+    public class Episode : INotifyPropertyChanged
     {
-        
-        private EpisodeState m_State;
         private TimeSpan m_Position;
         private TimeSpan m_Duration;
         private double m_DownloadProgress;
+        private EpisodeState m_State;
+        private string m_Title;
+        private string m_Description;
+        private Uri m_Uri;
 
-        public Episode(
-            string podcastUniqueId, 
-            string title, 
-            string description, 
-            DateTimeOffset publishDate, 
-            Uri uri, 
-            BaseData parent, 
-            ObservableCollection<Episode> parentCollection) : base(parent)
+        public Episode()
         {
-            PodcastUniqueId = podcastUniqueId;
-            Title = title;
-            string descriptionAsPlainString = HtmlUtilities.ConvertToText(description).Trim('\n','\r','\t',' ');
+            State = EpisodeState.PendingDownload;
+        }
+
+        [DataMember]
+        public string Id { get; set; }
+        public string PodcastId { get; set; }
+
+        [DataMember]
+        public Uri Uri
+        {
+            get
+            {
+                return m_Uri;
+            }
+            set
+            {
+                m_Uri = value;
+                Id = m_Uri.GetHashCode().ToString();
+            }
+        }
+        [DataMember]
+        public string Title
+        {
+            get
+            {
+                return m_Title;
+            }
+            set
+            {
+                m_Title = value;
+                NotifyPropertyChanged("Title");
+            }
+        }
+        [DataMember]
+        public string Description
+        {
+            get
+            {
+                return m_Description;
+            }
+            set
+            {
+                m_Description = value;
+                NotifyPropertyChanged("FormattedDescription");
+            }
+        }
+
+        public string FormattedDescription()
+        {
+            string descriptionAsPlainString = HtmlUtilities.ConvertToText(Description).Trim('\n', '\r', '\t', ' ');
             int lineLimit = descriptionAsPlainString.IndexOfOccurence("\n", 10);
             if (lineLimit != -1)
             {
-                descriptionAsPlainString = descriptionAsPlainString.Substring(0, lineLimit)+"\n...";
+                descriptionAsPlainString = descriptionAsPlainString.Substring(0, lineLimit) + "\n...";
             }
-            Description = descriptionAsPlainString;
-            Uri = uri;
-            ParentCollection = parentCollection;
+            return descriptionAsPlainString;
         }
 
-        public async Task LoadStateAsync(ObservableCollection<Episode> parentCollection)
+        public TimeSpan Position
         {
-            bool failed = false;
-            ParentCollection = parentCollection;
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            try
+            get
             {
-                await localFolder.GetFileAsync(FileName);
-                SetState(EpisodeState.Downloaded);
+                return m_Position;
             }
-            catch (FileNotFoundException e)
+            set
             {
-                failed = true;
-            }
-            if (failed)
-            {
-                SetState(EpisodeState.PendingDownload);
+                m_Position = value;
+                NotifyPropertyChanged("Position");
             }
         }
-
-        public async Task DownloadAsync()
+        public TimeSpan Duration
         {
-            if (m_State != EpisodeState.PendingDownload)
+            get
             {
-                return;
-            }
-            Progress<DownloadOperation> progress = new Progress<DownloadOperation>((operation) =>
-            {
-                ulong totalBytesToReceive = operation.Progress.TotalBytesToReceive;
-                double at = 0;
-                if (totalBytesToReceive > 0)
+                if (m_Duration.Ticks == 0)
                 {
-                    at = (double)operation.Progress.BytesReceived / totalBytesToReceive;
+                    GetEpisodedDuration();
                 }
-                DownloadProgress = at;
-            });
-
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            try
-            {
-                StorageFile localFile = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.ReplaceExisting);
-                BackgroundDownloader downloader = new BackgroundDownloader();
-                SetState(EpisodeState.Downloading);
-                DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
-                await downloadOperation.StartAsync().AsTask(progress);
-                Position = TimeSpan.FromMilliseconds(0);
-                MusicProperties musicProperties = await localFile.Properties.GetMusicPropertiesAsync();
-                Duration = musicProperties.Duration;
-                SetState(EpisodeState.Downloaded);
-                // TODO: when run from background task this may cause conflicts
-                await Parent.StoreToCacheAsync();
+                return m_Duration;
             }
-            catch (Exception e)
+            set
             {
-                SetState(EpisodeState.PendingDownload);
-            }
-         }
-
-        public string FullFileName
-        {
-            get
-            {
-                string s = System.IO.Path.Combine(ApplicationData.Current.LocalFolder.Path, FileName);
-                return s;
+                m_Duration = value;
+                NotifyPropertyChanged("Duration");
             }
         }
 
-        private string FileName
+        //public List<Episode> ParentCollection { get; set; }
+
+        public EpisodeState State
         {
             get
             {
-                return System.IO.Path.Combine(PodcastUniqueId, System.IO.Path.GetFileName(Uri.ToString()));
+                return m_State;
+            }
+            set
+            {
+                m_State = value;
+                NotifyPropertyChanged("State");
             }
         }
 
@@ -130,104 +142,117 @@ namespace PodCatch.DataModel
             }
         }
 
-        private ObservableCollection<Episode> ParentCollection { get; set; }
-        [DataMember]
-        public string Title { get; private set; }
-        [DataMember]
-        public DateTimeOffset PublishDate { get; private set; }
-        [DataMember]
-        public string PodcastUniqueId { get; private set; }
-        [DataMember]
-        public string Description { get; private set; }
-        public EpisodeState State
+        public async Task UpdateFromCache(Episode fromCache)
+        {
+            Title = fromCache.Title;
+            Duration = fromCache.Duration;
+            Uri = fromCache.Uri;
+            Description = fromCache.Description;
+            await UpdateDownloadStatus();
+        }
+
+        private async Task UpdateDownloadStatus()
+        {
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            try
+            {
+                StorageFile file = await localFolder.GetFileAsync(FileName);
+                MusicProperties musicProperties = await file.Properties.GetMusicPropertiesAsync();
+
+                Duration = musicProperties.Duration;
+                State = EpisodeState.Downloaded;
+            }
+            catch (FileNotFoundException e)
+            {
+                State = EpisodeState.PendingDownload;
+            }
+
+        }
+
+        public string FullFileName
         {
             get
             {
-                return m_State;
+                string s = System.IO.Path.Combine(ApplicationData.Current.LocalFolder.Path, FileName);
+                return s;
             }
         }
-        private void SetState(EpisodeState state)
-        {
-            m_State = state;
-            NotifyPropertyChanged("State");
-        }
 
-        public void Play()
-        {
-            if (State != EpisodeState.Downloaded)
-            {
-                return;
-            }
-            SetState(EpisodeState.Playing);
-        }
-
-        public async Task PauseAsync()
-        {
-            if (State != EpisodeState.Playing)
-            {
-                return;
-            }
-            SetState(EpisodeState.Downloaded);
-            await StoreToCacheAsync();
-        }
-
-        public void StartScan()
-        {
-            SetState(EpisodeState.Scanning);
-        }
-
-        public void EndScan()
-        {
-            SetState(EpisodeState.Playing);
-        }
-
-        public string UniqueId
+        private string FileName
         {
             get
             {
-                return String.Format(@"{0}\{1}", PodcastUniqueId, Title);
+                if (Uri == null || PodcastId == null)
+                {
+                    return null;
+                }
+                return System.IO.Path.Combine(PodcastId, System.IO.Path.GetFileName(Uri.ToString()));
             }
         }
-        [DataMember]
-        public Uri Uri { get; private set; }
-        [DataMember]
-        public TimeSpan Position 
-        { 
-            get
-            {
-                return m_Position;
-            }
-            set
-            {
-                m_Position = value;
-                NotifyPropertyChanged("Position");
-            }
-        }
-        [DataMember]
-        public TimeSpan Duration 
-        { 
-            get
-            {
-                return m_Duration;
-            }
-            set
-            {
-                m_Duration = value;
-                NotifyPropertyChanged("Duration");
-            }
-        }
-
-        public int Index
+        /*public int Index
         {
             get
             {
                 return ParentCollection.IndexOf(this);
             }
+        }*/
+
+        public async Task Download()
+        {
+            if (State != EpisodeState.PendingDownload)
+            {
+                return;
+            }
+
+            Progress<DownloadOperation> progress = new Progress<DownloadOperation>((operation) =>
+            {
+                ulong totalBytesToReceive = operation.Progress.TotalBytesToReceive;
+                double at = 0;
+                if (totalBytesToReceive > 0)
+                {
+                    at = (double)operation.Progress.BytesReceived / totalBytesToReceive;
+                }
+                DownloadProgress = at;
+            });
+
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            try
+            {
+                StorageFile localFile = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.ReplaceExisting);
+                BackgroundDownloader downloader = new BackgroundDownloader();
+                State = EpisodeState.Downloading;
+                DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
+                await downloadOperation.StartAsync().AsTask(progress);
+                Position = TimeSpan.FromMilliseconds(0);
+                State = EpisodeState.Downloaded;
+            }
+            catch (Exception e)
+            {
+                State = EpisodeState.PendingDownload;
+            }
         }
 
-        public override string ToString()
+        private async void GetEpisodedDuration()
         {
-            return this.Title;
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            string fileName = FileName;
+            if (fileName != null)
+            {
+                StorageFile localFile = await localFolder.GetFileAsync(FileName);
+                MusicProperties musicProperties = await localFile.Properties.GetMusicPropertiesAsync();
+                Duration = musicProperties.Duration;
+            }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this,
+                    new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
     }
 }

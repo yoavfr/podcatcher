@@ -65,7 +65,7 @@ namespace PodCatch
             }
             Position = episode.Position;
             m_NowPlaying = episode;
-            episode.Play();
+            episode.State = EpisodeState.Playing;
             MediaElement.Play();
         }
 
@@ -73,7 +73,7 @@ namespace PodCatch
         {
             MediaElement.Pause();
             episode.Position = Position;
-            await episode.PauseAsync();
+            episode.State = EpisodeState.Downloaded;
         }
 
         public static MediaElementWrapper Instance
@@ -118,7 +118,8 @@ namespace PodCatch
                     }
                     if (DateTime.UtcNow.AddSeconds(-10) > m_LastSaveTime)
                     {
-                        Task t = episode.StoreToCacheAsync();
+                        // save location
+                        PodcastDataSource.Instance.Store();
                         m_LastSaveTime = DateTime.UtcNow;
                     }
                 }

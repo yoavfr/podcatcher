@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch", "PodCatch.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.BackgroundTasks", "PodcatchBackgroundTasks\PodCatch.BackgroundTasks.csproj", "{E9C703B2-2B40-4EED-A30E-1DADC6ECA1E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.DataModel", "PodCatch.DataModel\PodCatch.DataModel.csproj", "{BDCB6449-FAA6-4759-A997-F2AF3906A304}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.DataModel", "PodCatch.DataModel\PodCatch.DataModel.csproj", "{A0237286-45E6-4E83-8591-82D5822AC8D4}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
@@ -17,12 +17,12 @@ Global
 		SccLocalPath0 = .
 		SccProjectUniqueName1 = PodCatch.csproj
 		SccLocalPath1 = .
-		SccProjectUniqueName2 = PodCatch.DataModel\\PodCatch.DataModel.csproj
-		SccProjectName2 = PodCatch.DataModel
-		SccLocalPath2 = PodCatch.DataModel
-		SccProjectUniqueName3 = PodcatchBackgroundTasks\\PodCatch.BackgroundTasks.csproj
-		SccProjectName3 = PodcatchBackgroundTasks
-		SccLocalPath3 = PodcatchBackgroundTasks
+		SccProjectUniqueName2 = PodcatchBackgroundTasks\\PodCatch.BackgroundTasks.csproj
+		SccProjectName2 = PodcatchBackgroundTasks
+		SccLocalPath2 = PodcatchBackgroundTasks
+		SccProjectUniqueName3 = PodCatch.DataModel\\PodCatch.DataModel.csproj
+		SccProjectName3 = PodCatch.DataModel
+		SccLocalPath3 = PodCatch.DataModel
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,22 +75,16 @@ Global
 		{E9C703B2-2B40-4EED-A30E-1DADC6ECA1E0}.Release|x64.Build.0 = Release|x64
 		{E9C703B2-2B40-4EED-A30E-1DADC6ECA1E0}.Release|x86.ActiveCfg = Release|x86
 		{E9C703B2-2B40-4EED-A30E-1DADC6ECA1E0}.Release|x86.Build.0 = Release|x86
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Debug|ARM.ActiveCfg = Debug|ARM
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Debug|ARM.Build.0 = Debug|ARM
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Debug|x64.ActiveCfg = Debug|x64
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Debug|x64.Build.0 = Debug|x64
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Debug|x86.ActiveCfg = Debug|x86
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Debug|x86.Build.0 = Debug|x86
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Release|ARM.ActiveCfg = Release|ARM
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Release|ARM.Build.0 = Release|ARM
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Release|x64.ActiveCfg = Release|x64
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Release|x64.Build.0 = Release|x64
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Release|x86.ActiveCfg = Release|x86
-		{BDCB6449-FAA6-4759-A997-F2AF3906A304}.Release|x86.Build.0 = Release|x86
+		{A0237286-45E6-4E83-8591-82D5822AC8D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0237286-45E6-4E83-8591-82D5822AC8D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0237286-45E6-4E83-8591-82D5822AC8D4}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{A0237286-45E6-4E83-8591-82D5822AC8D4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A0237286-45E6-4E83-8591-82D5822AC8D4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A0237286-45E6-4E83-8591-82D5822AC8D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0237286-45E6-4E83-8591-82D5822AC8D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0237286-45E6-4E83-8591-82D5822AC8D4}.Release|ARM.ActiveCfg = Release|Any CPU
+		{A0237286-45E6-4E83-8591-82D5822AC8D4}.Release|x64.ActiveCfg = Release|Any CPU
+		{A0237286-45E6-4E83-8591-82D5822AC8D4}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

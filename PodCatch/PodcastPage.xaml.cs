@@ -63,13 +63,13 @@ namespace PodCatch
         /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session.  The state will be null the first time a page is visited.</param>
-        private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            Podcast item = await PodcastDataSource.Instance.GetItemAsync((String)e.NavigationParameter); 
-            this.DefaultViewModel["Item"] = item;
-            this.DefaultViewModel["Episodes"] = item.Episodes;
+            Podcast podcast = PodcastDataSource.Instance.GetPodcast((String)e.NavigationParameter); 
+            this.DefaultViewModel["Podcast"] = podcast;
+            this.DefaultViewModel["Episodes"] = podcast.Episodes;
 
-            bool inFavorites = PodcastDataSource.Instance.IsPodcastInGroup(Constants.FavoritesGroupId, item.UniqueId);
+            bool inFavorites = PodcastDataSource.Instance.IsPodcastInFavorites(podcast);
             if (inFavorites)
             {
                 AddToFavoritesAppBarButton.IsEnabled = false;
@@ -111,20 +111,9 @@ namespace PodCatch
         private void RemoveFromFavoritesButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
-            PodcastDataSource.Instance.RemoveItem("Favorites", (Podcast)DefaultViewModel["Item"]);
-            PodcastDataSource.Instance.Store();
+            PodcastDataSource.Instance.RemoveFromFavorites((Podcast)DefaultViewModel["Podcast"]);
             NavigationHelper.GoBack();
         }
-
-/*        private void RssFeedToClipboardButton_Click(object sender, RoutedEventArgs e)
-        {
-            BottomAppBar.IsOpen = false;
-            Podcast podcastDataItem = (Podcast)DefaultViewModel["Item"];
-            DataPackage dataPackage = new DataPackage();
-            dataPackage.SetText(podcastDataItem.Uri);
-            Clipboard.SetContent(dataPackage);
-        }
-        */
 
         private void PlayButton_Clicked (object sender, RoutedEventArgs e)
         {
@@ -134,7 +123,7 @@ namespace PodCatch
             {
                 case EpisodeState.PendingDownload:
                     {
-                        Task t = episode.DownloadAsync();
+                        Task t = episode.Download();
                         break;
                     }
                 case (EpisodeState.Downloaded):
@@ -156,7 +145,7 @@ namespace PodCatch
             Episode episode = (Episode)slider.DataContext;
             if (MediaPlayer.IsEpisodePlaying(episode))
             {
-                episode.StartScan();
+                episode.State = EpisodeState.Scanning;
             }
         }
 
@@ -166,7 +155,7 @@ namespace PodCatch
             Episode episode = (Episode)slider.DataContext;
             if (MediaPlayer.IsEpisodePlaying(episode))
             {
-                episode.EndScan();
+                episode.State = EpisodeState.Playing;
                 MediaPlayer.Position = TimeSpan.FromTicks((long)slider.Value);
             }
         }
@@ -178,22 +167,22 @@ namespace PodCatch
             if (MediaPlayer.IsEpisodePlaying(episode))
             {
                 MediaPlayer.Position = TimeSpan.FromTicks((long)slider.Value);
-                episode.EndScan();
+                episode.State = EpisodeState.Playing;
             }
         }
 
         private void ShowMoreButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
-            Podcast podcastDataItem = (Podcast)DefaultViewModel["Item"];
+            Podcast podcastDataItem = (Podcast)DefaultViewModel["Podcast"];
             podcastDataItem.DisplayNextEpisodes(10);
         }
 
-        private void RefreshButtonClicked(object sender, RoutedEventArgs e)
+        private async void RefreshButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
-            Podcast podcastDataItem = (Podcast)DefaultViewModel["Item"];
-            Task t = podcastDataItem.LoadFromRssAsync(true);
+            Podcast podcastDataItem = (Podcast)DefaultViewModel["Podcast"];
+            await podcastDataItem.RefreshFromRss(true);
         }
     }
 }

@@ -1,63 +1,57 @@
 ﻿using Newtonsoft.Json;
-using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
-using Windows.Data.Html;
 using Windows.Data.Xml.Dom;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
+using Windows.Web.Http;
 using Windows.Web.Syndication;
 
 namespace PodCatch.DataModel
 {
     [DataContract]
-    public class Podcast : BaseData
+    public class Podcast : INotifyPropertyChanged
     {
+        private bool m_Loaded;
         private string m_Title;
         private string m_Description;
+        private string m_Image;
 
-        public Podcast(String title, String uri, string searchImage, String description)
-            : this(uri)
+        public Podcast()
         {
-            Title = title;
-            Description = description;
-            PodcastImage.Update(searchImage, ImageSource.Search);
-            LastUpdatedTimeTicks = 0;
-            LastStoreTimeTicks = 0;
-        }
-
-        [JsonConstructor]
-        public Podcast(String uri) : base (null)
-        {
+            AllEpisodes = new List<Episode>();
             Episodes = new ObservableCollection<Episode>();
-            Uri = uri;
-            PodcastImage = new PodcastImage(null, ImageSource.NotSet, UniqueId);
         }
 
-        public string UniqueId 
-        { 
+        public string Uri { get; set; }
+        [DataMember]
+        public List<Episode> AllEpisodes { get; set; }
+
+        public ObservableCollection<Episode> Episodes { get; private set; }
+
+        public string Id
+        {
             get
             {
                 return String.Format("0x{0:X8}", Uri.GetHashCode());
             }
         }
+
         [DataMember]
         public string Title
         {
             get { return m_Title; }
-            private set { m_Title = value; NotifyPropertyChanged("Title"); }
+            set { m_Title = value; NotifyPropertyChanged("Title"); }
         }
-        [GlobalDataMember]
-        [DataMember]
-        public string Uri { get; private set; }
         [DataMember]
         public string Description
         {
@@ -65,48 +59,62 @@ namespace PodCatch.DataModel
             private set { m_Description = value; NotifyPropertyChanged("Description"); }
         }
         [DataMember]
-        public PodcastImage PodcastImage { get; private set; }
-
         public string Image
         {
-            get
+            get { return m_Image; }
+            set { m_Image = value; NotifyPropertyChanged("Image"); }
+        }
+        [DataMember]
+        private long LastRefreshTimeTicks { get; set; }
+
+        public async Task Load()
+        {
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            try
             {
-                return PodcastImage.Image;
+                StorageFile file = await localFolder.GetFileAsync(CacheFileName);
+                if (file != null)
+                {
+                    using (Stream stream = await file.OpenStreamForReadAsync())
+                    {
+                        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Podcast));
+                        Podcast readPodcast = (Podcast)serializer.ReadObject(stream);
+
+                        await UpdateFields (readPodcast);
+                    }
+                }
             }
+            catch (Exception e)
+            {
+
+            }
+            await RefreshFromRss(false);
+            DisplayNextEpisodes(3);
         }
 
-        public ObservableCollection<Episode> Episodes {get; private set;}
-        [DataMember]
-        private List<Episode> AllEpisodes { get; set; }
-        [DataMember]
-        private long LastUpdatedTimeTicks { get; set; }
-        [DataMember]
-        private long LastStoreTimeTicks { get; set; }
-        public int NumberOfEpisodesDisplayed { get; private set; }
-        public int NumberOfAvailableEpisodes { get; private set; }
-
-        public async Task LoadFromRssAsync(bool force)
+        public async Task RefreshFromRss(bool force)
         {
-            DateTime lastUpdatedTime = new DateTime(LastUpdatedTimeTicks);
-            // limit refreshs to every 2 hours
-            if (DateTime.UtcNow - lastUpdatedTime < TimeSpan.FromHours(2) && ! force)
+            DateTime lastRefreshTime = new DateTime(LastRefreshTimeTicks);
+            if (DateTime.UtcNow - lastRefreshTime < TimeSpan.FromHours(2) && !force && AllEpisodes.Count > 0)
             {
-                DisplayNextEpisodes(5);
                 return;
             }
 
-            // Update data from actual RSS feed
             try
             {
                 SyndicationFeed syndicationFeed = new SyndicationFeed();
-                XmlDocument feedXml = await XmlDocument.LoadFromUriAsync(new Uri(Uri));
+
+                HttpClient httpClient = new HttpClient();
+                string xmlString = await httpClient.GetStringAsync(new Uri(Uri));
+                XmlDocument feedXml = new XmlDocument();
+                feedXml.LoadXml(xmlString);
+
                 syndicationFeed.LoadFromXml(feedXml);
 
                 // don't refresh if feed has not been updated since
                 if (syndicationFeed.LastUpdatedTime != null &&
-                    syndicationFeed.LastUpdatedTime.DateTime > lastUpdatedTime)
+                    syndicationFeed.LastUpdatedTime.DateTime > lastRefreshTime)
                 {
-                    NumberOfAvailableEpisodes = syndicationFeed.Items.Count();
                     Title = syndicationFeed.Title.Text;
 
                     if (syndicationFeed.Subtitle != null)
@@ -116,19 +124,17 @@ namespace PodCatch.DataModel
 
                     if (syndicationFeed.ImageUri != null)
                     {
-                        PodcastImage.Update(syndicationFeed.ImageUri.AbsoluteUri, ImageSource.Rss);
+                        await LoadImage(syndicationFeed.ImageUri);
                     }
 
-                    LoadEpisodes(syndicationFeed);
+                    ReadRssEpisodes(syndicationFeed);
+
+                    Episodes.Clear();
+                    DisplayNextEpisodes(3);
                 }
 
                 // keep record of last update time
-                LastUpdatedTimeTicks = DateTime.UtcNow.Ticks;
-
-                DisplayNextEpisodes(5);
-
-                // and store changes locally (including LastUpdateTime)
-                await StoreToCacheAsync();
+                LastRefreshTimeTicks = DateTime.UtcNow.Ticks;
             }
             catch (Exception e)
             {
@@ -136,9 +142,8 @@ namespace PodCatch.DataModel
             }
         }
 
-        private void LoadEpisodes(SyndicationFeed syndicationFeed)
+        private void ReadRssEpisodes(SyndicationFeed syndicationFeed)
         {
-            AllEpisodes = new List<Episode>();
             foreach (SyndicationItem item in syndicationFeed.Items)
             {
                 Uri uri = null;
@@ -154,96 +159,152 @@ namespace PodCatch.DataModel
                 {
                     string episodeTitle = item.Title != null ? item.Title.Text : "<No Title>";
                     string episodeSummary = item.Summary != null ? item.Summary.Text : "<No Summary>";
-                    Episode episode = new Episode(UniqueId, episodeTitle, episodeSummary, item.PublishedDate, uri, this, Episodes);
-                    AllEpisodes.Add(episode);
+                    
+                    Episode search = new Episode()
+                    {
+                        Uri = uri,
+                    };
+                    Episode episode = GetEpisodeById(search.Id);
+                    
+                    episode.Description = episodeSummary;
+                    episode.Title = episodeTitle;
+                    episode.Uri = uri;
+                    //episode.ParentCollection = AllEpisodes;
                 }
             }
-            NumberOfAvailableEpisodes = AllEpisodes.Count();
+        }
+
+        public async Task DownloadEpisodes()
+        {
+            foreach (Episode episode in Episodes)
+            {
+                if (episode.State == EpisodeState.PendingDownload)
+                {
+                    await episode.Download();
+                }
+            }
+        }
+
+        private async Task LoadImage(Uri imageUri)
+        {
+            Uri validUri;
+            if (!System.Uri.TryCreate(imageUri.ToString(), UriKind.Absolute, out validUri))
+            {
+                return;
+            }
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            string imageExtension = Path.GetExtension(imageUri.ToString());
+            string localImagePath = string.Format("{0}{1}", Id, imageExtension);
+            ulong oldFileSize = await GetCachedFileSize(localImagePath);
+            // the image we have is from the cache
+            StorageFile localImageFile = await localFolder.CreateFileAsync(localImagePath, CreationCollisionOption.ReplaceExisting);
+            BackgroundDownloader downloader = new BackgroundDownloader();
+            try
+            {
+                DownloadOperation downloadOperation = downloader.CreateDownload(imageUri, localImageFile);
+                await downloadOperation.StartAsync();
+                Image = localImageFile.Path;
+
+                ulong newFileSize = await GetCachedFileSize(localImagePath);
+                //if (newFileSize != oldFileSize)
+                {
+                    NotifyPropertyChanged("Image");
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
+
+        private async Task<ulong> GetCachedFileSize(string path)
+        {
+            ulong fileSize = 0;
+            try
+            {
+                StorageFile existingFile = await ApplicationData.Current.LocalFolder.GetFileAsync(path);
+                if (existingFile != null)
+                {
+                    BasicProperties fileProperties = await existingFile.GetBasicPropertiesAsync();
+                    fileSize = fileProperties.Size;
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            return fileSize;
+        }
+
+        private async Task UpdateFields (Podcast fromCache)
+        {
+            Title = fromCache.Title;
+            Description = fromCache.Description;
+            Image = fromCache.Image;
+            LastRefreshTimeTicks = fromCache.LastRefreshTimeTicks;
+
+            foreach (Episode episodeFromCache in fromCache.AllEpisodes)
+            {
+                Episode episode = GetEpisodeById(episodeFromCache.Id);
+                await episode.UpdateFromCache(episodeFromCache);
+            }
+        }
+
+        private Episode GetEpisodeById(string episodeId)
+        {
+            IEnumerable<Episode> found = AllEpisodes.Where((episode) => episode.Id.Equals(episodeId));
+
+            if (found.Count() > 0)
+            {
+                return found.First();
+            }
+
+            // nothing in cache, but something in roaming settings
+            Episode newEpisode = new Episode()
+            {
+                PodcastId = Id,
+                Id = episodeId,
+            };
+            AllEpisodes.Add(newEpisode);
+            return newEpisode;
+        }
+
+        private string CacheFileName
+        {
+            get
+            {
+                return string.Format("{0}.json", Id);
+            }
         }
 
         public int DisplayNextEpisodes(int increment)
         {
-            if (NumberOfEpisodesDisplayed >= NumberOfAvailableEpisodes)
+            if (Episodes.Count() >= AllEpisodes.Count())
             {
-                return NumberOfEpisodesDisplayed;
+                return Episodes.Count();
             }
-            int target = NumberOfEpisodesDisplayed + increment;
-            for (; NumberOfEpisodesDisplayed < NumberOfAvailableEpisodes && NumberOfEpisodesDisplayed < target; NumberOfEpisodesDisplayed++)
+            int target = Episodes.Count() + increment;
+            while (Episodes.Count() < Math.Min(AllEpisodes.Count(), target))
             {
-                Episode next = AllEpisodes[NumberOfEpisodesDisplayed];
+                Episode next = AllEpisodes[Episodes.Count()];
                 if (!Episodes.Contains(next))
                 {
-                    Episodes.Insert(NumberOfEpisodesDisplayed, next);
+                    Episodes.Insert(Episodes.Count(), next);
                 }
             }
-            return NumberOfEpisodesDisplayed;
+            return Episodes.Count();
         }
 
-        /// <summary>
-        /// 
-        /// Get cached data from local storage
-        /// </summary>
-        /// <returns></returns>
-        public async Task LoadFromCacheAsync()
+        public async Task Store()
         {
-            // use cached data if we have it
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            bool failed = true;
-            StorageFile jsonFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.OpenIfExists);
-            using (Stream stream = await jsonFile.OpenStreamForReadAsync())
-            {
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    using (JsonTextReader jsonReader = new JsonTextReader(reader))
-                    {
-                        JsonSerializer serializer = new JsonSerializer();
-                        try
-                        {
-                            Podcast readItem = serializer.Deserialize<Podcast>(jsonReader);
-                            if (readItem != null)
-                            {
-                                Title = readItem.Title;
-                                Description = readItem.Description;
-                                AllEpisodes = readItem.AllEpisodes;
-                                NumberOfAvailableEpisodes = AllEpisodes.Count();
-                                LastUpdatedTimeTicks = readItem.LastUpdatedTimeTicks;
-                                PodcastImage.Update(readItem.PodcastImage.Image, readItem.PodcastImage.ImageSource);
-                                NotifyPropertyChanged("Image");
-
-                                failed = false;
-
-                                // load episode states
-                                foreach (Episode episode in AllEpisodes)
-                                {
-                                    episode.Parent = this;
-                                    episode.LoadStateAsync(Episodes);
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            failed = true;
-                        }
-                    }
-                }
-                if (failed)
-                {
-                    await jsonFile.DeleteAsync();
-                }
-            }
-        }
-
-        override public async Task StoreToCacheAsync()
-        {
-            await PodcastImage.StoreToCacheAsync();
-            if (PodcastImage.Changed)
-            {
-                NotifyPropertyChanged("Image");
-            }
-
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            StorageFile jsonFile = await localFolder.CreateFileAsync(string.Format("{0}.json", UniqueId), CreationCollisionOption.ReplaceExisting);
+            StorageFile jsonFile = await localFolder.CreateFileAsync(CacheFileName, CreationCollisionOption.ReplaceExisting);
+            DataContractJsonSerializer serialzer = new DataContractJsonSerializer(typeof(Podcast));
             using (Stream stream = await jsonFile.OpenStreamForWriteAsync())
+            {
+                serialzer.WriteObject(stream, this);
+            }
+            /*using (Stream stream = await jsonFile.OpenStreamForWriteAsync())
             {
                 using (StreamWriter writer = new StreamWriter(stream))
                 {
@@ -254,12 +315,30 @@ namespace PodCatch.DataModel
                         serializer.Serialize(jsonWriter, this);
                     }
                 }
+            }*/
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this,
+                    new PropertyChangedEventArgs(propertyName));
             }
         }
 
-        public override string ToString()
+        public override bool Equals(object obj)
         {
-            return this.Title;
+            Podcast other = obj as Podcast;
+            if (other == null)
+                return false;
+            return other.Id == Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
         }
     }
 }

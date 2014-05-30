@@ -29,7 +29,12 @@ namespace PodCatch.Search
                     ITunesSearchResults appleSearchResults = (ITunesSearchResults)serializer.ReadObject(stream);
                     foreach (ITunesSearchResult result in appleSearchResults.results)
                     {
-                        Podcast podcast = new Podcast(result.artistName, result.feedUrl, result.artworkUrl100, string.Empty);
+                        Podcast podcast = new Podcast()
+                        {
+                            Title = result.artistName,
+                            Uri = result.feedUrl,
+                            Image = result.artworkUrl100,
+                        };
                         results.Add(podcast);
                     }
                 }

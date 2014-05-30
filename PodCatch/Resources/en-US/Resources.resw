@@ -117,22 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="FavoritesDescription" xml:space="preserve">
+  <data name="FavoritesDescriptionText" xml:space="preserve">
     <value>Episodes of your favorite podcasts will be updated automatically</value>
   </data>
-  <data name="FavoritesSubtitle" xml:space="preserve">
+  <data name="FavoritesSubtitleText" xml:space="preserve">
     <value>Your favorite podcasts</value>
   </data>
-  <data name="FavoritesTitle" xml:space="preserve">
+  <data name="FavoritesTitleText" xml:space="preserve">
     <value>Favorites</value>
   </data>
-  <data name="SearchDescription" xml:space="preserve">
+  <data name="SearchDescriptionText" xml:space="preserve">
     <value>These are the podcasts you have searched for</value>
   </data>
-  <data name="SearchSubtitle" xml:space="preserve">
+  <data name="SearchSubtitleText" xml:space="preserve">
     <value />
   </data>
-  <data name="SearchTitle" xml:space="preserve">
+  <data name="SearchTitleText" xml:space="preserve">
     <value>Search</value>
   </data>
 </root>

@@ -18,6 +18,7 @@ namespace PodCatch.BackgroundTasks
             taskInstance.Canceled += OnTaskInstanceCanceled;
             await PodcastDataSource.Instance.Load();
             List<Task> pendingDownloads = new List<Task>();
+            /* TODO
             PodcastGroup favorites = PodcastDataSource.Instance.GetGroup(Constants.FavoritesGroupId);
             foreach (Podcast podcast in favorites.Podcasts)
             {
@@ -25,10 +26,11 @@ namespace PodCatch.BackgroundTasks
                 {
                     if (episode.State == EpisodeState.PendingDownload)
                     {
-                        pendingDownloads.Add(episode.DownloadAsync());
+                        pendingDownloads.Add(episode.Download());
                     }
                 }
-            }
+            }*/
+            
             Task.WaitAll(pendingDownloads.ToArray(), m_cancellationTokenSouce.Token);
             deferral.Complete();
         }

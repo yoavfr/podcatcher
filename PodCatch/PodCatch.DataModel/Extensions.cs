@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
-using Windows.Data.Xml.Dom;
 
-namespace PodCatch.Common
+namespace PodCatch.DataModel
 {
     public static class Extensions
     {
@@ -16,7 +14,7 @@ namespace PodCatch.Common
             int i = 1;
             int index = 0;
 
-            while (i <= occurence && 
+            while (i <= occurence &&
                 index < s.Length &&
                 (index = s.IndexOf(match, index + 1)) != -1)
             {
@@ -27,6 +25,22 @@ namespace PodCatch.Common
             }
 
             return -1;
+        }
+
+        public static void AddAll<T>(this Collection<T> dest, Collection<T> src)
+        {
+            foreach (T t in src)
+            {
+                dest.Add(t);
+            }
+        }
+
+        public static void AddAll<T>(this Collection<T> dest, IEnumerable<T> src)
+        {
+            foreach (T t in src)
+            {
+                dest.Add(t);
+            }
         }
     }
 }
