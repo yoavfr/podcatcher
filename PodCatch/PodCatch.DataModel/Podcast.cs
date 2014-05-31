@@ -25,6 +25,7 @@ namespace PodCatch.DataModel
         private string m_Description;
         private string m_Image;
         int m_numEpisodesToShow = 3;
+        ObservableCollection<Episode> m_Episodes;
 
         public Podcast()
         {
@@ -36,13 +37,16 @@ namespace PodCatch.DataModel
         public List<Episode> AllEpisodes { get; set; }
 
         public ObservableCollection<Episode> Episodes 
-        { 
+        {
             get
             {
-                return new ObservableCollection<Episode>(AllEpisodes.Where((x,index) => index < m_numEpisodesToShow));
+                if (m_Episodes == null)
+                {
+                    m_Episodes = new ObservableCollection<Episode>(AllEpisodes.Where((x,index) => index < m_numEpisodesToShow));
+                }
+                return m_Episodes;
             }
         }
-
         public string Id
         {
             get
@@ -132,8 +136,6 @@ namespace PodCatch.DataModel
                     }
 
                     ReadRssEpisodes(syndicationFeed);
-
-                    NotifyPropertyChanged("Episodes");
                 }
 
                 // keep record of last update time
@@ -293,7 +295,8 @@ namespace PodCatch.DataModel
             }
             int target = m_numEpisodesToShow + increment;
             m_numEpisodesToShow = Math.Min(AllEpisodes.Count(), target);
-            NotifyPropertyChanged("Episodes");
+            Episodes.Clear();
+            Episodes.AddAll(AllEpisodes.Where((x,index) => index < m_numEpisodesToShow));
             return m_numEpisodesToShow;
         }
 
