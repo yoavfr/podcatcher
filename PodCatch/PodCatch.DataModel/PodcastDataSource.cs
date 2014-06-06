@@ -155,6 +155,10 @@ namespace PodCatch.DataModel
 
             searchGroup.Podcasts.Clear();
             searchGroup.Podcasts.AddAll(podcasts);
+            foreach (Podcast podcast in searchGroup.Podcasts)
+            {
+                Task t = podcast.RefreshFromRss(false);
+            }
         }
 
         public async Task<bool> AddToFavorites(Podcast podcast)

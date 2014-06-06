@@ -71,15 +71,18 @@ namespace PodCatch.DataModel
             }
         }
 
-        public string FormattedDescription()
+        public string FormattedDescription
         {
-            string descriptionAsPlainString = HtmlUtilities.ConvertToText(Description).Trim('\n', '\r', '\t', ' ');
-            int lineLimit = descriptionAsPlainString.IndexOfOccurence("\n", 10);
-            if (lineLimit != -1)
+            get
             {
-                descriptionAsPlainString = descriptionAsPlainString.Substring(0, lineLimit) + "\n...";
+                string descriptionAsPlainString = HtmlUtilities.ConvertToText(Description).Trim('\n', '\r', '\t', ' ');
+                int lineLimit = descriptionAsPlainString.IndexOfOccurence("\n", 10);
+                if (lineLimit != -1)
+                {
+                    descriptionAsPlainString = descriptionAsPlainString.Substring(0, lineLimit) + "\n...";
+                }
+                return descriptionAsPlainString;
             }
-            return descriptionAsPlainString;
         }
 
         public TimeSpan Position
