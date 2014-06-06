@@ -29,29 +29,32 @@ namespace PodCatch.DataModel
 
         public async Task Download()
         {
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("user-agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)");
-            HttpResponseMessage response = await httpClient.GetAsync(m_SourceUri, HttpCompletionOption.ResponseHeadersRead);
-            TotalBytes = response.Content.Headers.ContentLength.Value;
-            IBuffer buffer = new Windows.Storage.Streams.Buffer(m_bufferSize);
-            using (IRandomAccessStream fileStream = await m_DestinationFile.OpenAsync(FileAccessMode.ReadWrite))
+            using (HttpClient httpClient = new HttpClient())
             {
-                using (IInputStream httpStream = await response.Content.ReadAsInputStreamAsync())
+                httpClient.DefaultRequestHeaders.Add("user-agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)");
+                HttpResponseMessage response = await httpClient.GetAsync(m_SourceUri, HttpCompletionOption.ResponseHeadersRead);
+                TotalBytes = response.Content.Headers.ContentLength.Value;
+                IBuffer buffer = new Windows.Storage.Streams.Buffer(m_bufferSize);
+                using (IRandomAccessStream fileStream = await m_DestinationFile.OpenAsync(FileAccessMode.ReadWrite))
                 {
-                    do
+                    using (IInputStream httpStream = await response.Content.ReadAsInputStreamAsync())
                     {
-                        await httpStream.ReadAsync(buffer, m_bufferSize, InputStreamOptions.ReadAhead);
-                        if (buffer.Length > 0)
+                        do
                         {
-                            await fileStream.WriteAsync(buffer);
-                            if (m_Progress != null)
+                            await httpStream.ReadAsync(buffer, m_bufferSize, InputStreamOptions.ReadAhead);
+                            if (buffer.Length > 0)
                             {
-                                DownloadedBytes += buffer.Length;
-                                ((IProgress<Downloader>)m_Progress).Report(this);
+                                await fileStream.WriteAsync(buffer);
+                                if (m_Progress != null)
+                                {
+                                    DownloadedBytes += buffer.Length;
+                                    ((IProgress<Downloader>)m_Progress).Report(this);
+                                }
                             }
                         }
+                        while (buffer.Length > 0);
                     }
-                    while (buffer.Length > 0);
+                    await fileStream.FlushAsync();
                 }
             }
         }
