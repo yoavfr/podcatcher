@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -9,7 +10,6 @@ using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 using Windows.Data.Xml.Dom;
 using Windows.Foundation;
-using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Web.Http;
@@ -79,6 +79,7 @@ namespace PodCatch.DataModel
         public async Task Load()
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            Debug.WriteLine("Podcast.Load(): from {0}",localFolder.Path);
             try
             {
                 StorageFile file = await localFolder.GetFileAsync(CacheFileName);
@@ -95,7 +96,7 @@ namespace PodCatch.DataModel
             }
             catch (Exception e)
             {
-
+                Debug.WriteLine("Podcast.Load(): error loading {0}. {1}", Id, e);
             }
             await RefreshFromRss(false);
         }
@@ -188,6 +189,7 @@ namespace PodCatch.DataModel
                     allEpisodes.Add(episode.Download());
                 }
             }
+            DisplayEpisodes();
             await Task.WhenAll(allEpisodes);
         }
 
@@ -204,11 +206,12 @@ namespace PodCatch.DataModel
             ulong oldFileSize = await GetCachedFileSize(localImagePath);
             // the image we have is from the cache
             StorageFile localImageFile = await localFolder.CreateFileAsync(localImagePath, CreationCollisionOption.ReplaceExisting);
-            BackgroundDownloader downloader = new BackgroundDownloader();
+            Downloader downloader = new Downloader(imageUri, localImageFile);
             try
             {
-                DownloadOperation downloadOperation = downloader.CreateDownload(imageUri, localImageFile);
-                await downloadOperation.StartAsync();
+                Debug.WriteLine("Podcast.LoadImage(): Downloading {0} -> {1}", imageUri, localImageFile.Path);
+                await downloader.Download();
+                Debug.WriteLine("Podcast.LoadImage(): Finished downloading {0} -> {1}", imageUri, localImageFile.Path);
                 Image = localImageFile.Path;
 
                 ulong newFileSize = await GetCachedFileSize(localImagePath);
@@ -219,7 +222,7 @@ namespace PodCatch.DataModel
             }
             catch (Exception e)
             {
-
+                Debug.WriteLine("Podcast.LoadImage(): Failed downloading {0} -> {1}. {2}", imageUri, localImageFile.Path, e);
             }
         }
 
@@ -295,9 +298,17 @@ namespace PodCatch.DataModel
             }
             int target = m_numEpisodesToShow + increment;
             m_numEpisodesToShow = Math.Min(AllEpisodes.Count(), target);
-            Episodes.Clear();
-            Episodes.AddAll(AllEpisodes.Where((x,index) => index < m_numEpisodesToShow));
+            DisplayEpisodes();
             return m_numEpisodesToShow;
+        }
+
+        public void DisplayEpisodes()
+        {
+            Dispatcher.Instance.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                Episodes.Clear();
+                Episodes.AddAll(AllEpisodes.Where((x,index) => index < m_numEpisodesToShow));
+            });
         }
 
         public async Task Store()

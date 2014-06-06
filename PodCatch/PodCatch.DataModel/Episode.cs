@@ -1,11 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Windows.Data.Html;
 using Windows.Foundation;
-using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 
@@ -188,13 +188,13 @@ namespace PodCatch.DataModel
                 return;
             }
 
-            Progress<DownloadOperation> progress = new Progress<DownloadOperation>((operation) =>
+            Progress<Downloader> progress = new Progress<Downloader>((downloader) =>
             {
-                ulong totalBytesToReceive = operation.Progress.TotalBytesToReceive;
+                ulong totalBytesToReceive = downloader.TotalBytes;
                 double at = 0;
                 if (totalBytesToReceive > 0)
                 {
-                    at = (double)operation.Progress.BytesReceived / totalBytesToReceive;
+                    at = (double)downloader.DownloadedBytes / totalBytesToReceive;
                 }
                 DownloadProgress = at;
             });
@@ -203,10 +203,9 @@ namespace PodCatch.DataModel
             try
             {
                 StorageFile localFile = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.ReplaceExisting);
-                BackgroundDownloader downloader = new BackgroundDownloader();
                 State = EpisodeState.Downloading;
-                DownloadOperation downloadOperation = downloader.CreateDownload(Uri, localFile);
-                await downloadOperation.StartAsync().AsTask(progress);
+                Downloader downloader = new Downloader(Uri, localFile, progress);
+                await downloader.Download();
                 
                 // set duration
                 MusicProperties musicProperties = await localFile.Properties.GetMusicPropertiesAsync();
@@ -219,19 +218,21 @@ namespace PodCatch.DataModel
             catch (Exception e)
             {
                 State = EpisodeState.PendingDownload;
+                Debug.WriteLine("Episode.Download(): error downloading {0}. {1}", Id, e);
             }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string propertyName)
         {
-            if (PropertyChanged == null)
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler == null)
             {
                 return;
             }
             IAsyncAction t = Dispatcher.Instance.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                PropertyChanged(this,
+                handler(this,
                     new PropertyChangedEventArgs(propertyName));
             });
         }

@@ -231,7 +231,7 @@ namespace PodCatch
                     NavigationHelper.GoBack();
                     break;
                 case 3: // Add to favorites
-                    await PodcastDataSource.Instance.AddToFavorites(selectedPodcast);
+                    PodcastDataSource.Instance.AddToFavorites(selectedPodcast);
                     break;
             }
         }

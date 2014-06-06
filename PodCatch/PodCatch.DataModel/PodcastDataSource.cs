@@ -127,12 +127,12 @@ namespace PodCatch.DataModel
                 {
                     AddPodcast(group.Id, podcast);
                     Task t = podcast.Load().ContinueWith((loadTask)=>
+                    {
+                        podcast.DownloadEpisodes().ContinueWith((downloadTask) =>
                         {
-                            podcast.DownloadEpisodes().ContinueWith((downloadTask) =>
-                                {
-                                    podcast.Store();
-                                });
+                            podcast.Store();
                         });
+                    });
                 }
             }
         }
@@ -173,9 +173,13 @@ namespace PodCatch.DataModel
 
             favorites.Podcasts.Add(podcast);
             Store();
-            await podcast.RefreshFromRss(true);
-            await podcast.DownloadEpisodes();
-            await podcast.Store();
+            await podcast.RefreshFromRss(true).ContinueWith((refreshTask) =>
+                {
+                    podcast.DownloadEpisodes().ContinueWith((downalodTask) =>
+                        {
+                            podcast.Store();
+                        });
+                });
             return true;
         }
 

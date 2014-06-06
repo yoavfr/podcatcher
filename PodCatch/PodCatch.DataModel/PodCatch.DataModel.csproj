@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="Dispatcher.cs" />
+    <Compile Include="Downloader.cs" />
     <Compile Include="Episode.cs" />
     <Compile Include="EpisodeState.cs" />
     <Compile Include="Extensions.cs" />
