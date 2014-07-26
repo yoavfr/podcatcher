@@ -14,9 +14,10 @@
     <Page.Resources>
         <!-- Collection of items displayed by this page -->
         <common:LocalizationConverter x:Key="LocalizationConverter"/>
+        <common:PodcastGroupImageConverter x:Key="PodcastGroupImageConverter" />
         <CollectionViewSource
             x:Name="itemsViewSource"
-            Source="{Binding Items}"/>
+            Source="{Binding Podcasts}"/>
     </Page.Resources>
 
     <!--
@@ -62,7 +63,6 @@
                         </Border>
                         <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="10,0,0,0">
                             <TextBlock Text="{Binding Title}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
-                            <TextBlock Text="{Binding Subtitle}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap"/>
                             <TextBlock Text="{Binding Description}" Style="{StaticResource BodyTextBlockStyle}" MaxHeight="60"/>
                         </StackPanel>
                     </Grid>
@@ -71,7 +71,7 @@
             <GridView.Header>
                 <StackPanel Width="480" Margin="0,4,14,0">
                     <TextBlock Text="{Binding SubtitleText, Converter={StaticResource LocalizationConverter}}" Margin="0,0,0,20" Style="{StaticResource SubheaderTextBlockStyle}" MaxHeight="60"/>
-                    <Image Source="{Binding Image}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"/>
+                    <Image Source="{Binding Id, Converter={StaticResource PodcastGroupImageConverter}}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding TitleText}"/>
                     <TextBlock Text="{Binding DescriptionText, Converter={StaticResource LocalizationConverter}}" Margin="0,0,0,0" Style="{StaticResource BodyTextBlockStyle}"/>
                 </StackPanel>
             </GridView.Header>

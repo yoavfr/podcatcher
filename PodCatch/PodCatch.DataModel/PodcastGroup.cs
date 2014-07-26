@@ -22,7 +22,6 @@ namespace PodCatch.DataModel
         public string TitleText { get; set; }
         public string SubtitleText { get; set; }
         public string DescriptionText { get; set; }
-        public string ImagePath { get; set; }
         [DataMember]
         public Collection<RoamingPodcastData> RoamingPodcastsData
         {

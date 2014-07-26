@@ -110,6 +110,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\AltBackgroundConverter.cs" />
+    <Compile Include="Common\PodcastGroupImageConverter.cs" />
     <Compile Include="Common\EpisodePositionConverter.cs" />
     <Compile Include="Common\EpisodeStateProgressVisiblityConverter.cs" />
     <Compile Include="Common\EpisodeStateButtonEnabledConverter.cs" />
@@ -154,7 +155,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\DarkGray.png" />
-    <Content Include="Assets\Logo.scale-100.png" />
+    <Content Include="Assets\Favorites.png" />
+    <Content Include="Assets\Logo.scale-100.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Search.png" />
     <Content Include="Assets\SmallLogo.scale-100.png" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
     <Content Include="Assets\StoreLogo.scale-100.png" />

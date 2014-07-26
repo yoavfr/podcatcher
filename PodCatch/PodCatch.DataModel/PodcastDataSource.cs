@@ -38,7 +38,6 @@ namespace PodCatch.DataModel
                 TitleText = "FavoritesTitleText",
                 SubtitleText = "FavoritesSubtitleText",
                 DescriptionText = "FavoritesDescriptionText",
-                ImagePath = "..\\Assets\\DarkGrey.png",
             };
             Groups.Add(favorites);
         }
@@ -51,7 +50,6 @@ namespace PodCatch.DataModel
                 TitleText = "SearchTitleText",
                 SubtitleText = "SearchSubtitleText",
                 DescriptionText = "SearchDescriptionText",
-                ImagePath = "..\\Assets\\DarkGrey.png",
             };
             Groups.Add(searchGroup);
             return searchGroup;
