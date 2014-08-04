@@ -96,7 +96,7 @@ namespace PodCatch
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
             var itemId = ((Podcast)e.ClickedItem).Id;
-            this.Frame.Navigate(typeof(PodcatchPath), itemId);
+            this.Frame.Navigate(typeof(PodcastPage), itemId);
         }
 
         #region NavigationHelper registration
