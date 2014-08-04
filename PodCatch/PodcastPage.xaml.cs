@@ -65,7 +65,7 @@ namespace PodCatch
         /// session.  The state will be null the first time a page is visited.</param>
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            Podcast podcast = PodcastDataSource.Instance.GetPodcast((String)e.NavigationParameter); 
+            Podcast podcast = (Podcast)e.NavigationParameter; 
             this.DefaultViewModel["Podcast"] = podcast;
             this.DefaultViewModel["Episodes"] = podcast.Episodes;
 
