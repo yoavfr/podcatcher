@@ -136,6 +136,12 @@ namespace PodCatch
                         MediaPlayer.Pause(episode);
                         break;
                     }
+                case (EpisodeState.Played):
+                    {
+                        episode.Position = TimeSpan.FromSeconds(0);
+                        MediaPlayer.Play(episode);
+                        break;
+                    }
             }
         }
 

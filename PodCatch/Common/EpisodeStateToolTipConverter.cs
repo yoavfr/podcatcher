@@ -22,6 +22,7 @@ namespace PodCatch.Common
                     case EpisodeState.Downloading:
                         return "Downloading";
                     case EpisodeState.Downloaded:
+                    case EpisodeState.Played:
                         return "Play";
                     case EpisodeState.Playing:
                         return "Pause";

@@ -25,6 +25,7 @@ namespace PodCatch.Common
                     case EpisodeState.Downloading:
                         return new SymbolIcon(Symbol.MoveToFolder);
                     case EpisodeState.Downloaded:
+                    case EpisodeState.Played:
                         return new SymbolIcon(Symbol.Play);
                     case EpisodeState.Playing:
                         return new SymbolIcon(Symbol.Pause);

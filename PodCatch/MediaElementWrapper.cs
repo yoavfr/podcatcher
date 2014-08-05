@@ -67,6 +67,18 @@ namespace PodCatch
             m_NowPlaying = episode;
             episode.State = EpisodeState.Playing;
             MediaElement.Play();
+            MediaElement.MediaEnded += MediaElement_MediaEnded;
+        }
+
+        void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            Episode episode = m_NowPlaying;
+            if (episode != null)
+            {
+                m_NowPlaying = null;
+                episode.State = EpisodeState.Played;
+            }
+            MediaElement.MediaEnded -= MediaElement_MediaEnded;
         }
 
         public void Pause(Episode episode)

@@ -24,10 +24,11 @@ namespace PodCatch.Common
                     case EpisodeState.Downloaded:
                     case EpisodeState.Playing:
                     case EpisodeState.Scanning:
+                    case EpisodeState.Played:
                         return Visibility.Visible;
                 }
             }
-            return false;
+            return Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

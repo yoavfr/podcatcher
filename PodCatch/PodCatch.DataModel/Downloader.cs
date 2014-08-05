@@ -33,6 +33,11 @@ namespace PodCatch.DataModel
             {
                 httpClient.DefaultRequestHeaders.Add("user-agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)");
                 HttpResponseMessage response = await httpClient.GetAsync(m_SourceUri, HttpCompletionOption.ResponseHeadersRead);
+                if (response.StatusCode != HttpStatusCode.Ok)
+                {
+                    string result = await response.Content.ReadAsStringAsync();
+                    throw new Exception(result);
+                }
                 TotalBytes = response.Content.Headers.ContentLength.Value;
                 IBuffer buffer = new Windows.Storage.Streams.Buffer(m_bufferSize);
                 using (IRandomAccessStream fileStream = await m_DestinationFile.OpenAsync(FileAccessMode.ReadWrite))
