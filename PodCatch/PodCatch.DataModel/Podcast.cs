@@ -76,6 +76,14 @@ namespace PodCatch.DataModel
         [DataMember]
         private long LastRefreshTimeTicks { get; set; }
 
+        public int NumUnplayedEpisodes
+        {
+            get
+            {
+                return Episodes.Count(episode => episode.State != EpisodeState.Played);
+            }
+        }
+
         public async Task Load()
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
@@ -91,6 +99,7 @@ namespace PodCatch.DataModel
                         Podcast readPodcast = (Podcast)serializer.ReadObject(stream);
 
                         await UpdateFields (readPodcast);
+                        NotifyPropertyChanged("NumUnplayedEpisodes");
                     }
                 }
             }
@@ -137,6 +146,7 @@ namespace PodCatch.DataModel
                     }
 
                     ReadRssEpisodes(syndicationFeed);
+                    NotifyPropertyChanged("NumUnplayedEpisodes");
                 }
 
                 // keep record of last update time
