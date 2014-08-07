@@ -203,6 +203,14 @@ namespace PodCatch.DataModel
             await Task.WhenAll(allEpisodes);
         }
 
+        public Podcast Self
+        {
+            get
+            {
+                return this;
+            }
+        }
+
         private async Task LoadImage(Uri imageUri)
         {
             Uri validUri;

@@ -14,6 +14,7 @@
     <Page.Resources>
         <x:String x:Key="ChevronGlyph">&#xE26B;</x:String>
         <common:LocalizationConverter x:Key="LocalizationConverter"/>
+        <common:PodcastUnplayedCounterVisibilityConverter x:Key="PodcastUnplayedCounterVisibilityConverter"/>
         <!--
             Collection of grouped items displayed by this page, bound to a subset
             of the complete item list because items in groups cannot be virtualized
@@ -70,7 +71,7 @@
                             <Image Source="{Binding Image}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"/>
                         </Border>
                         <!-- Podcasts -->
-                        <Canvas Margin="210,10">
+                        <Canvas Margin="210,10" Visibility="{Binding Self, Converter={StaticResource PodcastUnplayedCounterVisibilityConverter}}">
                             <Ellipse Fill="Red" Height="30" Width="30"/>
                             <TextBlock Text="{Binding NumUnplayedEpisodes}" Margin="11,5,0,0" Foreground="White" FontWeight="Bold" />
                         </Canvas>

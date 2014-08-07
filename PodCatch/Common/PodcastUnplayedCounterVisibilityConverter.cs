@@ -10,22 +10,15 @@ using Windows.UI.Xaml.Data;
 
 namespace PodCatch.Common
 {
-    public class EpisodeStateProgressVisiblityConverter : IValueConverter
+    public class PodcastUnplayedCounterVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value != null && value is EpisodeState)
+            if (value != null && value is Podcast)
             {
-                switch ((EpisodeState)value)
+                if (PodcastDataSource.Instance.IsPodcastInFavorites((Podcast)value))
                 {
-                    case EpisodeState.PendingDownload:
-                    case EpisodeState.Downloaded:
-                    case EpisodeState.Playing:
-                    case EpisodeState.Scanning:
-                    case EpisodeState.Played:
-                        return Visibility.Collapsed;
-                    case EpisodeState.Downloading:
-                        return Visibility.Visible;
+                    return Visibility.Visible;
                 }
             }
             return Visibility.Collapsed;
