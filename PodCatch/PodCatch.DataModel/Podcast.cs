@@ -80,7 +80,7 @@ namespace PodCatch.DataModel
         {
             get
             {
-                return Episodes.Count(episode => !episode.Played);
+                return AllEpisodes.Where((episode, index) => index < m_numEpisodesToShow && !episode.Played).Count();
             }
         }
 
@@ -99,7 +99,6 @@ namespace PodCatch.DataModel
                         Podcast readPodcast = (Podcast)serializer.ReadObject(stream);
 
                         await UpdateFields (readPodcast);
-                        NotifyPropertyChanged("NumUnplayedEpisodes");
                     }
                 }
             }
@@ -108,6 +107,7 @@ namespace PodCatch.DataModel
                 Debug.WriteLine("Podcast.Load(): error loading {0}. {1}", Id, e);
             }
             await RefreshFromRss(false);
+            NotifyPropertyChanged("NumUnplayedEpisodes");
         }
 
         public async Task RefreshFromRss(bool force)
@@ -146,7 +146,6 @@ namespace PodCatch.DataModel
                     }
 
                     ReadRssEpisodes(syndicationFeed);
-                    NotifyPropertyChanged("NumUnplayedEpisodes");
                 }
 
                 // keep record of last update time
