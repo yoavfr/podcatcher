@@ -22,6 +22,7 @@ namespace PodCatch.DataModel
         private string m_Description;
         private Uri m_Uri;
         private bool m_Played;
+        private bool m_Visible;
 
         public Episode()
         {
@@ -83,6 +84,22 @@ namespace PodCatch.DataModel
                 m_Played = value;
                 NotifyPropertyChanged("Played");
             } 
+        }
+
+        public bool Visible
+        {
+            get
+            {
+                return m_Visible;
+            }
+            set
+            {
+                if (value)
+                {
+                    UpdateDownloadStatus();
+                }
+                m_Visible = value;
+            }
         }
 
         public string FormattedDescription
@@ -158,7 +175,7 @@ namespace PodCatch.DataModel
             Description = fromCache.Description;
         }
 
-        public async Task UpdateDownloadStatus()
+        private async Task UpdateDownloadStatus()
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             try
@@ -167,7 +184,12 @@ namespace PodCatch.DataModel
                 MusicProperties musicProperties = await file.Properties.GetMusicPropertiesAsync();
 
                 Duration = musicProperties.Duration;
-                State = EpisodeState.Downloaded;
+                // When file is partially downloaded the only indication we have that it has not completed is that the Duration is 0
+                if (Duration.TotalMilliseconds > 0)
+                {
+                    // We have a fully downloaded file - mark is as downloaded
+                    State = EpisodeState.Downloaded;
+                }
             }
             catch (FileNotFoundException e)
             {

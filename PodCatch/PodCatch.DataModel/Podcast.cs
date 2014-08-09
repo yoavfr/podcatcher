@@ -33,16 +33,23 @@ namespace PodCatch.DataModel
         }
 
         public string Uri { get; set; }
+        
+        /// <summary>
+        /// All the episodes of this podcast
+        /// </summary>
         [DataMember]
         public List<Episode> AllEpisodes { get; set; }
 
+        /// <summary>
+        /// Episodes that have Episode.Visible == true. Ideally we would do the filtering in a binding converter, but this is difficult in WinRT's ICollectionView
+        /// </summary>
         public ObservableCollection<Episode> Episodes 
         {
             get
             {
                 if (m_Episodes == null)
                 {
-                    m_Episodes = new ObservableCollection<Episode>(AllEpisodes.Where((x,index) => index < m_numEpisodesToShow));
+                    m_Episodes = new ObservableCollection<Episode>(AllEpisodes.Where((episode) => episode.Visible));
                 }
                 return m_Episodes;
             }
@@ -80,7 +87,7 @@ namespace PodCatch.DataModel
         {
             get
             {
-                return AllEpisodes.Where((episode, index) => index < m_numEpisodesToShow && !episode.Played).Count();
+                return AllEpisodes.Where((episode) => episode.Visible && !episode.Played).Count();
             }
         }
 
@@ -107,7 +114,6 @@ namespace PodCatch.DataModel
                 Debug.WriteLine("Podcast.Load(): error loading {0}. {1}", Id, e);
             }
             await RefreshFromRss(false);
-            NotifyPropertyChanged("NumUnplayedEpisodes");
         }
 
         public async Task RefreshFromRss(bool force)
@@ -153,8 +159,10 @@ namespace PodCatch.DataModel
             }
             catch (Exception e)
             {
-
+                Debug.WriteLine("Podcast.RefreshFromRss - exception: {0}", e);
             }
+            MarkVisibleEpisodes();
+            NotifyPropertyChanged("NumUnplayedEpisodes");
         }
 
         private void ReadRssEpisodes(SyndicationFeed syndicationFeed)
@@ -191,14 +199,14 @@ namespace PodCatch.DataModel
         public async Task DownloadEpisodes()
         {
             List<Task> allEpisodes = new List<Task>();
-            foreach (Episode episode in Episodes)
+            MarkVisibleEpisodes();
+            foreach (Episode episode in AllEpisodes)
             {
-                if (episode.State == EpisodeState.PendingDownload)
+                if (episode.Visible && episode.State == EpisodeState.PendingDownload)
                 {
                     allEpisodes.Add(episode.Download());
                 }
             }
-            DisplayEpisodes();
             await Task.WhenAll(allEpisodes);
         }
 
@@ -277,7 +285,6 @@ namespace PodCatch.DataModel
             {
                 Episode episode = GetEpisodeById(episodeFromCache.Id);
                 episode.UpdateFromCache(episodeFromCache);
-                await episode.UpdateDownloadStatus();
             }
         }
 
@@ -316,16 +323,32 @@ namespace PodCatch.DataModel
             }
             int target = m_numEpisodesToShow + increment;
             m_numEpisodesToShow = Math.Min(AllEpisodes.Count(), target);
+            MarkVisibleEpisodes();
             DisplayEpisodes();
             return m_numEpisodesToShow;
         }
 
-        public void DisplayEpisodes()
+        public void MarkVisibleEpisodes()
         {
-            Dispatcher.Instance.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            AllEpisodes.ForEach((episode, index) =>
+            {
+                if (index < m_numEpisodesToShow)
+                {
+                    episode.Visible = true;
+                }
+                else
+                {
+                    episode.Visible = false;
+                }
+            });
+        }
+
+        private async Task DisplayEpisodes()
+        {
+            await Dispatcher.Instance.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 Episodes.Clear();
-                Episodes.AddAll(AllEpisodes.Where((x,index) => index < m_numEpisodesToShow));
+                Episodes.AddAll(AllEpisodes.Where((episode) => episode.Visible));
             });
         }
 

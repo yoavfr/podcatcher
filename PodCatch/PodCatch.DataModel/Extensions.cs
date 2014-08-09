@@ -27,7 +27,7 @@ namespace PodCatch.DataModel
             return -1;
         }
 
-        public static void AddAll<T>(this Collection<T> dest, Collection<T> src)
+        public static void AddAll<T>(this ICollection<T> dest, Collection<T> src)
         {
             foreach (T t in src)
             {
@@ -35,11 +35,20 @@ namespace PodCatch.DataModel
             }
         }
 
-        public static void AddAll<T>(this Collection<T> dest, IEnumerable<T> src)
+        public static void AddAll<T>(this ICollection<T> dest, IEnumerable<T> src)
         {
             foreach (T t in src)
             {
                 dest.Add(t);
+            }
+        }
+
+        public static void ForEach<T>(this IEnumerable<T> source, Action<T, int> action)
+        {
+            int index = 0;
+            foreach (T element in source)
+            {
+                action(element, index++);
             }
         }
     }
