@@ -76,7 +76,8 @@ namespace PodCatch
             if (episode != null)
             {
                 m_NowPlaying = null;
-                episode.State = EpisodeState.Played;
+                episode.Played = true;
+                PodcastDataSource.Instance.Store();
             }
             MediaElement.MediaEnded -= MediaElement_MediaEnded;
         }
@@ -85,7 +86,10 @@ namespace PodCatch
         {
             MediaElement.Pause();
             episode.Position = Position;
-            episode.State = EpisodeState.Downloaded;
+            if (episode.State == EpisodeState.Playing)
+            {
+                episode.State = EpisodeState.Downloaded;
+            }
         }
 
         public static MediaElementWrapper Instance

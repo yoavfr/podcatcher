@@ -24,7 +24,6 @@ namespace PodCatch.Common
                     case EpisodeState.Downloaded:
                     case EpisodeState.Playing:
                     case EpisodeState.Scanning:
-                    case EpisodeState.Played:
                         return Visibility.Visible;
                 }
             }

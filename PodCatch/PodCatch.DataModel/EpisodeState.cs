@@ -12,7 +12,6 @@ namespace PodCatch.DataModel
         Downloading,
         Downloaded,
         Playing,
-        Scanning,
-        Played
+        Scanning
     }
 }

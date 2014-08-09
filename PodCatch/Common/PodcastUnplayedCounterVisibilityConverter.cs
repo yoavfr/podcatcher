@@ -16,7 +16,8 @@ namespace PodCatch.Common
         {
             if (value != null && value is Podcast)
             {
-                if (PodcastDataSource.Instance.IsPodcastInFavorites((Podcast)value))
+                Podcast podcast = value as Podcast;
+                if (PodcastDataSource.Instance.IsPodcastInFavorites(podcast) && podcast.NumUnplayedEpisodes > 0)
                 {
                     return Visibility.Visible;
                 }

@@ -21,6 +21,7 @@ namespace PodCatch.DataModel
         private string m_Title;
         private string m_Description;
         private Uri m_Uri;
+        private bool m_Played;
 
         public Episode()
         {
@@ -69,6 +70,19 @@ namespace PodCatch.DataModel
                 m_Description = value;
                 NotifyPropertyChanged("FormattedDescription");
             }
+        }
+
+        public bool Played 
+        { 
+            get
+            {
+                return m_Played;
+            }
+            set
+            {
+                m_Played = value;
+                NotifyPropertyChanged("Played");
+            } 
         }
 
         public string FormattedDescription
@@ -136,16 +150,15 @@ namespace PodCatch.DataModel
             }
         }
 
-        public async Task UpdateFromCache(Episode fromCache)
+        public void UpdateFromCache(Episode fromCache)
         {
             Title = fromCache.Title;
             Duration = fromCache.Duration;
             Uri = fromCache.Uri;
             Description = fromCache.Description;
-            await UpdateDownloadStatus();
         }
 
-        private async Task UpdateDownloadStatus()
+        public async Task UpdateDownloadStatus()
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             try

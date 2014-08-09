@@ -128,18 +128,17 @@ namespace PodCatch
                     }
                 case (EpisodeState.Downloaded):
                     {
+                        if (episode.Played)
+                        {
+                            episode.Position = TimeSpan.FromSeconds(0);
+                            episode.Played = false;
+                        }
                         MediaPlayer.Play(episode);
                         break;
                     }
                 case (EpisodeState.Playing):
                     {
                         MediaPlayer.Pause(episode);
-                        break;
-                    }
-                case (EpisodeState.Played):
-                    {
-                        episode.Position = TimeSpan.FromSeconds(0);
-                        MediaPlayer.Play(episode);
                         break;
                     }
             }

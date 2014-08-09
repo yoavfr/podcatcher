@@ -14,6 +14,8 @@ namespace PodCatch.DataModel
         public string Id { get; set; }
         [DataMember]
         private long m_PositionTicks;
+        [DataMember]
+        public bool Played { get; set; }
         public TimeSpan Position 
         { 
             get
@@ -32,6 +34,7 @@ namespace PodCatch.DataModel
             {
                 Id = episode.Id,
                 Position = episode.Position,
+                Played = episode.Played,
             };
             return roamingEpisodeData;
         }
@@ -43,6 +46,7 @@ namespace PodCatch.DataModel
                 Id = Id,
                 PodcastId = podcastId,
                 Position = Position,
+                Played = Played,
             };
 
             return episode;

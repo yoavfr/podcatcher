@@ -80,7 +80,7 @@ namespace PodCatch.DataModel
         {
             get
             {
-                return Episodes.Count(episode => episode.State != EpisodeState.Played);
+                return Episodes.Count(episode => !episode.Played);
             }
         }
 
@@ -277,7 +277,8 @@ namespace PodCatch.DataModel
             foreach (Episode episodeFromCache in fromCache.AllEpisodes)
             {
                 Episode episode = GetEpisodeById(episodeFromCache.Id);
-                await episode.UpdateFromCache(episodeFromCache);
+                episode.UpdateFromCache(episodeFromCache);
+                await episode.UpdateDownloadStatus();
             }
         }
 
