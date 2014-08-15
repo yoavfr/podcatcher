@@ -31,7 +31,7 @@ namespace PodCatch.StateMachine.Test
 
         public override async Task<IState<UnitTest1>> OnEvent(UnitTest1 owner, object anEvent, IEventProcessor<UnitTest1> stateMachine)
         {
-            return Factory.GetState(typeof(StateB));
+            return Factory.GetState<StateB>();
         }
     }
 
@@ -50,7 +50,7 @@ namespace PodCatch.StateMachine.Test
 
         public override async Task<IState<UnitTest1>> OnEvent(UnitTest1 owner, object anEvent, IEventProcessor<UnitTest1> stateMachine)
         {
-            return Factory.GetState(typeof(StateA));
+            return Factory.GetState<StateA>();
         }
     }
 }

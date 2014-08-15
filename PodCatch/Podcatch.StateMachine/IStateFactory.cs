@@ -15,6 +15,6 @@ namespace Podcatch.StateMachine
         /// <param name="stateType">the type of the state</param>
         /// <returns>The desired state</returns>
         /// <throws>NoSuchElementException if the factory does not know how to produce a state of this type</throws>
-        IState<T> GetState(Type stateType);
+        IState<T> GetState<ST>();
     }
 }

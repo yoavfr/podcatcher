@@ -20,12 +20,12 @@ namespace PodCatch.StateMachine.Test
             TestLogger logger = new TestLogger();
             SimpleStateMachine<UnitTest1> stateMachine = new SimpleStateMachine<UnitTest1>(logger, this, 5);
             TestStateFactory stateFactory = new TestStateFactory();
-            stateMachine.InitState(stateFactory.GetState(typeof(StateA)), true);
+            stateMachine.InitState(stateFactory.GetState<StateA>(), true);
             stateMachine.StartPumpEvents();
             stateMachine.PostEvent("event1", 0);
             IState<UnitTest1> lastState = await stateMachine.PostEvent("event2", 0);
 
-            Assert.AreEqual(lastState, stateFactory.GetState(typeof(StateA)));
+            Assert.AreEqual(lastState, stateFactory.GetState<StateA>());
             Assert.AreEqual(2, m_CountA);
             Assert.AreEqual(1, m_CountB);
         }

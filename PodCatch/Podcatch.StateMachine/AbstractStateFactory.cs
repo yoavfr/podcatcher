@@ -35,9 +35,9 @@ namespace Podcatch.StateMachine
             }
         }
 
-        public IState<T> GetState(Type stateType)
+        public IState<T> GetState<ST>()
         {
-            return (IState<T>)m_StateByType[stateType];
+            return (IState<T>)m_StateByType[typeof(ST)];
         }
     }
 }
