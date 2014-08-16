@@ -18,12 +18,12 @@ namespace PodCatch.StateMachine.Test
         public async Task TestMethod1()
         {
             TestLogger logger = new TestLogger();
-            SimpleStateMachine<UnitTest1> stateMachine = new SimpleStateMachine<UnitTest1>(logger, this, 5);
+            SimpleStateMachine<UnitTest1, TestEvent> stateMachine = new SimpleStateMachine<UnitTest1, TestEvent>(logger, this, 5);
             TestStateFactory stateFactory = new TestStateFactory();
             stateMachine.InitState(stateFactory.GetState<StateA>(), true);
             stateMachine.StartPumpEvents();
-            stateMachine.PostEvent("event1", 0);
-            IState<UnitTest1> lastState = await stateMachine.PostEvent("event2", 0);
+            stateMachine.PostEvent(TestEvent.A, 0);
+            IState<UnitTest1, TestEvent> lastState = await stateMachine.PostEvent(TestEvent.B, 0);
 
             Assert.AreEqual(lastState, stateFactory.GetState<StateA>());
             Assert.AreEqual(2, m_CountA);

@@ -9,7 +9,7 @@ namespace Podcatch.StateMachine
     /// An Event Processor is a consumer of events
     /// (This would have been part of IStateMachine but for the circular dependency with IState)
     /// </summary>
-    public interface IEventProcessor<T>
+    public interface IEventProcessor<O, E>
     {
         /// <summary>
         /// Post an event to the state machine.
@@ -18,7 +18,7 @@ namespace Podcatch.StateMachine
         /// <param name="priority">priority of the event. Events of high priority will be processed before events of lower priority.
         ///                         Priority 0 is highest. </param>
         /// <returns>IAsyncResult - can be used to wait on the event to be processed, and to collect and errors that occured with EndPostEvent </returns>
-        Task<IState<T>> PostEvent(Object anEvent, byte priority);
+        Task<IState<O, E>> PostEvent(E anEvent, byte priority);
 
 
     }

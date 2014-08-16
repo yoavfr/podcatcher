@@ -5,23 +5,23 @@ using System.Threading.Tasks;
 
 namespace Podcatch.StateMachine
 {
-    class EventWrapper<T>
+    class EventWrapper<O, E>
     {
-        private Object m_Event;
-        private TaskCompletionSource<IState<T>> m_TaskCompletionSource;
+        private E m_Event;
+        private TaskCompletionSource<IState<O, E>> m_TaskCompletionSource;
 
-        public EventWrapper(Object anEvent, TaskCompletionSource<IState<T>> taskCompletionSource)
+        public EventWrapper(E anEvent, TaskCompletionSource<IState<O, E>> taskCompletionSource)
         {
             m_Event = anEvent;
             m_TaskCompletionSource = taskCompletionSource;
         }
 
-        public Object Event
+        public E Event
         {
             get{ return m_Event;}
         }
 
-        public TaskCompletionSource<IState<T>> TaskCompletionSource
+        public TaskCompletionSource<IState<O, E>> TaskCompletionSource
         {
             get { return m_TaskCompletionSource; }
         }

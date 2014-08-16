@@ -10,12 +10,12 @@ namespace Podcatch.StateMachine
     /// <summary>
     /// An implementation of IStateMachine
     /// </summary>
-    public class SimpleStateMachine<T> : IStateMachine<T>
+    public class SimpleStateMachine<O, E> : IStateMachine<O, E>
     {
-        private readonly T m_Owner;
+        private readonly O m_Owner;
         private readonly byte m_MaxPriority;
-        private readonly Queue<EventWrapper<T>>[] m_EventQueues;
-        private IState<T> m_CurrentState;
+        private readonly Queue<EventWrapper<O, E>>[] m_EventQueues;
+        private IState<O, E> m_CurrentState;
 
         private int m_NumPendingEvents;
         private bool m_PumpOn;
@@ -31,17 +31,17 @@ namespace Podcatch.StateMachine
         /// <param name="owner">the owner of this state machine</param>
         /// <param name="maxPriority">the maximum number (lowest priority) that can be provided for an event. Setting this to 0 means there will only be
         ///                         one priority. This can save memory when dealing with many objects that contain a state machine</param>
-        public SimpleStateMachine(IBasicLogger logger, T owner, byte maxPriority)
+        public SimpleStateMachine(IBasicLogger logger, O owner, byte maxPriority)
         {
             if (maxPriority<MIN_PRIORITY || maxPriority>MAX_PRIORITY)
             {
                 throw new ArgumentException(String.Format(CultureInfo.InvariantCulture,"maxPriority {0} is not between {1} and {2}",maxPriority,MIN_PRIORITY,MAX_PRIORITY));
             }
             // create a queue for every possible priority value
-            m_EventQueues = new Queue<EventWrapper<T>>[maxPriority + 1];
+            m_EventQueues = new Queue<EventWrapper<O, E>>[maxPriority + 1];
             for (byte i = 0; i <= maxPriority; i++)
             {
-                m_EventQueues[i] = new Queue<EventWrapper<T>>();
+                m_EventQueues[i] = new Queue<EventWrapper<O, E>>();
             }
             m_MaxPriority = maxPriority;
             m_Owner = owner;
@@ -54,7 +54,7 @@ namespace Podcatch.StateMachine
         /// </summary>
         /// <param name="initialState"></param>
         /// <param name="enter"></param>
-        public void InitState(IState<T> initialState, bool enter)
+        public void InitState(IState<O, E> initialState, bool enter)
         {
             Task t = Task.FromResult<object>(null);
             lock (m_PumpLock)
@@ -85,7 +85,7 @@ namespace Podcatch.StateMachine
                 }
 
                 m_PumpOn = true;
-                if (m_NumPendingEvents >0)
+                if (m_NumPendingEvents > 0)
                 {
                     ScheduleHandleNextEvent();
                 }
@@ -128,17 +128,17 @@ namespace Podcatch.StateMachine
         {
             //Logger.LogVerbose("Dequeue next event for {0}",m_Owner);
             // get the most eligible wrapped event
-            EventWrapper<T> eventWrapper = Dequeue();
+            EventWrapper<O, E> eventWrapper = Dequeue();
             Debug.Assert(eventWrapper != null);
-            IState<T> currentState = m_CurrentState;
+            IState<O, E> currentState = m_CurrentState;
 
             // retrieve the corresponding taskCompletionSource
-            TaskCompletionSource<IState<T>> taskCompletionSource = eventWrapper.TaskCompletionSource;
+            TaskCompletionSource<IState<O, E>> taskCompletionSource = eventWrapper.TaskCompletionSource;
 
             try
             {
                 // call OnEvent of current state
-                IState<T> nextState = await currentState.OnEvent(m_Owner, eventWrapper.Event, this);
+                IState<O, E> nextState = await currentState.OnEvent(m_Owner, eventWrapper.Event, this);
 
                 // if returned not null
                 if (nextState != null)
@@ -189,10 +189,10 @@ namespace Podcatch.StateMachine
         /// Get the most eligible waiting event. Most eligible==highest priority queue FIFO
         /// </summary>
         /// <returns></returns>
-        private EventWrapper<T> Dequeue()
+        private EventWrapper<O, E> Dequeue()
         {
             // iterate over the queues
-            foreach (Queue<EventWrapper<T>> eventQueue in m_EventQueues)
+            foreach (Queue<EventWrapper<O, E>> eventQueue in m_EventQueues)
             {
                 // lock it
                 lock (eventQueue)
@@ -213,7 +213,7 @@ namespace Podcatch.StateMachine
         /// </summary>
         /// <param name="eventWrapper">an event wrapper</param>
         /// <param name="priority">the queue to enqueue to</param>
-        private void Enqueue(EventWrapper<T> eventWrapper, byte priority)
+        private void Enqueue(EventWrapper<O, E> eventWrapper, byte priority)
         {
             if (priority > m_MaxPriority)
             {
@@ -224,7 +224,7 @@ namespace Podcatch.StateMachine
                 throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "Min priority is {0} and {1} was requested", MIN_PRIORITY, priority));
             }
             // get the queue that corresponds to this priority
-            Queue<EventWrapper<T>> eventQueue = m_EventQueues[priority];
+            Queue<EventWrapper<O, E>> eventQueue = m_EventQueues[priority];
             // lock it
             lock (eventQueue)
             {
@@ -250,12 +250,12 @@ namespace Podcatch.StateMachine
         /// <param name="anEvent"></param>
         /// <param name="priority"></param>
         /// <returns></returns>
-        public Task<IState<T>> PostEvent(Object anEvent, byte priority)
+        public Task<IState<O, E>> PostEvent(E anEvent, byte priority)
         {
             // create an AsyncResult for this event
-            TaskCompletionSource<IState<T>> taskCompletionSource = new TaskCompletionSource<IState<T>>(anEvent);
+            TaskCompletionSource<IState<O, E>> taskCompletionSource = new TaskCompletionSource<IState<O, E>>(anEvent);
             // wrap the event and the AsycResult together
-            EventWrapper<T> eventWrapper = new EventWrapper<T>(anEvent, taskCompletionSource);
+            EventWrapper<O, E> eventWrapper = new EventWrapper<O, E>(anEvent, taskCompletionSource);
             // post the wrapper on the appropriate queue
             Enqueue(eventWrapper,priority);
             // return the AsyncResult
@@ -271,7 +271,7 @@ namespace Podcatch.StateMachine
         {
             get { return m_Logger; }
         }
-        public IState<T> State
+        public IState<O, E> State
         {
             get
             {

@@ -12,9 +12,9 @@ namespace Podcatch.StateMachine
     /// 
     /// A typical implementation will call the constructor with the state machine specific set of states
     /// </summary>
-    public abstract class AbstractStateFactory<T> : IStateFactory<T>
+    public abstract class AbstractStateFactory<O, E> : IStateFactory<O, E>
     {
-        Dictionary<Type, AbstractState<T>> m_StateByType = new Dictionary<Type, AbstractState<T>>();
+        Dictionary<Type, AbstractState<O, E>> m_StateByType = new Dictionary<Type, AbstractState<O, E>>();
 
 
         private AbstractStateFactory()
@@ -26,18 +26,18 @@ namespace Podcatch.StateMachine
         /// Constructor
         /// </summary>
         /// <param name="states">all the states that can be delivered by this factory</param>
-        protected AbstractStateFactory(AbstractState<T>[] states)
+        protected AbstractStateFactory(AbstractState<O, E>[] states)
         {
-            foreach (AbstractState<T> state in states)
+            foreach (AbstractState<O, E> state in states)
             {
                 state.Factory = this;
                 m_StateByType[state.GetType()] = state;
             }
         }
 
-        public IState<T> GetState<ST>()
+        public IState<O, E> GetState<S>()
         {
-            return (IState<T>)m_StateByType[typeof(ST)];
+            return (IState<O, E>)m_StateByType[typeof(S)];
         }
     }
 }

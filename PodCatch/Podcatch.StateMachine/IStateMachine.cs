@@ -11,7 +11,7 @@ namespace Podcatch.StateMachine
     ///  - Events of the same priority are processed in the order in which they were posted
     ///  - Events are processed only when the state has stabilized - i.e. after the state has been entered and OnEnter has been invoked
     /// </summary>
-    public interface IStateMachine<T> : IEventProcessor<T>
+    public interface IStateMachine<O, E> : IEventProcessor<O, E>
     {
         /// <summary>
         /// Place the state machine in it's inital state, and optionally perform it's OnEnter method. 
@@ -20,7 +20,7 @@ namespace Podcatch.StateMachine
         /// </summary>
         /// <param name="initialState">The initial state of the state machine</param>
         /// <param name="enter"></param>
-        void InitState(IState<T> initialState, bool enter);
+        void InitState(IState<O, E> initialState, bool enter);
         
         
         /// <summary>
@@ -34,7 +34,7 @@ namespace Podcatch.StateMachine
         /// Get the current state of the state machine
         /// </summary>
         /// <returns>current state of the state machine</returns>
-        IState<T> State { get; }
+        IState<O, E> State { get; }
 
         /// <summary>
         /// Stops delivering posted events to the state machine
