@@ -1,4 +1,5 @@
-﻿using PodCatch.DataModel;
+﻿using Podcatch.StateMachine;
+using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,23 +14,15 @@ namespace PodCatch.Common
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value != null && value is EpisodeState)
+            IState<Episode, EpisodeEvent> state = value as IState<Episode, EpisodeEvent>;
+            if (state != null)
             {
-                switch ((EpisodeState)value)
-                {
-                    case EpisodeState.PendingDownload:
-                        return "Download";
-                    case EpisodeState.Downloading:
-                        return "Downloading";
-                    case EpisodeState.Downloaded:
-                        return "Play";
-                    case EpisodeState.Playing:
-                        return "Pause";
-                    default:
-                        return string.Empty;
-                }
+                if (state is EpisodeStatePendingDownload) return "Download";
+                else if (state is EpisodeStateDownloading) return "Downloading";
+                else if (state is EpisodeStateDownloaded) return "Play";
+                else if (state is EpisodeStatePlaying) return "Pause";
             }
-            return null;
+            return string.Empty;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

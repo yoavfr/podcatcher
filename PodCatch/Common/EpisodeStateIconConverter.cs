@@ -1,4 +1,5 @@
-﻿using PodCatch.DataModel;
+﻿using Podcatch.StateMachine;
+using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,21 +17,14 @@ namespace PodCatch.Common
             if (targetType != typeof(IconElement))
                 throw new InvalidOperationException("The target must be an IconElement");
 
-            if (value != null && value is EpisodeState)
+            IState<Episode, EpisodeEvent> state = value as IState<Episode, EpisodeEvent>;
+            if (state != null)
             {
-                switch ((EpisodeState)value)
-                {
-                    case EpisodeState.PendingDownload:
-                        return new SymbolIcon(Symbol.Download);
-                    case EpisodeState.Downloading:
-                        return new SymbolIcon(Symbol.MoveToFolder);
-                    case EpisodeState.Downloaded:
-                        return new SymbolIcon(Symbol.Play);
-                    case EpisodeState.Playing:
-                        return new SymbolIcon(Symbol.Pause);
-                    case EpisodeState.Scanning:
-                        return new SymbolIcon(Symbol.Find);
-                }
+                if (state is EpisodeStatePendingDownload) return new SymbolIcon(Symbol.Download);
+                if (state is EpisodeStateDownloading) return new SymbolIcon(Symbol.MoveToFolder);
+                if (state is EpisodeStateDownloaded) return new SymbolIcon(Symbol.Play);
+                if (state is EpisodeStatePlaying) return new SymbolIcon(Symbol.Pause);
+                if (state is EpisodeStateScanning) return new SymbolIcon(Symbol.Find);
             }
             return null;
         }

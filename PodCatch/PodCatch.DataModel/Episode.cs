@@ -1,23 +1,22 @@
-﻿using System;
+﻿using Podcatch.StateMachine;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Windows.Data.Html;
 using Windows.Foundation;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 
 namespace PodCatch.DataModel
 {
     [DataContract]
-    public class Episode : INotifyPropertyChanged
+    public class Episode : INotifyPropertyChanged, IBasicLogger 
     {
         private TimeSpan m_Position;
         private TimeSpan m_Duration;
         private double m_DownloadProgress;
-        private EpisodeState m_State;
+        private IStateMachine<Episode, EpisodeEvent> m_StateMachine;
         private string m_Title;
         private string m_Description;
         private Uri m_Uri;
@@ -26,7 +25,9 @@ namespace PodCatch.DataModel
 
         public Episode()
         {
-            State = EpisodeState.PendingDownload;
+            m_StateMachine = new SimpleStateMachine<Episode, EpisodeEvent>(this, this, 0);
+            m_StateMachine.InitState(EpisodeStateFactory.Instance.GetState<EpisodeStatePendingDownload>(), true);
+            m_StateMachine.StartPumpEvents();
         }
 
         [DataMember]
@@ -96,7 +97,7 @@ namespace PodCatch.DataModel
             {
                 if (value)
                 {
-                    UpdateDownloadStatus();
+                    PostEvent(EpisodeEvent.UpdateDownloadStatus);
                 }
                 m_Visible = value;
             }
@@ -141,16 +142,11 @@ namespace PodCatch.DataModel
             }
         }
 
-        public EpisodeState State
+        public IState<Episode, EpisodeEvent> State
         {
             get
             {
-                return m_State;
-            }
-            set
-            {
-                m_State = value;
-                NotifyPropertyChanged("State");
+                return m_StateMachine.State;
             }
         }
 
@@ -175,29 +171,6 @@ namespace PodCatch.DataModel
             Description = fromCache.Description;
         }
 
-        private async Task UpdateDownloadStatus()
-        {
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            try
-            {
-                StorageFile file = await localFolder.GetFileAsync(FileName);
-                MusicProperties musicProperties = await file.Properties.GetMusicPropertiesAsync();
-
-                Duration = musicProperties.Duration;
-                // When file is partially downloaded the only indication we have that it has not completed is that the Duration is 0
-                if (Duration.TotalMilliseconds > 0)
-                {
-                    // We have a fully downloaded file - mark is as downloaded
-                    State = EpisodeState.Downloaded;
-                }
-            }
-            catch (FileNotFoundException e)
-            {
-                State = EpisodeState.PendingDownload;
-            }
-
-        }
-
         public string FullFileName
         {
             get
@@ -207,7 +180,7 @@ namespace PodCatch.DataModel
             }
         }
 
-        private string FileName
+        public string FileName
         {
             get
             {
@@ -219,49 +192,8 @@ namespace PodCatch.DataModel
             }
         }
 
-        public async Task Download()
-        {
-            if (State != EpisodeState.PendingDownload)
-            {
-                return;
-            }
-
-            Progress<Downloader> progress = new Progress<Downloader>((downloader) =>
-            {
-                ulong totalBytesToReceive = downloader.TotalBytes;
-                double at = 0;
-                if (totalBytesToReceive > 0)
-                {
-                    at = (double)downloader.DownloadedBytes / totalBytesToReceive;
-                }
-                DownloadProgress = at;
-            });
-
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            try
-            {
-                StorageFile localFile = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.ReplaceExisting);
-                State = EpisodeState.Downloading;
-                Downloader downloader = new Downloader(Uri, localFile, progress);
-                await downloader.Download();
-                
-                // set duration
-                MusicProperties musicProperties = await localFile.Properties.GetMusicPropertiesAsync();
-                Duration = musicProperties.Duration;
-                
-                //set position
-                Position = TimeSpan.FromMilliseconds(0);
-                State = EpisodeState.Downloaded;
-            }
-            catch (Exception e)
-            {
-                State = EpisodeState.PendingDownload;
-                Debug.WriteLine("Episode.Download(): error downloading {0}. {1}", Id, e);
-            }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged(string propertyName)
+        public void NotifyPropertyChanged(string propertyName)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler == null)
@@ -275,5 +207,25 @@ namespace PodCatch.DataModel
             });
         }
 
+
+        public Task<IState<Episode, EpisodeEvent>> PostEvent(EpisodeEvent anEvent)
+        {
+            return m_StateMachine.PostEvent(anEvent);
+        }
+
+        public void LogInfo(string msg, params object[] args)
+        {
+            Debug.WriteLine("Info: {0}", String.Format(msg, args));
+        }
+
+        public void LogWarning(string msg, params object[] args)
+        {
+            Debug.WriteLine("Warning: {0}", String.Format(msg, args));
+        }
+
+        public void LogError(string msg, params object[] args)
+        {
+            Debug.WriteLine("Error: {0}", String.Format(msg, args));
+        }
     }
 }

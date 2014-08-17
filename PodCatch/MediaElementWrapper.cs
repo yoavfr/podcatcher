@@ -65,7 +65,7 @@ namespace PodCatch
             }
             Position = episode.Position;
             m_NowPlaying = episode;
-            episode.State = EpisodeState.Playing;
+            episode.PostEvent(EpisodeEvent.Play);
             MediaElement.Play();
             MediaElement.MediaEnded += MediaElement_MediaEnded;
         }
@@ -86,10 +86,7 @@ namespace PodCatch
         {
             MediaElement.Pause();
             episode.Position = Position;
-            if (episode.State == EpisodeState.Playing)
-            {
-                episode.State = EpisodeState.Downloaded;
-            }
+            episode.PostEvent(EpisodeEvent.Pause);
         }
 
         public static MediaElementWrapper Instance
@@ -127,7 +124,7 @@ namespace PodCatch
                 if (episode != null)
                 {
                     // don't update position when slider is being manipulated 
-                    if (episode.State == EpisodeState.Playing && 
+                    if (episode.State is EpisodeStatePlaying && 
                         (episode.Position - Position).Duration() < TimeSpan.FromSeconds(1)) // hack - clicking directly on the slider will cause a big difference
                     {
                         episode.Position = Position;

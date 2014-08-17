@@ -202,11 +202,12 @@ namespace PodCatch.DataModel
             MarkVisibleEpisodes();
             foreach (Episode episode in AllEpisodes)
             {
-                if (episode.Visible && episode.State == EpisodeState.PendingDownload)
+                if (episode.Visible)
                 {
-                    allEpisodes.Add(episode.Download());
+                    allEpisodes.Add(episode.PostEvent(EpisodeEvent.Download));
                 }
             }
+            // TODO: can be made completely asynchronous
             await Task.WhenAll(allEpisodes);
         }
 

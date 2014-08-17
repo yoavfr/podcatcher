@@ -1,11 +1,7 @@
-﻿using PodCatch.DataModel;
+﻿using Podcatch.StateMachine;
+using PodCatch.DataModel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 
 namespace PodCatch.Common
@@ -14,18 +10,10 @@ namespace PodCatch.Common
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value != null && value is EpisodeState)
+            IState<Episode, EpisodeEvent> state = value as IState<Episode, EpisodeEvent>;
+            if (state != null)
             {
-                switch ((EpisodeState)value)
-                {
-                    case EpisodeState.PendingDownload:
-                    case EpisodeState.Downloaded:
-                    case EpisodeState.Playing:
-                    case EpisodeState.Scanning:
-                        return Visibility.Collapsed;
-                    case EpisodeState.Downloading:
-                        return Visibility.Visible;
-                }
+                if (state is EpisodeStateDownloading) return Visibility.Visible;
             }
             return Visibility.Collapsed;
         }

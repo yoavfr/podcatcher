@@ -20,6 +20,13 @@ namespace Podcatch.StateMachine
         /// <returns>IAsyncResult - can be used to wait on the event to be processed, and to collect and errors that occured with EndPostEvent </returns>
         Task<IState<O, E>> PostEvent(E anEvent, byte priority);
 
+        /// <summary>
+        /// Post an event to the state machine.
+        /// </summary>
+        /// <param name="anEvent">the event that is posted to the state machine. priority is 0</param>
+        /// <returns>IAsyncResult - can be used to wait on the event to be processed, and to collect and errors that occured with EndPostEvent </returns>
+        Task<IState<O, E>> PostEvent(E anEvent);
+
 
     }
 }

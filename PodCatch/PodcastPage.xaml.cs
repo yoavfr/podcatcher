@@ -119,28 +119,23 @@ namespace PodCatch
         {
             AppBarButton playButton = (AppBarButton)sender;
             Episode episode = (Episode)playButton.DataContext;
-            switch (episode.State)
+
+            if (episode.State is EpisodeStatePendingDownload)
             {
-                case EpisodeState.PendingDownload:
-                    {
-                        Task t = episode.Download();
-                        break;
-                    }
-                case (EpisodeState.Downloaded):
-                    {
-                        if (episode.Played)
-                        {
-                            episode.Position = TimeSpan.FromSeconds(0);
-                            episode.Played = false;
-                        }
-                        MediaPlayer.Play(episode);
-                        break;
-                    }
-                case (EpisodeState.Playing):
-                    {
-                        MediaPlayer.Pause(episode);
-                        break;
-                    }
+                episode.PostEvent(EpisodeEvent.Download);
+            }
+            else if (episode.State is EpisodeStateDownloaded)
+            {
+                if (episode.Played)
+                {
+                    episode.Position = TimeSpan.FromSeconds(0);
+                    episode.Played = false;
+                }
+                MediaPlayer.Play(episode);
+            }
+            else if (episode.State is EpisodeStatePlaying)
+            {
+                MediaPlayer.Pause(episode);
             }
         }
 
@@ -150,7 +145,7 @@ namespace PodCatch
             Episode episode = (Episode)slider.DataContext;
             if (MediaPlayer.IsEpisodePlaying(episode))
             {
-                episode.State = EpisodeState.Scanning;
+                episode.PostEvent(EpisodeEvent.Scan);
             }
         }
 
@@ -160,7 +155,7 @@ namespace PodCatch
             Episode episode = (Episode)slider.DataContext;
             if (MediaPlayer.IsEpisodePlaying(episode))
             {
-                episode.State = EpisodeState.Playing;
+                episode.PostEvent(EpisodeEvent.Play);
                 MediaPlayer.Position = TimeSpan.FromTicks((long)slider.Value);
             }
         }
@@ -172,7 +167,7 @@ namespace PodCatch
             if (MediaPlayer.IsEpisodePlaying(episode))
             {
                 MediaPlayer.Position = TimeSpan.FromTicks((long)slider.Value);
-                episode.State = EpisodeState.Playing;
+                episode.PostEvent(EpisodeEvent.Play);
             }
         }
 

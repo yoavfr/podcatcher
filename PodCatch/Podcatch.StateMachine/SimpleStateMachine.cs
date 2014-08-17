@@ -262,6 +262,17 @@ namespace Podcatch.StateMachine
             return taskCompletionSource.Task;
         }
 
+        /// <summary>
+        /// Post and event with priority 0
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <param name="anEvent"></param>
+        /// <returns></returns>
+        public Task<IState<O, E>> PostEvent(E anEvent)
+        {
+            return PostEvent(anEvent, 0);
+        }
+
         public bool ValidateStateType(Type stateType)
         {
             return m_CurrentState.GetType().Equals(stateType);
