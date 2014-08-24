@@ -16,6 +16,7 @@
         <common:LocalizationConverter x:Key="LocalizationConverter"/>
         <common:PodcastUnplayedCounterVisibilityConverter x:Key="PodcastUnplayedCounterVisibilityConverter"/>
         <common:NumUnplayedEpisodesMarginConverter x:Key="NumUnplayedEpisodesMarginConverter"/>
+        <common:NumUnplayedEpisodesConverter x:Key="NumUnplayedEpisodesConverter"/>
         <!--
             Collection of grouped items displayed by this page, bound to a subset
             of the complete item list because items in groups cannot be virtualized
@@ -74,7 +75,7 @@
                         <!-- Podcasts -->
                         <Canvas Margin="210,10" Visibility="{Binding Self, Converter={StaticResource PodcastUnplayedCounterVisibilityConverter}}">
                             <Ellipse Fill="Red" Height="30" Width="30"/>
-                            <TextBlock Text="{Binding NumUnplayedEpisodes}" Margin="{Binding NumUnplayedEpisodes, Converter={StaticResource NumUnplayedEpisodesMarginConverter}}" Foreground="White" FontWeight="Bold" />
+                            <TextBlock Text="{Binding NumUnplayedEpisodes,Converter={StaticResource NumUnplayedEpisodesConverter}}" Margin="{Binding NumUnplayedEpisodes, Converter={StaticResource NumUnplayedEpisodesMarginConverter}}" Foreground="White" FontWeight="Bold" />
                         </Canvas>
 
                         <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
