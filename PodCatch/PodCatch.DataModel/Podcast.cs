@@ -106,6 +106,7 @@ namespace PodCatch.DataModel
                         Podcast readPodcast = (Podcast)serializer.ReadObject(stream);
 
                         await UpdateFields (readPodcast);
+                        NotifyPropertyChanged("NumUnplayedEpisodes");
                     }
                 }
             }
