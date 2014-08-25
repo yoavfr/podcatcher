@@ -31,8 +31,6 @@ namespace PodCatch.DataModel
             m_StateMachine.StartPumpEvents();
         }
 
-        [DataMember]
-        public string Id { get; set; }
         public string PodcastId { get; set; }
 
         [DataMember]
@@ -45,7 +43,6 @@ namespace PodCatch.DataModel
             set
             {
                 m_Uri = value;
-                Id = m_Uri.GetHashCode().ToString();
             }
         }
         [DataMember]
@@ -231,7 +228,7 @@ namespace PodCatch.DataModel
 
         public override string ToString()
         {
-            return String.Format("Episode Id {0}. Uri {1}", Id, Uri);
+            return String.Format("Episode Uri {0}", Uri);
         }
     }
 }
