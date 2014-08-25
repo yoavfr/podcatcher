@@ -11,7 +11,7 @@ namespace PodCatch.DataModel
     sealed public class RoamingEpisodeData
     {
         [DataMember]
-        public string Id { get; set; }
+        public string Uri { get; set; }
         [DataMember]
         private long m_PositionTicks;
         [DataMember]
@@ -32,7 +32,7 @@ namespace PodCatch.DataModel
         {
             RoamingEpisodeData roamingEpisodeData = new RoamingEpisodeData()
             {
-                Id = episode.Id,
+                Uri = episode.Uri.ToString(),
                 Position = episode.Position,
                 Played = episode.Played,
             };
@@ -41,9 +41,8 @@ namespace PodCatch.DataModel
 
         public Episode ToEpisode(string podcastId)
         {
-            Episode episode = new Episode()
+            Episode episode = new Episode(new Uri(Uri))
             {
-                Id = Id,
                 PodcastId = podcastId,
                 Position = Position,
                 Played = Played,

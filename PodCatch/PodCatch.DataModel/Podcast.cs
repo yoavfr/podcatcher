@@ -183,12 +183,8 @@ namespace PodCatch.DataModel
                 {
                     string episodeTitle = item.Title != null ? item.Title.Text : "<No Title>";
                     string episodeSummary = item.Summary != null ? item.Summary.Text : "<No Summary>";
-                    
-                    Episode search = new Episode()
-                    {
-                        Uri = uri,
-                    };
-                    Episode episode = GetEpisodeById(search.Id);
+
+                    Episode episode = GetEpisodeByUri(uri);
                     
                     episode.Description = episodeSummary;
                     episode.Title = episodeTitle;
@@ -285,14 +281,14 @@ namespace PodCatch.DataModel
 
             foreach (Episode episodeFromCache in fromCache.AllEpisodes)
             {
-                Episode episode = GetEpisodeById(episodeFromCache.Id);
+                Episode episode = GetEpisodeByUri(episodeFromCache.Uri);
                 episode.UpdateFromCache(episodeFromCache);
             }
         }
 
-        private Episode GetEpisodeById(string episodeId)
+        private Episode GetEpisodeByUri(Uri uri)
         {
-            IEnumerable<Episode> found = AllEpisodes.Where((episode) => episode.Id.Equals(episodeId));
+            IEnumerable<Episode> found = AllEpisodes.Where((episode) => episode.Uri.Equals(uri));
 
             if (found.Count() > 0)
             {
@@ -300,10 +296,9 @@ namespace PodCatch.DataModel
             }
 
             // nothing in cache, but something in roaming settings
-            Episode newEpisode = new Episode()
+            Episode newEpisode = new Episode(uri)
             {
                 PodcastId = Id,
-                Id = episodeId,
             };
             AllEpisodes.Add(newEpisode);
             return newEpisode;

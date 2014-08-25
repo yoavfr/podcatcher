@@ -23,8 +23,9 @@ namespace PodCatch.DataModel
         private bool m_Played;
         private bool m_Visible;
 
-        public Episode()
+        public Episode(Uri uri)
         {
+            Uri = uri;
             m_StateMachine = new SimpleStateMachine<Episode, EpisodeEvent>(this, this, 0);
             m_StateMachine.InitState(EpisodeStateFactory.Instance.GetState<EpisodeStatePendingDownload>(), true);
             m_StateMachine.StartPumpEvents();
@@ -226,6 +227,11 @@ namespace PodCatch.DataModel
         public void LogError(string msg, params object[] args)
         {
             Debug.WriteLine("Error: {0}", String.Format(msg, args));
+        }
+
+        public override string ToString()
+        {
+            return String.Format("Episode Id {0}. Uri {1}", Id, Uri);
         }
     }
 }
