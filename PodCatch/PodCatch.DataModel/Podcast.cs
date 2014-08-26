@@ -137,8 +137,8 @@ namespace PodCatch.DataModel
                 syndicationFeed.LoadFromXml(feedXml);
 
                 // don't refresh if feed has not been updated since
-                if (syndicationFeed.LastUpdatedTime != null &&
-                    syndicationFeed.LastUpdatedTime.DateTime > lastRefreshTime)
+                if ((syndicationFeed.LastUpdatedTime != null && syndicationFeed.LastUpdatedTime.DateTime > lastRefreshTime) ||
+                    force)
                 {
                     Title = syndicationFeed.Title.Text;
 
@@ -162,6 +162,7 @@ namespace PodCatch.DataModel
             {
                 Debug.WriteLine("Podcast.RefreshFromRss - exception: {0}", e);
             }
+            AllEpisodes.Sort((a, b) => { return a.PublishDate > b.PublishDate ? -1 : 1; });
             MarkVisibleEpisodes();
             NotifyPropertyChanged("NumUnplayedEpisodes");
         }
@@ -183,12 +184,13 @@ namespace PodCatch.DataModel
                 {
                     string episodeTitle = item.Title != null ? item.Title.Text : "<No Title>";
                     string episodeSummary = item.Summary != null ? item.Summary.Text : "<No Summary>";
+                    DateTimeOffset publishDate = item.PublishedDate != null ? item.PublishedDate : DateTimeOffset.MinValue;
 
                     Episode episode = GetEpisodeByUri(uri);
                     
                     episode.Description = episodeSummary;
                     episode.Title = episodeTitle;
-                    episode.Uri = uri;
+                    episode.PublishDate = publishDate;
                 }
             }
         }

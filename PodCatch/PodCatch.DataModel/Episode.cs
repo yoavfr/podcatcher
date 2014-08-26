@@ -72,6 +72,21 @@ namespace PodCatch.DataModel
             }
         }
 
+        [DataMember]
+        private long m_PublishDateTicks;
+
+        public DateTimeOffset PublishDate
+        {
+            get
+            {
+                return new DateTimeOffset(m_PublishDateTicks, TimeSpan.FromTicks(0));
+            }
+            set
+            {
+                m_PublishDateTicks = value.Ticks;
+            }
+        }
+
         public bool Played 
         { 
             get
