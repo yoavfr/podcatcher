@@ -221,7 +221,7 @@ namespace PodCatch
                     selectedEpisode.Played = true;
                     break;
             }
-            
+            PodcastDataSource.Instance.Store();
         }
 
         private void episodesListView_ItemClick(object sender, ItemClickEventArgs e)

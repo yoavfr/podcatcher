@@ -97,8 +97,6 @@ namespace PodCatch.DataModel
             {
                 m_Played = value;
                 NotifyPropertyChanged("Played");
-                // yes... this is a circular dependency. Can break it later
-                PodcastDataSource.Instance.Store();
             } 
         }
 
