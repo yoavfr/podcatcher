@@ -110,6 +110,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\AltBackgroundConverter.cs" />
+    <Compile Include="Common\EpisodePlayedStyleConverter.cs" />
     <Compile Include="Common\NumUnplayedEpisodesConverter.cs" />
     <Compile Include="Common\NumUnplayedEpisodesMarginConverter.cs" />
     <Compile Include="Common\PodcastUnplayedCounterVisibilityConverter.cs" />

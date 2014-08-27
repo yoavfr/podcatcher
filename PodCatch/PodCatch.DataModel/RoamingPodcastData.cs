@@ -29,7 +29,9 @@ namespace PodCatch.DataModel
             roamingPodcastData.Title = podcast.Title;
             foreach (Episode episode in podcast.AllEpisodes)
             {
-                if (episode.Position > TimeSpan.FromTicks(0))
+                // Store as little as possible in roaming settings. 
+                // If there is no Position to record or this has not been played, we can rely on the default values upon deserialization
+                if (episode.Position > TimeSpan.FromTicks(0) || episode.Played)
                 {
                     roamingPodcastData.RoamingEpisodesData.Add(RoamingEpisodeData.FromEpisode(episode));
                 }

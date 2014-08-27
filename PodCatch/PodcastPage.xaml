@@ -17,12 +17,6 @@
         <CollectionViewSource
             x:Name="episodesViewSource"
             Source="{Binding  Episodes}"/>
-        <Style x:Key="BigAndBold" BasedOn="{StaticResource BaseTextBlockStyle}" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="20"/>
-            <Setter Property="FontWeight" Value="Light"/>
-            <Setter Property="LineHeight" Value="30"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
         <common:AltBackgroundConverter x:Key="AltBGConverter" />
         <common:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <common:EpisodeStateIconConverter x:Key="EpisodeStateIconConverter"/>
@@ -32,6 +26,7 @@
         <common:EpisodePositionConverter x:Key="EpisodePositionConverter"/>
         <common:TimespanToTicksConverter x:Key="TimespanToTicksConverter"/>
         <common:EpisodeStateButtonEnabledConverter x:Key="EpisodeStateButtonEnabledConverter"/>
+        <common:EpisodePlayedStyleConverter x:Key="EpisodePlayedStyleConverter"/>
     </Page.Resources>
 
    
@@ -87,19 +82,26 @@
 
                     <!-- Episodes -->
                     <Grid x:Name="episodesGrid">
-                        <ListView x:Name="episodesListView" SelectionMode="None" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20,20" ItemsSource="{Binding Source={StaticResource episodesViewSource}}">
+                        <ListView x:Name="episodesListView" 
+                                  SelectionMode="None" 
+                                  VerticalAlignment="Top" 
+                                  HorizontalAlignment="Left" 
+                                  Margin="20,20" 
+                                  ItemsSource="{Binding Source={StaticResource episodesViewSource}}"
+                                  IsItemClickEnabled="True"
+                                  ItemClick="episodesListView_ItemClick">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid>
+                                    <Grid IsRightTapEnabled="True" RightTapped="Grid_RightTapped">
                                         <!-- Alternating background -->
                                         <Grid.Background>
                                             <SolidColorBrush Color="{Binding Title, Mode=OneWay, Converter={StaticResource AltBGConverter}}"/>
                                         </Grid.Background>
                                         <StackPanel Orientation="Horizontal">
                                             <!-- Title -->
-                                            <TextBlock Grid.Column="1" Text="{Binding Title}" Style="{StaticResource BigAndBold}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="450"></TextBlock>
+                                            <TextBlock Grid.Column="1" Text="{Binding Title}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="450" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='BoldText'}"/>
                                             <!-- Description -->
-                                            <TextBlock Grid.Column="2" Text="{Binding FormattedDescription}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="400" Height="100" ToolTipService.ToolTip="{Binding Description}" TextWrapping="WrapWholeWords" ></TextBlock>
+                                            <TextBlock Grid.Column="2" Text="{Binding FormattedDescription}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="400" Height="100" ToolTipService.ToolTip="{Binding Description}" TextWrapping="WrapWholeWords" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}"/>
                                             <StackPanel Orientation="Vertical">
                                                 <StackPanel Orientation="Horizontal">
                                                     <!-- Download/Play/Pause button -->
@@ -107,8 +109,9 @@
                                                                   Icon="{Binding State, Converter={StaticResource EpisodeStateIconConverter}}" 
                                                                   ToolTipService.ToolTip="{Binding State, Converter={StaticResource EpisodeStateToolTipConverter}}" 
                                                                   IsEnabled="{Binding State, Converter={StaticResource EpisodeStateButtonEnabledConverter}}"
-                                                                  Click="PlayButton_Clicked"/>
-                                                    <TextBlock Text="{Binding Position, Converter={StaticResource EpisodePositionConverter}}" ToolTipService.ToolTip="Elapsed time"/>
+                                                                  Click="PlayButton_Clicked"
+                                                                  Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='AppBarButton'}"/>
+                                                    <TextBlock Text="{Binding Position, Converter={StaticResource EpisodePositionConverter}}" ToolTipService.ToolTip="Elapsed time" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}"/>
                                                     <!-- Progress Bar -->
                                                 </StackPanel>
                                                 <ProgressBar Margin="0,10,0,0" 

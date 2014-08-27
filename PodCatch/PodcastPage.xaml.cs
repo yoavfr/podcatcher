@@ -3,7 +3,9 @@ using PodCatch.DataModel;
 using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Foundation;
 using Windows.Networking.BackgroundTransfer;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -119,7 +121,11 @@ namespace PodCatch
         {
             AppBarButton playButton = (AppBarButton)sender;
             Episode episode = (Episode)playButton.DataContext;
+            TogglePlayState(episode);
+        }
 
+        private void TogglePlayState(Episode episode)
+        {
             if (episode.State is EpisodeStatePendingDownload)
             {
                 episode.PostEvent(EpisodeEvent.Download);
@@ -183,6 +189,45 @@ namespace PodCatch
             BottomAppBar.IsOpen = false;
             Podcast podcastDataItem = (Podcast)DefaultViewModel["Podcast"];
             await podcastDataItem.RefreshFromRss(true);
+        }
+
+        private async void Grid_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            e.Handled = true;
+
+            Episode selectedEpisode = (Episode)((Grid)sender).DataContext;
+            
+            PopupMenu popupMenu = new PopupMenu();
+            if (selectedEpisode.Played)
+            {
+                popupMenu.Commands.Add(new UICommand() { Id = 1, Label = "Mark as unplayed" });
+            }
+            else
+            {
+                popupMenu.Commands.Add(new UICommand() { Id = 2, Label = "Mark as played" });
+            }
+            
+            IUICommand selectedCommand = await popupMenu.ShowAsync(e.GetPosition(this));
+            if (selectedCommand == null)
+            {
+                return;
+            }
+            switch ((int)selectedCommand.Id)
+            {
+                case 1:
+                    selectedEpisode.Played = false;
+                    break;
+                case 2:
+                    selectedEpisode.Played = true;
+                    break;
+            }
+            
+        }
+
+        private void episodesListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            Episode episode = (Episode)e.ClickedItem;
+            TogglePlayState(episode);
         }
     }
 }
