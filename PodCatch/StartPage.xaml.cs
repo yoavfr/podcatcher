@@ -67,7 +67,7 @@ namespace PodCatch
             
             // load from cache
             this.DefaultViewModel["Groups"] = PodcastDataSource.Instance.Groups;
-            await PodcastDataSource.Instance.Load();
+            await PodcastDataSource.Instance.Load(false);
         }
 
         /// <summary>
@@ -120,9 +120,10 @@ namespace PodCatch
 
             BackgroundTaskBuilder builder = new BackgroundTaskBuilder();
             builder.Name = "PodCatchHouseKeeping";
-            builder.TaskEntryPoint = "PodcatchBackgroundTasks.BackgroundTask";
+            builder.TaskEntryPoint = "PodCatch.BackgroundTasks.BackgroundTask";
             builder.SetTrigger(new MaintenanceTrigger(480, false));
             builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
+            builder.AddCondition(new SystemCondition(SystemConditionType.UserNotPresent));
             try
             {
                 BackgroundAccessStatus status = await BackgroundExecutionManager.RequestAccessAsync();
@@ -131,14 +132,14 @@ namespace PodCatch
             }
             catch (Exception ex)
             {
-
+                MessageDialog dialog = new MessageDialog("Failed to create PodCatch background task");
+                dialog.ShowAsync();
             }
         }
 
-        private void OnBackgroundTask_Completed(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
+        private async void OnBackgroundTask_Completed(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
         {
-            //Task t = PodcastDataSource.Instance.Load();
-            // TODO sync
+            await PodcastDataSource.Instance.Load(true);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)

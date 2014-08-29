@@ -50,6 +50,11 @@ namespace PodCatch.DataModel
                 if (m_Episodes == null)
                 {
                     m_Episodes = new ObservableCollection<Episode>(AllEpisodes.Where((episode) => episode.Visible));
+                    int i = 0;
+                    foreach (Episode episode in m_Episodes)
+                    {
+                        episode.Index = i++;
+                    }
                 }
                 return m_Episodes;
             }
@@ -164,6 +169,7 @@ namespace PodCatch.DataModel
             }
             AllEpisodes.Sort((a, b) => { return a.PublishDate > b.PublishDate ? -1 : 1; });
             MarkVisibleEpisodes();
+            await DisplayEpisodes();
             NotifyPropertyChanged("NumUnplayedEpisodes");
         }
 
@@ -348,6 +354,11 @@ namespace PodCatch.DataModel
             {
                 Episodes.Clear();
                 Episodes.AddAll(AllEpisodes.Where((episode) => episode.Visible));
+                int i=0;
+                foreach(Episode episode in Episodes)
+                {
+                    episode.Index = i++;
+                }
             });
         }
 

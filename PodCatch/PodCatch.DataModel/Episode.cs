@@ -86,6 +86,9 @@ namespace PodCatch.DataModel
                 m_PublishDateTicks = value.Ticks;
             }
         }
+        
+        // index for alternate coloring in UI
+        public int Index { get; set; }
 
         public bool Played 
         { 

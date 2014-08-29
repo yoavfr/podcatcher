@@ -17,7 +17,7 @@
         <CollectionViewSource
             x:Name="episodesViewSource"
             Source="{Binding  Episodes}"/>
-        <common:AltBackgroundConverter x:Key="AltBGConverter" />
+        <common:AltBackgroundConverter x:Key="AltBackgroundConverter" />
         <common:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <common:EpisodeStateIconConverter x:Key="EpisodeStateIconConverter"/>
         <common:EpisodeStateToolTipConverter x:Key="EpisodeStateToolTipConverter"/>
@@ -95,7 +95,7 @@
                                     <Grid IsRightTapEnabled="True" RightTapped="Grid_RightTapped">
                                         <!-- Alternating background -->
                                         <Grid.Background>
-                                            <SolidColorBrush Color="{Binding Title, Mode=OneWay, Converter={StaticResource AltBGConverter}}"/>
+                                            <SolidColorBrush Color="{Binding Index, Mode=OneWay, Converter={StaticResource AltBackgroundConverter}}"/>
                                         </Grid.Background>
                                         <StackPanel Orientation="Horizontal">
                                             <!-- Title -->

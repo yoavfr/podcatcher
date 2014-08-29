@@ -206,6 +206,10 @@
       <Project>{d4fea332-22e2-480e-bfe8-f2b668fb9c1d}</Project>
       <Name>PodCatch.StateMachine</Name>
     </ProjectReference>
+    <ProjectReference Include="PodcatchBackgroundTasks\PodCatch.BackgroundTasks.csproj">
+      <Project>{e9c703b2-2b40-4eed-a30e-1dadc6eca1e0}</Project>
+      <Name>PodCatch.BackgroundTasks</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>

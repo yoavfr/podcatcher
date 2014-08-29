@@ -70,7 +70,10 @@ namespace PodCatch.DataModel
             PodcastGroup group = GetGroup(groupId);
             if (group != null)
             {
-                group.Podcasts.Add(podcast);
+                if (!group.Podcasts.Contains(podcast))
+                {
+                    group.Podcasts.Add(podcast);
+                }
             }
         }
 
@@ -100,29 +103,30 @@ namespace PodCatch.DataModel
             return new Collection<PodcastGroup>();
         }
 
-        public async Task Load()
+        public async Task Load(bool force)
         {
-            if (m_Loaded)
+            if (m_Loaded && !force)
             {
                 return;
             }
 
             m_Loaded = true;
-
+            List<Task> loadTasks = new List<Task>();
             foreach (PodcastGroup group in LoadFavorites())
             {
                 foreach (Podcast podcast in group.Podcasts)
                 {
                     AddPodcast(group.Id, podcast);
-                    Task t = podcast.Load().ContinueWith((loadTask)=>
+                    loadTasks.Add(podcast.Load().ContinueWith((loadTask)=>
                     {
-                        podcast.DownloadEpisodes().ContinueWith((downloadTask) =>
+                        podcast.DownloadEpisodes().ContinueWith(async (downloadTask) =>
                         {
-                            podcast.Store();
+                            await podcast.Store();
                         });
-                    });
+                    }));
                 }
             }
+            await Task.WhenAll(loadTasks.ToArray());
         }
 
         public void Store()
@@ -167,9 +171,9 @@ namespace PodCatch.DataModel
             Store();
             await podcast.RefreshFromRss(true).ContinueWith((refreshTask) =>
                 {
-                    podcast.DownloadEpisodes().ContinueWith((downalodTask) =>
+                    podcast.DownloadEpisodes().ContinueWith(async (downalodTask) =>
                         {
-                            podcast.Store();
+                            await podcast.Store();
                         });
                 });
             return true;

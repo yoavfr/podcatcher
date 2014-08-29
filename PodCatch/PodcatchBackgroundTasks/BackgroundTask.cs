@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
+using Windows.UI.Notifications;
 
 namespace PodCatch.BackgroundTasks
 {
@@ -16,8 +17,8 @@ namespace PodCatch.BackgroundTasks
         {
             BackgroundTaskDeferral deferral = taskInstance.GetDeferral();
             taskInstance.Canceled += OnTaskInstanceCanceled;
-            await PodcastDataSource.Instance.Load();
-            List<Task> pendingDownloads = new List<Task>();
+            await PodcastDataSource.Instance.Load(true);
+            //List<Task> pendingDownloads = new List<Task>();
             /* TODO
             PodcastGroup favorites = PodcastDataSource.Instance.GetGroup(Constants.FavoritesGroupId);
             foreach (Podcast podcast in favorites.Podcasts)
@@ -30,8 +31,15 @@ namespace PodCatch.BackgroundTasks
                     }
                 }
             }*/
+
+            /*var tileContent = TileUpdateManager.GetTemplateContent(TileTemplateType.TileSquareText01);
+            var tileLines = tileContent.SelectNodes("tile/visual/binding/text");
+            tileLines[0].InnerText = "test";
+            TileNotification notification = new TileNotification(tileContent);
+            var updater = TileUpdateManager.CreateTileUpdaterForApplication();
+            updater.Update(notification);
             
-            Task.WaitAll(pendingDownloads.ToArray(), m_cancellationTokenSouce.Token);
+            Task.WaitAll(pendingDownloads.ToArray(), m_cancellationTokenSouce.Token);*/
             deferral.Complete();
         }
 

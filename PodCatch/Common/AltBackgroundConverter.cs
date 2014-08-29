@@ -10,13 +10,12 @@ namespace PodCatch.Common
 {
     public class AltBackgroundConverter : IValueConverter
     {
-        private static int s_index;
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            //if (!(value is int)) return null;
-            //int index = (int)value;
-
-            if (s_index++ % 2 == 0)
+            if (!(value is int)) return null;
+            int index = (int)value;
+            
+            if (index++ % 2 == 1)
                 return Colors.Black;
             else
                 return Colors.DarkGray;

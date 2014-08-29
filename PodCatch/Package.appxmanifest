@@ -28,10 +28,11 @@
             <Task Type="audio" />
           </BackgroundTasks>
         </Extension>
-        <Extension Category="windows.backgroundTasks" EntryPoint="PodcatchBackgroundTasks.BackgroundTask">
+        <Extension Category="windows.backgroundTasks" EntryPoint="PodCatch.BackgroundTasks.BackgroundTask">
           <BackgroundTasks>
             <Task Type="systemEvent" />
             <Task Type="timer" />
+            <m2:Task Type="location" />
           </BackgroundTasks>
         </Extension>
       </Extensions>
