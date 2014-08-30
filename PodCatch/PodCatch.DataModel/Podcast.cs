@@ -8,10 +8,12 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Data.Xml.Dom;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.UI.Core;
 using Windows.Web.Http;
 using Windows.Web.Syndication;
 
@@ -351,11 +353,12 @@ namespace PodCatch.DataModel
         private async Task DisplayEpisodes()
         {
             // when not running in UI
-            if (Dispatcher.Instance == null)
+            if (CoreApplication.Views.Count == 0)
             {
                 return;
             }
-            await Dispatcher.Instance.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+            await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 Episodes.Clear();
                 Episodes.AddAll(AllEpisodes.Where((episode) => episode.Visible));
@@ -381,15 +384,22 @@ namespace PodCatch.DataModel
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string propertyName)
         {
-            if (PropertyChanged == null || Dispatcher.Instance == null)
+            if (PropertyChanged == null || CoreApplication.Views.Count == 0)
             {
                 return;
             }
-            IAsyncAction t = Dispatcher.Instance.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+            if (dispatcher.HasThreadAccess)
             {
-                PropertyChanged(this,
-                    new PropertyChangedEventArgs(propertyName));
-            });
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+            else
+            {
+                IAsyncAction t = dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                });
+            }
         }
 
         public override bool Equals(object obj)

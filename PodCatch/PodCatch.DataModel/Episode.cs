@@ -4,9 +4,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Data.Html;
 using Windows.Foundation;
 using Windows.Storage;
+using Windows.UI.Core;
 
 namespace PodCatch.DataModel
 {
@@ -211,16 +213,23 @@ namespace PodCatch.DataModel
         public event PropertyChangedEventHandler PropertyChanged;
         public void NotifyPropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler == null || Dispatcher.Instance == null)
+            if (PropertyChanged == null || CoreApplication.Views.Count == 0)
             {
                 return;
             }
-            IAsyncAction t = Dispatcher.Instance.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+
+            if (dispatcher.HasThreadAccess)
             {
-                handler(this,
-                    new PropertyChangedEventArgs(propertyName));
-            });
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+            else
+            {
+                IAsyncAction t = dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                });
+            }
         }
 
 
