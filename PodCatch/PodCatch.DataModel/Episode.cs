@@ -212,7 +212,7 @@ namespace PodCatch.DataModel
         public void NotifyPropertyChanged(string propertyName)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler == null)
+            if (handler == null || Dispatcher.Instance == null)
             {
                 return;
             }

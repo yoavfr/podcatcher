@@ -350,6 +350,11 @@ namespace PodCatch.DataModel
 
         private async Task DisplayEpisodes()
         {
+            // when not running in UI
+            if (Dispatcher.Instance == null)
+            {
+                return;
+            }
             await Dispatcher.Instance.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 Episodes.Clear();
@@ -376,7 +381,7 @@ namespace PodCatch.DataModel
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string propertyName)
         {
-            if (PropertyChanged == null)
+            if (PropertyChanged == null || Dispatcher.Instance == null)
             {
                 return;
             }
