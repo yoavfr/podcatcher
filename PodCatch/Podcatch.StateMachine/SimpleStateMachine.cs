@@ -46,7 +46,7 @@ namespace Podcatch.StateMachine
             m_MaxPriority = maxPriority;
             m_Owner = owner;
             m_Logger = logger;
-            Logger.LogInfo("New StateMachine owned by {0}", owner);
+            //Logger.LogInfo("New StateMachine owned by {0}", owner);
         }
 
         /// <summary>

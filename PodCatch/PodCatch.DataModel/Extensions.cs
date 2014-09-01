@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace PodCatch.DataModel
 {
+    using System.Diagnostics.Contracts;
+
     public static class Extensions
     {
         public static int IndexOfOccurence(this string s, string match, int occurence)
@@ -14,12 +16,9 @@ namespace PodCatch.DataModel
             int i = 1;
             int index = 0;
 
-            while (i <= occurence &&
-                index < s.Length &&
-                (index = s.IndexOf(match, index + 1)) != -1)
+            while (i <= occurence && index < s.Length && (index = s.IndexOf(match, index + 1)) != -1)
             {
-                if (i == occurence)
-                    return index;
+                if (i == occurence) return index;
 
                 i++;
             }
@@ -66,5 +65,24 @@ namespace PodCatch.DataModel
                 action(element, index++);
             }
         }
+
+        public static int GetFixedHashCode(this string str)
+        {
+            int hash1 = 5381;
+            int hash2 = hash1;
+            int i = 0;
+            char c;
+            while (i<str.Length)
+            {
+                c = str[i];
+                hash1 = ((hash1 << 5) + hash1) ^ c;
+                c = str[1];
+                if (c == 0) break;
+                hash2 = ((hash2 << 5) + hash2) ^ c;
+                i++;
+            }
+            return hash1 + (hash2 * 1566083941);
+        }
+
     }
 }

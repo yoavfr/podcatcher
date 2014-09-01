@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Json;
@@ -111,6 +112,7 @@ namespace PodCatch.DataModel
             }
 
             m_Loaded = true;
+            TouchedFiles.Instance.Clear();
             List<Task> loadTasks = new List<Task>();
             foreach (PodcastGroup group in LoadFavorites())
             {
@@ -192,5 +194,32 @@ namespace PodCatch.DataModel
             return favorites.Podcasts.Contains(podcast);
         }
 
+        public async Task DoHouseKeeping()
+        {
+            await Load(true);
+            await RemoveUntouchedFiles(ApplicationData.Current.LocalFolder);
+        }
+
+        private async Task RemoveUntouchedFiles(StorageFolder folder)
+        {
+            foreach(IStorageItem item in await folder.GetItemsAsync())
+            {
+                // suspension manager session state file
+                if (item.Name == "_sessionState.xml")
+                {
+                    continue;
+                }
+                if (item.Attributes == FileAttributes.Directory)
+                {
+                    await RemoveUntouchedFiles(await StorageFolder.GetFolderFromPathAsync(item.Path));
+                }
+                if (!TouchedFiles.Instance.Contains(item.Path))
+                {
+                    Debug.WriteLine("DoHouseKeeping() - deleting {0}", item.Path);
+                    await item.DeleteAsync();
+                }
+            }
+            
+        }
     }
 }

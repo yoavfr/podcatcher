@@ -1,6 +1,7 @@
 ﻿using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,7 +18,14 @@ namespace PodCatch.BackgroundTasks
         {
             BackgroundTaskDeferral deferral = taskInstance.GetDeferral();
             taskInstance.Canceled += OnTaskInstanceCanceled;
-            await PodcastDataSource.Instance.Load(true);
+            try
+            {
+                await PodcastDataSource.Instance.DoHouseKeeping();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("BackgroundTask.Run() - Error {0}", e);
+            }
             //List<Task> pendingDownloads = new List<Task>();
             /* TODO
             PodcastGroup favorites = PodcastDataSource.Instance.GetGroup(Constants.FavoritesGroupId);

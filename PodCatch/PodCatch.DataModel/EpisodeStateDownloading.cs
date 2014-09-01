@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,6 +43,8 @@ namespace PodCatch.DataModel
 
                 if (musicProperties.Duration.TotalMilliseconds > 0)
                 {
+                    TouchedFiles.Instance.Add(localFile.Path);
+                    TouchedFiles.Instance.Add(Path.GetDirectoryName(localFile.Path));
                     stateMachine.PostEvent(EpisodeEvent.DownloadSuccess);
                 }
             }

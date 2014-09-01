@@ -213,7 +213,8 @@ namespace PodCatch.DataModel
         public event PropertyChangedEventHandler PropertyChanged;
         public void NotifyPropertyChanged(string propertyName)
         {
-            if (PropertyChanged == null || CoreApplication.Views.Count == 0)
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler == null || CoreApplication.Views.Count == 0)
             {
                 return;
             }
@@ -221,13 +222,13 @@ namespace PodCatch.DataModel
 
             if (dispatcher.HasThreadAccess)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                handler(this, new PropertyChangedEventArgs(propertyName));
             }
             else
             {
                 IAsyncAction t = dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
-                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                    handler(this, new PropertyChangedEventArgs(propertyName));
                 });
             }
         }

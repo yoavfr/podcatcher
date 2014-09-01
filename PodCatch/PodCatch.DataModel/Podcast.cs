@@ -65,7 +65,7 @@ namespace PodCatch.DataModel
         {
             get
             {
-                return String.Format("0x{0:X8}", Uri.GetHashCode());
+                return String.Format("0x{0:X8}", Uri.GetFixedHashCode());
             }
         }
 
@@ -111,6 +111,7 @@ namespace PodCatch.DataModel
                     {
                         DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Podcast));
                         Podcast readPodcast = (Podcast)serializer.ReadObject(stream);
+                        TouchedFiles.Instance.Add(file.Path);
 
                         await UpdateFields (readPodcast);
                         NotifyPropertyChanged("NumUnplayedEpisodes");
@@ -119,7 +120,7 @@ namespace PodCatch.DataModel
             }
             catch (Exception e)
             {
-                Debug.WriteLine("Podcast.Load(): error loading {0}. {1}", Id, e);
+                Debug.WriteLine("Podcast.Load(): error loading {0}. {1}", CacheFileName, e);
             }
             await RefreshFromRss(false);
         }
@@ -214,7 +215,6 @@ namespace PodCatch.DataModel
                     allEpisodes.Add(episode.PostEvent(EpisodeEvent.Download));
                 }
             }
-            // TODO: can be made completely asynchronous
             await Task.WhenAll(allEpisodes);
         }
 
@@ -247,6 +247,7 @@ namespace PodCatch.DataModel
                 Debug.WriteLine("Podcast.LoadImage(): Finished downloading {0} -> {1}", imageUri, localImageFile.Path);
                 Image = localImageFile.Path;
 
+                TouchedFiles.Instance.Add(Image);
                 ulong newFileSize = await GetCachedFileSize(localImagePath);
                 //if (newFileSize != oldFileSize)
                 {
@@ -283,6 +284,7 @@ namespace PodCatch.DataModel
             Title = fromCache.Title;
             Description = fromCache.Description;
             Image = fromCache.Image;
+            TouchedFiles.Instance.Add(Image);
             LastRefreshTimeTicks = fromCache.LastRefreshTimeTicks;
             if (fromCache.AllEpisodes == null)
             {
@@ -382,22 +384,24 @@ namespace PodCatch.DataModel
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged(string propertyName)
+        public void NotifyPropertyChanged(string propertyName)
         {
-            if (PropertyChanged == null || CoreApplication.Views.Count == 0)
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler == null || CoreApplication.Views.Count == 0)
             {
                 return;
             }
             CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+
             if (dispatcher.HasThreadAccess)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                handler(this, new PropertyChangedEventArgs(propertyName));
             }
             else
             {
                 IAsyncAction t = dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
-                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                    handler(this, new PropertyChangedEventArgs(propertyName));
                 });
             }
         }

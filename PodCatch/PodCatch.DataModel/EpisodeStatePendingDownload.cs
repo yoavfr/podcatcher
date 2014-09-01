@@ -38,6 +38,8 @@ namespace PodCatch.DataModel
                             if (musicProperties.Duration.TotalMilliseconds > 0)
                             {
                                 // We have a fully downloaded file - mark is as downloaded
+                                TouchedFiles.Instance.Add(file.Path);
+                                TouchedFiles.Instance.Add(Path.GetDirectoryName(file.Path));
                                 return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloaded>();
                             }
                         }
