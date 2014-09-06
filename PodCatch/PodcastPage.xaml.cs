@@ -187,8 +187,21 @@ namespace PodCatch
         private async void RefreshButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
+            MessageDialog dlg = null;
             Podcast podcastDataItem = (Podcast)DefaultViewModel["Podcast"];
-            await podcastDataItem.RefreshFromRss(true);
+            try
+            {
+                await podcastDataItem.RefreshFromRss(true);
+                await podcastDataItem.Store();
+            }
+            catch (Exception ex)
+            {
+                dlg = new MessageDialog(string.Format("Unable to refresh {0}. {1}", podcastDataItem.Title, ex.Message));
+            }
+            if (dlg != null) 
+            {
+                await dlg.ShowAsync();
+            }
         }
 
         private async void Grid_RightTapped(object sender, RightTappedRoutedEventArgs e)
@@ -221,7 +234,7 @@ namespace PodCatch
                     selectedEpisode.Played = true;
                     break;
             }
-            PodcastDataSource.Instance.Store();
+            await PodcastDataSource.Instance.Store();
         }
 
         private void episodesListView_ItemClick(object sender, ItemClickEventArgs e)

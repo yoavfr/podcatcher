@@ -101,7 +101,7 @@ namespace PodCatch.DataModel
         public async Task Load()
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            Debug.WriteLine("Podcast.Load(): from {0}",localFolder.Path);
+            Debug.WriteLine("Podcast.Load(): {0} from {1}", Title, localFolder.Path);
             try
             {
                 StorageFile file = await localFolder.GetFileAsync(CacheFileName);
@@ -114,7 +114,7 @@ namespace PodCatch.DataModel
                         TouchedFiles.Instance.Add(file.Path);
 
                         await UpdateFields (readPodcast);
-                        NotifyPropertyChanged("NumUnplayedEpisodes");
+                        await RefreshDisplay();
                     }
                 }
             }
@@ -133,44 +133,42 @@ namespace PodCatch.DataModel
                 return;
             }
 
-            try
+            SyndicationFeed syndicationFeed = new SyndicationFeed();
+
+            HttpClient httpClient = new HttpClient();
+            string xmlString = await httpClient.GetStringAsync(new Uri(Uri));
+            XmlDocument feedXml = new XmlDocument();
+            feedXml.LoadXml(xmlString);
+
+            syndicationFeed.LoadFromXml(feedXml);
+
+            // don't refresh if feed has not been updated since
+            if ((syndicationFeed.LastUpdatedTime != null && syndicationFeed.LastUpdatedTime.DateTime > lastRefreshTime) ||
+                force)
             {
-                SyndicationFeed syndicationFeed = new SyndicationFeed();
+                Title = syndicationFeed.Title.Text;
 
-                HttpClient httpClient = new HttpClient();
-                string xmlString = await httpClient.GetStringAsync(new Uri(Uri));
-                XmlDocument feedXml = new XmlDocument();
-                feedXml.LoadXml(xmlString);
-
-                syndicationFeed.LoadFromXml(feedXml);
-
-                // don't refresh if feed has not been updated since
-                if ((syndicationFeed.LastUpdatedTime != null && syndicationFeed.LastUpdatedTime.DateTime > lastRefreshTime) ||
-                    force)
+                if (syndicationFeed.Subtitle != null)
                 {
-                    Title = syndicationFeed.Title.Text;
-
-                    if (syndicationFeed.Subtitle != null)
-                    {
-                        Description = syndicationFeed.Subtitle.Text;
-                    }
-
-                    if (syndicationFeed.ImageUri != null)
-                    {
-                        await LoadImage(syndicationFeed.ImageUri);
-                    }
-
-                    ReadRssEpisodes(syndicationFeed);
+                    Description = syndicationFeed.Subtitle.Text;
                 }
 
-                // keep record of last update time
-                LastRefreshTimeTicks = DateTime.UtcNow.Ticks;
+                if (syndicationFeed.ImageUri != null)
+                {
+                    await LoadImage(syndicationFeed.ImageUri);
+                }
+
+                ReadRssEpisodes(syndicationFeed);
             }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Podcast.RefreshFromRss - exception: {0}", e);
-            }
+
+            // keep record of last update time
+            LastRefreshTimeTicks = DateTime.UtcNow.Ticks;
             AllEpisodes.Sort((a, b) => { return a.PublishDate > b.PublishDate ? -1 : 1; });
+            await RefreshDisplay();
+        }
+
+        private async Task RefreshDisplay()
+        {
             MarkVisibleEpisodes();
             await DisplayEpisodes();
             NotifyPropertyChanged("NumUnplayedEpisodes");

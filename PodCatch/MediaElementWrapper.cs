@@ -70,14 +70,14 @@ namespace PodCatch
             MediaElement.MediaEnded += MediaElement_MediaEnded;
         }
 
-        void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
+        async void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
         {
             Episode episode = m_NowPlaying;
             if (episode != null)
             {
                 m_NowPlaying = null;
                 episode.Played = true;
-                PodcastDataSource.Instance.Store();
+                await PodcastDataSource.Instance.Store();
             }
             MediaElement.MediaEnded -= MediaElement_MediaEnded;
         }
