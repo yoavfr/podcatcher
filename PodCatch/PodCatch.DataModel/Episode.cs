@@ -194,6 +194,7 @@ namespace PodCatch.DataModel
             Duration = fromCache.Duration;
             Uri = fromCache.Uri;
             Description = fromCache.Description;
+            m_PublishDateTicks = fromCache.m_PublishDateTicks;
         }
 
         public string FullFileName

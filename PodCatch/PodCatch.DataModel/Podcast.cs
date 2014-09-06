@@ -163,12 +163,12 @@ namespace PodCatch.DataModel
 
             // keep record of last update time
             LastRefreshTimeTicks = DateTime.UtcNow.Ticks;
-            AllEpisodes.Sort((a, b) => { return a.PublishDate > b.PublishDate ? -1 : 1; });
             await RefreshDisplay();
         }
 
         private async Task RefreshDisplay()
         {
+            AllEpisodes.Sort((a, b) => { return a.PublishDate > b.PublishDate ? -1 : 1; });
             MarkVisibleEpisodes();
             await DisplayEpisodes();
             NotifyPropertyChanged("NumUnplayedEpisodes");
