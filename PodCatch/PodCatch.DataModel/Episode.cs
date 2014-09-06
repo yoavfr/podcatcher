@@ -70,7 +70,7 @@ namespace PodCatch.DataModel
             set
             {
                 m_Description = value;
-                NotifyPropertyChanged("FormattedDescription");
+                NotifyPropertyChanged("FormattedShortDescription");
             }
         }
 
@@ -125,7 +125,14 @@ namespace PodCatch.DataModel
         {
             get
             {
-                string descriptionAsPlainString = HtmlUtilities.ConvertToText(Description).Trim('\n', '\r', '\t', ' ');
+                return HtmlUtilities.ConvertToText(Description).Trim('\n', '\r', '\t', ' ');
+            }
+        }
+        public string FormattedShortDescription
+        {
+            get
+            {
+                string descriptionAsPlainString = FormattedDescription;
                 int lineLimit = descriptionAsPlainString.IndexOfOccurence("\n", 10);
                 if (lineLimit != -1)
                 {
