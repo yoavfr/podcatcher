@@ -115,23 +115,26 @@ namespace PodCatch.DataModel
                 foreach (Podcast podcast in group.Podcasts)
                 {
                     AddPodcast(group.Id, podcast);
-                    try
-                    {
-                        loadTasks.Add(podcast.Load().ContinueWith((loadTask)=>
-                        {
-                            podcast.DownloadEpisodes().ContinueWith(async (downloadTask) =>
-                            {
-                                await podcast.Store();
-                            });
-                        }));
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine("Error loading {0}. {1}", podcast, e);
-                    }
+                    loadTasks.Add(LoadPodcast(podcast));
                 }
             }
             await Task.WhenAll(loadTasks.ToArray());
+        }
+
+        private async Task<bool> LoadPodcast(Podcast podcast)
+        {
+            try
+            {
+                await podcast.Load();
+                await podcast.DownloadEpisodes();
+                await podcast.Store();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Error loading {0}. {1}", podcast, e);
+                return false;
+            }
         }
 
         public async Task Store()
@@ -188,29 +191,14 @@ namespace PodCatch.DataModel
 
             favorites.Podcasts.Add(podcast);
             await Store();
-            try
-            {
-                await podcast.RefreshFromRss(true).ContinueWith((refreshTask) =>
-                    {
-                        podcast.DownloadEpisodes().ContinueWith(async (downalodTask) =>
-                            {
-                                await podcast.Store();
-                            });
-                    });
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Failed on adding {0} to favorites. {1}", podcast.Title, ex);
-                return false;
-            }
+            return await LoadPodcast(podcast);
         }
 
         public void RemoveFromFavorites(Podcast podcast)
         {
             PodcastGroup favorites = GetGroup(Constants.FavoritesGroupId);
             favorites.Podcasts.Remove(podcast);
-            Store();
+            Task t = Store();
         }
 
         public bool IsPodcastInFavorites(Podcast podcast)

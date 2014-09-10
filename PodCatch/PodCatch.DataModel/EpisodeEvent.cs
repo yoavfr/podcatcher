@@ -16,5 +16,6 @@ namespace PodCatch.DataModel
         Pause,
         Scan,
         DonePlaying,
+        Refresh,
     }
 }

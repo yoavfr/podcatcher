@@ -45,31 +45,32 @@ namespace PodCatch.DataModel
                 {
                     TouchedFiles.Instance.Add(localFile.Path);
                     TouchedFiles.Instance.Add(Path.GetDirectoryName(localFile.Path));
-                    stateMachine.PostEvent(EpisodeEvent.DownloadSuccess);
+                    Task t = stateMachine.PostEvent(EpisodeEvent.DownloadSuccess);
                 }
             }
             catch (Exception e)
             {
                 Debug.WriteLine("Episode.Download(): error downloading {0}. {1}", owner.Uri, e);
             }
-            stateMachine.PostEvent(EpisodeEvent.DownloadFail);
+            Task task = stateMachine.PostEvent(EpisodeEvent.DownloadFail);
 
         }
 
-        public override async Task OnExit(Episode owner, IState<Episode, EpisodeEvent> toState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
+        public override Task OnExit(Episode owner, IState<Episode, EpisodeEvent> toState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
+            return Task.FromResult<object>(null);
         }
 
-        public override async Task<IState<Episode, EpisodeEvent>> OnEvent(Episode owner, EpisodeEvent anEvent, IEventProcessor<Episode, EpisodeEvent> stateMachine)
+        public override Task<IState<Episode, EpisodeEvent>> OnEvent(Episode owner, EpisodeEvent anEvent, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
             switch (anEvent)
             {
                 case EpisodeEvent.DownloadSuccess:
-                    return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloaded>();
+                    return Task.FromResult<IState<Episode, EpisodeEvent>>(EpisodeStateFactory.Instance.GetState<EpisodeStateDownloaded>());
                 case EpisodeEvent.DownloadFail:
-                    return EpisodeStateFactory.Instance.GetState<EpisodeStatePendingDownload>();
+                    return Task.FromResult<IState<Episode, EpisodeEvent>>(EpisodeStateFactory.Instance.GetState<EpisodeStatePendingDownload>());
             }
-            return null;
+            return Task.FromResult<IState<Episode, EpisodeEvent>>(null);
         }
     }
 }

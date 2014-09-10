@@ -111,6 +111,7 @@ namespace PodCatch
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
+            MessageDialog dialog = null;
             navigationHelper.OnNavigatedTo(e);
             foreach (var task in BackgroundTaskRegistration.AllTasks)
             {
@@ -131,8 +132,11 @@ namespace PodCatch
             }
             catch (Exception ex)
             {
-                MessageDialog dialog = new MessageDialog("Failed to create PodCatch background task");
-                dialog.ShowAsync();
+                dialog = new MessageDialog(string.Format("Failed to create PodCatch background task. {0}", ex));
+            }
+            if (dialog != null)
+            {
+                await dialog.ShowAsync();
             }
         }
 
@@ -231,7 +235,7 @@ namespace PodCatch
                     NavigationHelper.GoBack();
                     break;
                 case 3: // Add to favorites
-                    PodcastDataSource.Instance.AddToFavorites(selectedPodcast);
+                    await PodcastDataSource.Instance.AddToFavorites(selectedPodcast);
                     break;
             }
         }

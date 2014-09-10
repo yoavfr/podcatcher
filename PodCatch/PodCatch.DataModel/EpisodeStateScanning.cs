@@ -9,25 +9,28 @@ namespace PodCatch.DataModel
 {
     public class EpisodeStateScanning : AbstractState<Episode, EpisodeEvent>
     {
-        public override async Task OnEntry(Episode owner, IState<Episode, EpisodeEvent> fromState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
+        public override Task OnEntry(Episode owner, IState<Episode, EpisodeEvent> fromState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
             owner.NotifyPropertyChanged("State");
+            return Task.FromResult<object>(null);
+
         }
 
-        public override async Task OnExit(Episode owner, IState<Episode, EpisodeEvent> toState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
+        public override Task OnExit(Episode owner, IState<Episode, EpisodeEvent> toState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
+            return Task.FromResult<object>(null);
         }
 
-        public override async Task<IState<Episode, EpisodeEvent>> OnEvent(Episode owner, EpisodeEvent anEvent, IEventProcessor<Episode, EpisodeEvent> stateMachine)
+        public override Task<IState<Episode, EpisodeEvent>> OnEvent(Episode owner, EpisodeEvent anEvent, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
             switch (anEvent)
             {
                 case EpisodeEvent.Play:
                     {
-                        return EpisodeStateFactory.Instance.GetState<EpisodeStatePlaying>();
+                        return Task.FromResult<IState<Episode, EpisodeEvent>>(EpisodeStateFactory.Instance.GetState<EpisodeStatePlaying>());
                     }
             }
-            return null;
+            return Task.FromResult<IState<Episode, EpisodeEvent>>(null);
         }
     }
 }

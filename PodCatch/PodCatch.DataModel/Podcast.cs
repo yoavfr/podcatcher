@@ -22,7 +22,6 @@ namespace PodCatch.DataModel
     [DataContract]
     public class Podcast : INotifyPropertyChanged
     {
-        private bool m_Loaded;
         private string m_Title;
         private string m_Description;
         private string m_Image;
@@ -191,7 +190,7 @@ namespace PodCatch.DataModel
                 {
                     string episodeTitle = item.Title != null ? item.Title.Text : "<No Title>";
                     string episodeSummary = item.Summary != null ? item.Summary.Text : "<No Summary>";
-                    DateTimeOffset publishDate = item.PublishedDate != null ? item.PublishedDate : DateTimeOffset.MinValue;
+                    DateTimeOffset publishDate = item.PublishedDate;
 
                     Episode episode = GetEpisodeByUri(uri);
                     
@@ -277,7 +276,7 @@ namespace PodCatch.DataModel
             return fileSize;
         }
 
-        private async Task UpdateFields (Podcast fromCache)
+        private Task UpdateFields (Podcast fromCache)
         {
             Title = fromCache.Title;
             Description = fromCache.Description;
@@ -286,7 +285,7 @@ namespace PodCatch.DataModel
             LastRefreshTimeTicks = fromCache.LastRefreshTimeTicks;
             if (fromCache.AllEpisodes == null)
             {
-                return;
+                return Task.FromResult<object>(null);
             }
 
             foreach (Episode episodeFromCache in fromCache.AllEpisodes)
@@ -294,6 +293,7 @@ namespace PodCatch.DataModel
                 Episode episode = GetEpisodeByUri(episodeFromCache.Uri);
                 episode.UpdateFromCache(episodeFromCache);
             }
+            return Task.FromResult<object>(null);
         }
 
         private Episode GetEpisodeByUri(Uri uri)
@@ -331,7 +331,7 @@ namespace PodCatch.DataModel
             int target = m_numEpisodesToShow + increment;
             m_numEpisodesToShow = Math.Min(AllEpisodes.Count(), target);
             MarkVisibleEpisodes();
-            DisplayEpisodes();
+            Task t = DisplayEpisodes();
             return m_numEpisodesToShow;
         }
 

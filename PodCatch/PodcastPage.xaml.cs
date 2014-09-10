@@ -241,7 +241,7 @@ namespace PodCatch
                     await PodcastDataSource.Instance.Store();
                     break;
                 case 3:
-                    selectedEpisode.PostEvent(EpisodeEvent.Download);
+                    Task t = selectedEpisode.PostEvent(EpisodeEvent.Refresh);
                     break;
             }
         }

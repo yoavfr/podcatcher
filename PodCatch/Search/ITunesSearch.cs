@@ -1,6 +1,7 @@
 ﻿using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -42,6 +43,7 @@ namespace PodCatch.Search
             }
             catch (Exception e)
             {
+                Debug.WriteLine(e);
                 return results;
             }
         }
