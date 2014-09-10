@@ -219,6 +219,11 @@ namespace PodCatch
             {
                 popupMenu.Commands.Add(new UICommand() { Id = 2, Label = "Mark as played" });
             }
+
+            if (selectedEpisode.State is EpisodeStateDownloaded)
+            {
+                popupMenu.Commands.Add(new UICommand() { Id = 3, Label = "Download again" });
+            }
             
             IUICommand selectedCommand = await popupMenu.ShowAsync(e.GetPosition(this));
             if (selectedCommand == null)
@@ -229,12 +234,16 @@ namespace PodCatch
             {
                 case 1:
                     selectedEpisode.Played = false;
+                    await PodcastDataSource.Instance.Store();
                     break;
                 case 2:
                     selectedEpisode.Played = true;
+                    await PodcastDataSource.Instance.Store();
+                    break;
+                case 3:
+                    selectedEpisode.PostEvent(EpisodeEvent.Download);
                     break;
             }
-            await PodcastDataSource.Instance.Store();
         }
 
         private void episodesListView_ItemClick(object sender, ItemClickEventArgs e)

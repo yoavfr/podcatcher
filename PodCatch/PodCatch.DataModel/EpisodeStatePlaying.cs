@@ -23,6 +23,7 @@ namespace PodCatch.DataModel
             switch (anEvent)
             {
                 case EpisodeEvent.Pause:
+                case EpisodeEvent.DonePlaying:
                     {
                         return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloaded>();
                     }

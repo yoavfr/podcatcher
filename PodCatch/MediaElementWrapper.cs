@@ -77,6 +77,7 @@ namespace PodCatch
             {
                 m_NowPlaying = null;
                 episode.Played = true;
+                episode.PostEvent(EpisodeEvent.DonePlaying);
                 await PodcastDataSource.Instance.Store();
             }
             MediaElement.MediaEnded -= MediaElement_MediaEnded;

@@ -30,6 +30,10 @@ namespace PodCatch.DataModel
                     {
                         return EpisodeStateFactory.Instance.GetState<EpisodeStateScanning>();
                     }
+                case EpisodeEvent.Download:
+                    {
+                        return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloading>();
+                    }
             }
             return null;
         }
