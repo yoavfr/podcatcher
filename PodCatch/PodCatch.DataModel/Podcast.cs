@@ -180,7 +180,7 @@ namespace PodCatch.DataModel
                 Uri uri = null;
                 foreach (SyndicationLink link in item.Links)
                 {
-                    if (link.Relationship == "enclosure" && link.MediaType == "audio/mpeg")
+                    if (link.Relationship == "enclosure" /*&& link.MediaType == "audio/mpeg"*/)
                     {
                         uri = link.Uri;
                         break;
