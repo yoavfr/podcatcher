@@ -158,6 +158,7 @@
     <PRIResource Include="Resources\en-US\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\BadgeLogo.scale-100.png" />
     <Content Include="Assets\DarkGray.png" />
     <Content Include="Assets\Favorites.png" />
     <Content Include="Assets\Logo.scale-100.png">
