@@ -14,11 +14,14 @@
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <PackageCertificateKeyFile>PodCatch_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>PodCatch_StoreKey.pfx</PackageCertificateKeyFile>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxBundlePlatforms>neutral</AppxBundlePlatforms>
+    <PackageCertificateThumbprint>86521C8E634070EB9168CF3E86282F6BBD3184FB</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -154,6 +157,7 @@
     </AppxManifest>
     <None Include="Common\ReadMe.txt" />
     <None Include="packages.config" />
+    <None Include="PodCatch_StoreKey.pfx" />
     <None Include="PodCatch_TemporaryKey.pfx" />
     <PRIResource Include="Resources\en-US\Resources.resw" />
   </ItemGroup>
@@ -170,6 +174,7 @@
     <Content Include="Assets\StoreLogo.scale-100.png" />
     <Content Include="Assets\LightGray.png" />
     <Content Include="Assets\MediumGray.png" />
+    <None Include="Package.StoreAssociation.xml" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

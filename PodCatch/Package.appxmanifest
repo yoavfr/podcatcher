@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="f5ba21ed-cf91-4e2f-a11a-f1e6e69e5f0f" Publisher="CN=yoav" Version="1.0.0.0" />
+  <Identity Name="4019YoavFrandzel.Podcatcher" Publisher="CN=C60356C3-A0C0-4E2A-946D-14B96E87C36C" Version="1.1.0.4" />
   <Properties>
-    <DisplayName>PodCatch</DisplayName>
+    <DisplayName>Podcatcher</DisplayName>
     <PublisherDisplayName>Yoav Frandzel</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -15,7 +15,7 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="PodCatch.App">
-      <m2:VisualElements DisplayName="PodCatch" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="PodCatch" ForegroundText="light" BackgroundColor="#FFFFFF">
+      <m2:VisualElements DisplayName="Podcatcher" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="PodCatch" ForegroundText="light" BackgroundColor="#000000">
         <m2:DefaultTile>
           <m2:ShowNameOnTiles>
             <m2:ShowOn Tile="square150x150Logo" />
@@ -28,7 +28,7 @@
         </m2:InitialRotationPreference>
       </m2:VisualElements>
       <Extensions>
-        <Extension Category="windows.backgroundTasks" StartPage="StartPage.xaml">
+        <Extension Category="windows.backgroundTasks" EntryPoint="PodCatch.App">
           <BackgroundTasks>
             <Task Type="audio" />
           </BackgroundTasks>

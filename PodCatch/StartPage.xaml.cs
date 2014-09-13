@@ -136,7 +136,7 @@ namespace PodCatch
             }
             if (dialog != null)
             {
-                await dialog.ShowAsync();
+                //await dialog.ShowAsync();
             }
         }
 
