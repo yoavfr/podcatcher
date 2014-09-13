@@ -9,7 +9,7 @@
 
         <!-- Application-specific resources -->
 
-        <x:String x:Key="AppName">PodCatch</x:String>
+        <x:String x:Key="AppName">Podcatcher</x:String>
         <Style  x:Key="RootFrameStyle" TargetType="Frame">
             <Setter Property="Template">
                 <Setter.Value>

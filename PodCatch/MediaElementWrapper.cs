@@ -133,7 +133,7 @@ namespace PodCatch
                     if (DateTime.UtcNow.AddSeconds(-10) > m_LastSaveTime)
                     {
                         // save location
-                        PodcastDataSource.Instance.Store();
+                        Task t = PodcastDataSource.Instance.Store();
                         m_LastSaveTime = DateTime.UtcNow;
                     }
                 }
