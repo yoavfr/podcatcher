@@ -54,7 +54,7 @@ namespace PodCatch
             MediaElement.SetSource(stream, storageFile.ContentType);
             Position = episode.Position;
             m_NowPlaying = episode;
-            episode.PostEvent(EpisodeEvent.Play);
+            Task t = episode.PostEvent(EpisodeEvent.Play);
             MediaElement.Play();
             MediaElement.MediaEnded += MediaElement_MediaEnded;
         }
@@ -165,7 +165,7 @@ namespace PodCatch
                     case SystemMediaTransportControlsButton.Play:
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
-                                Play(episode);
+                                Task t = Play(episode);
                             });
                         break;
                     case SystemMediaTransportControlsButton.Pause:

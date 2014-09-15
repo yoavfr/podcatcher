@@ -137,7 +137,7 @@ namespace PodCatch
                     episode.Position = TimeSpan.FromSeconds(0);
                     episode.Played = false;
                 }
-                MediaPlayer.Play(episode);
+                Task t = MediaPlayer.Play(episode);
             }
             else if (episode.State is EpisodeStatePlaying)
             {
