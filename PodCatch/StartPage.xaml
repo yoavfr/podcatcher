@@ -95,16 +95,20 @@
                     <GroupStyle.HeaderTemplate>
                         <DataTemplate>
                             <Grid Margin="0,0,0,2">
-                                <Button Foreground="{ThemeResource ApplicationHeaderForegroundThemeBrush}"
-                                    AutomationProperties.Name="Group Title"
-                                    Click="Header_Click"
-                                    Style="{StaticResource TextBlockButtonStyle}" >
-                                    <StackPanel Orientation="Horizontal">
-                                        <!-- Group Title-->
-                                        <TextBlock Text="{Binding TitleText, Converter={StaticResource LocalizationConverter}}" Margin="0,-11,10,10" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="NoWrap" />
-                                        <TextBlock Text="{StaticResource ChevronGlyph}" FontFamily="Segoe UI Symbol" Margin="0,-11,0,10" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="NoWrap" />
-                                    </StackPanel>
-                                </Button>
+                                <StackPanel Orientation="Vertical">
+                                    <Button Foreground="{ThemeResource ApplicationHeaderForegroundThemeBrush}"
+                                        AutomationProperties.Name="Group Title"
+                                        Click="Header_Click"
+                                        Style="{StaticResource TextBlockButtonStyle}" >
+                                        <StackPanel Orientation="Horizontal">
+                                            <!-- Group Title-->
+                                            <TextBlock Text="{Binding TitleText, Converter={StaticResource LocalizationConverter}}" Margin="0,-11,10,10" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="NoWrap" />
+                                            <TextBlock Text="{StaticResource ChevronGlyph}" FontFamily="Segoe UI Symbol" Margin="0,-11,0,10" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="NoWrap" />
+                                        </StackPanel>
+                                    </Button>
+                                    <!--TextBlock Text="It's lonely in here... " Margin="0,20,0,0" Visibility="{Binding Source={StaticResource groupedItemsViewSource}.Count, Converter={ StaticResource VisibleOnEmptyCollectionConverter}}"/>
+                                    <TextBlock Text="You might want to open the app bar and search for podcasts"/-->
+                                </StackPanel>
                             </Grid>
                         </DataTemplate>
                     </GroupStyle.HeaderTemplate>

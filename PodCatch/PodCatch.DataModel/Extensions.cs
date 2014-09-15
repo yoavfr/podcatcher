@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace PodCatch.DataModel
 {
-    using System.Diagnostics.Contracts;
 
     public static class Extensions
     {
@@ -84,5 +82,12 @@ namespace PodCatch.DataModel
             return hash1 + (hash2 * 1566083941);
         }
 
+        public static string StripIllegalPathChars(this string str)
+        {
+            char[] invalidChars = System.IO.Path.GetInvalidFileNameChars();
+            string invalidString = Regex.Escape(new string(invalidChars));
+            string valid = Regex.Replace(str, "[" + invalidString + "]", "");
+            return valid;
+        }
     }
 }

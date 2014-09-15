@@ -64,7 +64,8 @@ namespace PodCatch.DataModel
         {
             get
             {
-                return String.Format("0x{0:X8}", Uri.GetFixedHashCode());
+                //return String.Format("0x{0:X8}", Uri.GetFixedHashCode());
+                return Title.StripIllegalPathChars();
             }
         }
 

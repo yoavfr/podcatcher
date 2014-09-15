@@ -9,7 +9,6 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.UI.Popups;
 
 namespace PodCatch.DataModel
 {
@@ -211,6 +210,7 @@ namespace PodCatch.DataModel
         {
             await Load(true);
             await RemoveUntouchedFiles(ApplicationData.Current.LocalFolder);
+            await RemoveUntouchedFiles(await Windows.Storage.KnownFolders.MusicLibrary.GetFolderAsync(Constants.ApplicationName));
         }
 
         private async Task RemoveUntouchedFiles(StorageFolder folder)

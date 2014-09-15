@@ -1,9 +1,6 @@
 ﻿using Podcatch.StateMachine;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -28,11 +25,11 @@ namespace PodCatch.DataModel
             switch (anEvent)
             {
                 case EpisodeEvent.UpdateDownloadStatus:
-                    { 
-                        StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                    {
+                        StorageFolder musicFolder = Windows.Storage.KnownFolders.MusicLibrary;/* ApplicationData.Current.LocalFolder*/;
                         try
                         {
-                            StorageFile file = await localFolder.GetFileAsync(owner.FileName);
+                            StorageFile file = await musicFolder.GetFileAsync(Path.Combine(Constants.ApplicationName, owner.FileName));
                             MusicProperties musicProperties = await file.Properties.GetMusicPropertiesAsync();
 
                             owner.Duration = musicProperties.Duration;

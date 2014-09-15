@@ -10,5 +10,6 @@ namespace PodCatch.DataModel
     {
         public const string FavoritesGroupId = "Favorites";
         public const string SearchGroupId = "Search";
+        public const string ApplicationName = "Podcatcher";
     }
 }

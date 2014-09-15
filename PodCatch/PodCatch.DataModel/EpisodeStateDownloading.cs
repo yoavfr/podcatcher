@@ -1,10 +1,7 @@
 ﻿using Podcatch.StateMachine;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -27,11 +24,11 @@ namespace PodCatch.DataModel
                 owner.DownloadProgress = at;
             });
 
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            StorageFolder musicFolder = Windows.Storage.KnownFolders.MusicLibrary;
 
             try
             {
-                StorageFile localFile = await localFolder.CreateFileAsync(owner.FileName, CreationCollisionOption.ReplaceExisting);
+                StorageFile localFile = await musicFolder.CreateFileAsync(Path.Combine(Constants.ApplicationName, owner.FileName), CreationCollisionOption.ReplaceExisting);
                 Downloader downloader = new Downloader(owner.Uri, localFile, progress);
                 await downloader.Download();
 
