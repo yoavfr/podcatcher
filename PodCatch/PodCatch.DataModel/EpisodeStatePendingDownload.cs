@@ -26,15 +26,13 @@ namespace PodCatch.DataModel
             {
                 case EpisodeEvent.UpdateDownloadStatus:
                     {
-                        StorageFolder musicFolder = Windows.Storage.KnownFolders.MusicLibrary;/* ApplicationData.Current.LocalFolder*/;
                         try
                         {
-                            StorageFile file = await musicFolder.GetFileAsync(Path.Combine(Constants.ApplicationName, owner.FileName));
+                            StorageFile file = await owner.GetStorageFile();
                             MusicProperties musicProperties = await file.Properties.GetMusicPropertiesAsync();
 
                             owner.Duration = musicProperties.Duration;
-                            // When file is partially downloaded the only indication we have that it has not completed is that the Duration is 0
-                            if (musicProperties.Duration.TotalMilliseconds > 0)
+                            if (!string.IsNullOrEmpty(musicProperties.Title))
                             {
                                 // We have a fully downloaded file - mark it as downloaded
                                 TouchedFiles.Instance.Add(file.Path);

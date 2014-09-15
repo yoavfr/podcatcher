@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Media;
+using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -41,28 +42,16 @@ namespace PodCatch
             }
         }
 
-        public Uri Source 
-        {
-            get
-            {
-                return MediaElement.Source;
-            }
-            set
-            {
-                MediaElement.Source = value;
-            }
-        }
-        public void Play(Episode episode)
+        public async Task Play(Episode episode)
         {
             if (m_NowPlaying != null && m_NowPlaying != episode)
             {
                 Pause(m_NowPlaying);
             }
-            Uri episodeUri = new Uri(episode.FullFileName);
-            if (Source == null || !Source.Equals(episodeUri))
-            {
-                Source = episodeUri;
-            }
+
+            StorageFile storageFile = await episode.GetStorageFile();
+            var stream = await storageFile.OpenReadAsync();
+            MediaElement.SetSource(stream, storageFile.ContentType);
             Position = episode.Position;
             m_NowPlaying = episode;
             episode.PostEvent(EpisodeEvent.Play);

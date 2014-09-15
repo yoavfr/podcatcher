@@ -24,11 +24,9 @@ namespace PodCatch.DataModel
                 owner.DownloadProgress = at;
             });
 
-            StorageFolder musicFolder = Windows.Storage.KnownFolders.MusicLibrary;
-
             try
             {
-                StorageFile localFile = await musicFolder.CreateFileAsync(Path.Combine(Constants.ApplicationName, owner.FileName), CreationCollisionOption.ReplaceExisting);
+                StorageFile localFile = await owner.GetStorageFile();
                 Downloader downloader = new Downloader(owner.Uri, localFile, progress);
                 await downloader.Download();
 
@@ -38,7 +36,7 @@ namespace PodCatch.DataModel
                 // set position
                 owner.Position = TimeSpan.FromMilliseconds(0);
 
-                if (musicProperties.Duration.TotalMilliseconds > 0)
+                if (!string.IsNullOrEmpty(musicProperties.Title))
                 {
                     TouchedFiles.Instance.Add(localFile.Path);
                     TouchedFiles.Instance.Add(Path.GetDirectoryName(localFile.Path));

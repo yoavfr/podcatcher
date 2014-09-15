@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -197,13 +198,10 @@ namespace PodCatch.DataModel
             m_PublishDateTicks = fromCache.m_PublishDateTicks;
         }
 
-        public string FullFileName
+        public async Task<StorageFile> GetStorageFile()
         {
-            get
-            {
-                string s = System.IO.Path.Combine(ApplicationData.Current.LocalFolder.Path, FileName);
-                return s;
-            }
+            StorageFolder folder = await Windows.Storage.KnownFolders.MusicLibrary.CreateFolderAsync(Constants.ApplicationName, CreationCollisionOption.OpenIfExists);
+            return await folder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
         }
 
         public string FileName
@@ -214,7 +212,7 @@ namespace PodCatch.DataModel
                 {
                     return null;
                 }
-                return System.IO.Path.Combine(PodcastId, System.IO.Path.GetFileName(Uri.ToString()));
+                return System.IO.Path.Combine(PodcastId, Path.GetFileName(Uri.ToString()));
             }
         }
 
