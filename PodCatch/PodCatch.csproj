@@ -175,6 +175,8 @@
     <Content Include="Assets\LightGray.png" />
     <Content Include="Assets\MediumGray.png" />
     <Content Include="Deployment\Privacy.html" />
+    <Content Include="Deployment\Promotional414x180.png" />
+    <Content Include="Deployment\screenshot3.png" />
     <None Include="Package.StoreAssociation.xml" />
   </ItemGroup>
   <ItemGroup>
