@@ -64,7 +64,15 @@ namespace PodCatch.DataModel
         {
             get
             {
-                //return String.Format("0x{0:X8}", Uri.GetFixedHashCode());
+                return String.Format("0x{0:X8}", Uri.GetFixedHashCode());
+                //return Title.StripIllegalPathChars();
+            }
+        }
+
+        public string FileName
+        {
+            get
+            {
                 return Title.StripIllegalPathChars();
             }
         }
@@ -232,8 +240,8 @@ namespace PodCatch.DataModel
                 return;
             }
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            string imageExtension = Path.GetExtension(imageUri.ToString());
-            string localImagePath = string.Format("{0}{1}", Id, imageExtension);
+            string imageExtension = Path.GetExtension(imageUri.AbsolutePath);
+            string localImagePath = string.Format("{0}{1}", FileName, imageExtension);
             ulong oldFileSize = await GetCachedFileSize(localImagePath);
             // the image we have is from the cache
             StorageFile localImageFile = await localFolder.CreateFileAsync(localImagePath, CreationCollisionOption.ReplaceExisting);
@@ -309,7 +317,7 @@ namespace PodCatch.DataModel
             // nothing in cache, but something in roaming settings
             Episode newEpisode = new Episode(uri)
             {
-                PodcastId = Id,
+                PodcastFileName = FileName,
             };
             AllEpisodes.Add(newEpisode);
             return newEpisode;
@@ -319,7 +327,7 @@ namespace PodCatch.DataModel
         {
             get
             {
-                return string.Format("{0}.json", Id);
+                return string.Format("{0}.json", FileName);
             }
         }
 

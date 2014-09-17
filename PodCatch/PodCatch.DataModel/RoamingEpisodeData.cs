@@ -43,7 +43,7 @@ namespace PodCatch.DataModel
         {
             Episode episode = new Episode(new Uri(Uri))
             {
-                PodcastId = podcastId,
+                PodcastFileName = podcastId,
                 Position = Position,
                 Played = Played,
             };

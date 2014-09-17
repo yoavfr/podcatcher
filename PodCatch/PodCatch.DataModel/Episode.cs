@@ -34,7 +34,7 @@ namespace PodCatch.DataModel
             m_StateMachine.StartPumpEvents();
         }
 
-        public string PodcastId { get; set; }
+        public string PodcastFileName { get; set; }
 
         [DataMember]
         public Uri Uri
@@ -208,11 +208,11 @@ namespace PodCatch.DataModel
         {
             get
             {
-                if (Uri == null || PodcastId == null)
+                if (Uri == null || PodcastFileName == null)
                 {
                     return null;
                 }
-                return System.IO.Path.Combine(PodcastId, Path.GetFileName(Uri.ToString()));
+                return System.IO.Path.Combine(PodcastFileName, Path.GetFileName(Uri.ToString()));
             }
         }
 
