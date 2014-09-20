@@ -12,6 +12,7 @@ using Windows.UI.Xaml.Navigation;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
+using Windows.Foundation;
 
 // The Grouped Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234231
 
@@ -22,6 +23,7 @@ namespace PodCatch
     /// </summary>
     public sealed partial class StartPage : Page
     {
+        private bool m_ShowingPopUp;
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
         /// <summary>
@@ -202,41 +204,63 @@ namespace PodCatch
         private async void PodcastRightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             e.Handled = true;
-            
-            Grid grid = (Grid)sender;
-            Podcast selectedPodcast = (Podcast)grid.DataContext;
+            await ShowPodcastPopUpMenue(sender, e.GetPosition(this));
+        }
 
-            PopupMenu popupMenu = new PopupMenu();
-            // this is useful for debugging
-            //popupMenu.Commands.Add(new UICommand(){Id=1, Label="Copy RSS feed URL to clipboard"});
+        private async void HoldingPodcast(object sender, HoldingRoutedEventArgs e)
+        {
+            e.Handled = true;
+            await ShowPodcastPopUpMenue(sender, e.GetPosition(this));
+        }
 
-            if (PodcastDataSource.Instance.IsPodcastInFavorites(selectedPodcast))
-            {
-                popupMenu.Commands.Add(new UICommand() {Id = 2, Label = "Remove from favorites"});
-            }
-            else
-            {
-                popupMenu.Commands.Add(new UICommand() { Id = 3, Label = "Add to favorites" });
-            }
-            IUICommand selectedCommand = await popupMenu.ShowAsync(e.GetPosition(this));
-            if (selectedCommand == null)
+        private async Task ShowPodcastPopUpMenue(object sender, Point position)
+        {
+            if (m_ShowingPopUp == true)
             {
                 return;
             }
-            switch ((int)selectedCommand.Id)
+            m_ShowingPopUp = true;
+            try
             {
-                case 1: // Copy RSS feed to clipboard
-                    DataPackage dataPackage = new DataPackage();
-                    dataPackage.SetText(selectedPodcast.Uri);
-                    Clipboard.SetContent(dataPackage);
-                    break;
-                case 2: // Remove from favorites
-                    PodcastDataSource.Instance.RemoveFromFavorites(selectedPodcast);
-                    NavigationHelper.GoBack();
-                    break;
-                case 3: // Add to favorites
-                    await PodcastDataSource.Instance.AddToFavorites(selectedPodcast);
-                    break;
+                Grid grid = (Grid)sender;
+                Podcast selectedPodcast = (Podcast)grid.DataContext;
+
+                PopupMenu popupMenu = new PopupMenu();
+                // this is useful for debugging
+                //popupMenu.Commands.Add(new UICommand(){Id=1, Label="Copy RSS feed URL to clipboard"});
+
+                if (PodcastDataSource.Instance.IsPodcastInFavorites(selectedPodcast))
+                {
+                    popupMenu.Commands.Add(new UICommand() { Id = 2, Label = "Remove from favorites" });
+                }
+                else
+                {
+                    popupMenu.Commands.Add(new UICommand() { Id = 3, Label = "Add to favorites" });
+                }
+                IUICommand selectedCommand = await popupMenu.ShowAsync(position);
+                if (selectedCommand == null)
+                {
+                    return;
+                }
+                switch ((int)selectedCommand.Id)
+                {
+                    case 1: // Copy RSS feed to clipboard
+                        DataPackage dataPackage = new DataPackage();
+                        dataPackage.SetText(selectedPodcast.Uri);
+                        Clipboard.SetContent(dataPackage);
+                        break;
+                    case 2: // Remove from favorites
+                        PodcastDataSource.Instance.RemoveFromFavorites(selectedPodcast);
+                        NavigationHelper.GoBack();
+                        break;
+                    case 3: // Add to favorites
+                        await PodcastDataSource.Instance.AddToFavorites(selectedPodcast);
+                        break;
+                }
+            }
+            finally
+            {
+                m_ShowingPopUp = false;
             }
         }
     }

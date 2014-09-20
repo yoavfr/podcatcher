@@ -53,7 +53,7 @@
             ItemClick="ItemView_ItemClick">
             <GridView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Height="110" Width="480" Margin="10">
+                    <Grid Height="110" Width="480" Margin="10" RightTapped="PodcastRightTapped" Holding="HoldingPodcast">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>

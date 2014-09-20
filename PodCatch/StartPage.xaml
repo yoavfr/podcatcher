@@ -68,7 +68,7 @@
             ItemClick="ItemView_ItemClick">
             <GridView.ItemTemplate>
                 <DataTemplate>
-                    <Grid HorizontalAlignment="Left" Width="250" Height="250" RightTapped="PodcastRightTapped">
+                    <Grid HorizontalAlignment="Left" Width="250" Height="250" RightTapped="PodcastRightTapped" Holding="HoldingPodcast">
                         <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
                             <Image Source="{Binding Image}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"/>
                         </Border>

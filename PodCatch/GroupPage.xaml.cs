@@ -4,8 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -24,6 +26,7 @@ namespace PodCatch
     /// </summary>
     public sealed partial class GroupPage : Page
     {
+        private bool m_ShowingPopUp;
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
@@ -105,5 +108,61 @@ namespace PodCatch
         }
 
         #endregion
+
+        private async void PodcastRightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            await ShowPodcastPopUpMenue(sender, e.GetPosition(this));
+        }
+
+        private async void HoldingPodcast(object sender, HoldingRoutedEventArgs e)
+        {
+            await ShowPodcastPopUpMenue(sender, e.GetPosition(this));
+        }
+
+        private async Task ShowPodcastPopUpMenue(object sender, Point position)
+        {
+            if (m_ShowingPopUp == true)
+            {
+                return;
+            }
+            m_ShowingPopUp = true;
+            try
+            {
+                Grid grid = (Grid)sender;
+                Podcast selectedPodcast = (Podcast)grid.DataContext;
+
+                PopupMenu popupMenu = new PopupMenu();
+                // this is useful for debugging
+                //popupMenu.Commands.Add(new UICommand(){Id=1, Label="Copy RSS feed URL to clipboard"});
+
+                if (PodcastDataSource.Instance.IsPodcastInFavorites(selectedPodcast))
+                {
+                    popupMenu.Commands.Add(new UICommand() { Id = 2, Label = "Remove from favorites" });
+                }
+                else
+                {
+                    popupMenu.Commands.Add(new UICommand() { Id = 3, Label = "Add to favorites" });
+                }
+                IUICommand selectedCommand = await popupMenu.ShowAsync(position);
+                if (selectedCommand == null)
+                {
+                    return;
+                }
+                switch ((int)selectedCommand.Id)
+                {
+                    case 2: // Remove from favorites
+                        PodcastDataSource.Instance.RemoveFromFavorites(selectedPodcast);
+                        NavigationHelper.GoBack();
+                        break;
+                    case 3: // Add to favorites
+                        await PodcastDataSource.Instance.AddToFavorites(selectedPodcast);
+                        break;
+                }
+            }
+            finally
+            {
+                m_ShowingPopUp = false;
+            }
+        }
     }
 }
