@@ -26,7 +26,7 @@ namespace PodCatch.DataModel
 
             try
             {
-                StorageFile localFile = await owner.GetStorageFile();
+                StorageFile localFile = await owner.GetStorageFile(true);
                 Downloader downloader = new Downloader(owner.Uri, localFile, progress);
                 await downloader.Download();
 

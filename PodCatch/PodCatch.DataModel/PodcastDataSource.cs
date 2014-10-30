@@ -140,10 +140,11 @@ namespace PodCatch.DataModel
         {
             try
             {
-                StorageFile roamingFavoritesFile = await ApplicationData.Current.RoamingFolder.CreateFileAsync("podcatch.json", CreationCollisionOption.ReplaceExisting);
+                StorageFile roamingFavoritesFile = await ApplicationData.Current.RoamingFolder.CreateFileAsync("podcatch.json.tmp", CreationCollisionOption.ReplaceExisting);
                 Collection<PodcastGroup> favorites = new Collection<PodcastGroup>() { GetGroup(Constants.FavoritesGroupId) };
                 string favoritesAsJson = JsonConvert.SerializeObject(favorites, Formatting.Indented);
                 await FileIO.WriteTextAsync(roamingFavoritesFile, favoritesAsJson);
+                await roamingFavoritesFile.RenameAsync("podcatch.json", NameCollisionOption.ReplaceExisting);
             }
             catch (Exception e)
             {
@@ -151,7 +152,7 @@ namespace PodCatch.DataModel
             }
         }
 
-        public void ShowSearchResults(IEnumerable<Podcast> podcasts)
+        public async Task ShowSearchResults(IEnumerable<Podcast> podcasts)
         {
             PodcastGroup searchGroup = GetGroup(Constants.SearchGroupId);
             if (searchGroup == null)

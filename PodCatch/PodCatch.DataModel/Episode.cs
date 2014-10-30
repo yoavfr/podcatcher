@@ -198,10 +198,21 @@ namespace PodCatch.DataModel
             m_PublishDateTicks = fromCache.m_PublishDateTicks;
         }
 
-        public async Task<StorageFile> GetStorageFile()
+        public async Task<StorageFile> GetStorageFile(bool create)
         {
-            StorageFolder folder = await Windows.Storage.KnownFolders.MusicLibrary.CreateFolderAsync(Constants.ApplicationName, CreationCollisionOption.OpenIfExists);
-            return await folder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
+            var folder = await Windows.Storage.KnownFolders.MusicLibrary.CreateFolderAsync(Constants.ApplicationName, CreationCollisionOption.OpenIfExists);
+            if (create)
+            {
+                return await folder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
+            }
+            try
+            {
+                return await folder.GetFileAsync(FileName);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public string FileName
@@ -212,7 +223,7 @@ namespace PodCatch.DataModel
                 {
                     return null;
                 }
-                return System.IO.Path.Combine(PodcastFileName, Path.GetFileName(Uri.ToString()));
+                return System.IO.Path.Combine(PodcastFileName, Path.GetFileName(Uri.AbsolutePath.ToString()));
             }
         }
 
@@ -239,6 +250,11 @@ namespace PodCatch.DataModel
             }
         }
 
+        public bool IsDownloaded()
+        {
+            return !(m_StateMachine.State is EpisodeStateDownloading ||
+                m_StateMachine.State is EpisodeStatePendingDownload);
+        }
 
         public Task<IState<Episode, EpisodeEvent>> PostEvent(EpisodeEvent anEvent)
         {

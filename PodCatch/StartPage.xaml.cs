@@ -68,7 +68,7 @@ namespace PodCatch
             
             // load from cache
             this.DefaultViewModel["Groups"] = PodcastDataSource.Instance.Groups;
-            await PodcastDataSource.Instance.Load(false);
+            PodcastDataSource.Instance.Load(false);
         }
 
         /// <summary>
@@ -254,7 +254,8 @@ namespace PodCatch
                         NavigationHelper.GoBack();
                         break;
                     case 3: // Add to favorites
-                        await PodcastDataSource.Instance.AddToFavorites(selectedPodcast);
+                        // Don't wait for this - It will leave the m_ShowingPopUp open
+                        Task t = PodcastDataSource.Instance.AddToFavorites(selectedPodcast);
                         break;
                 }
             }

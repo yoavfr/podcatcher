@@ -49,7 +49,13 @@ namespace PodCatch
                 Pause(m_NowPlaying);
             }
 
-            StorageFile storageFile = await episode.GetStorageFile();
+            StorageFile storageFile = await episode.GetStorageFile(false);
+            if (storageFile == null)
+            {
+                Debug.WriteLine("MediaElementWrapper.Play() - can't find file {0}", storageFile);
+                // TODO: error message to user
+                return;
+            }
             var stream = await storageFile.OpenReadAsync();
             MediaElement.SetSource(stream, storageFile.ContentType);
             Position = episode.Position;

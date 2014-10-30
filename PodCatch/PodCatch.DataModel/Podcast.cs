@@ -64,8 +64,11 @@ namespace PodCatch.DataModel
         {
             get
             {
-                return String.Format("0x{0:X8}", Uri.GetFixedHashCode());
-                //return Title.StripIllegalPathChars();
+                if (Uri != null)
+                {
+                    return String.Format("0x{0:X8}", Uri.GetFixedHashCode());
+                }
+                return null;
             }
         }
 
@@ -102,7 +105,7 @@ namespace PodCatch.DataModel
         {
             get
             {
-                return AllEpisodes.Where((episode) => episode.Visible && !episode.Played).Count();
+                return AllEpisodes.Where((episode) => episode.Visible && !episode.Played && episode.IsDownloaded()).Count();
             }
         }
 
@@ -115,11 +118,11 @@ namespace PodCatch.DataModel
                 StorageFile file = await localFolder.GetFileAsync(CacheFileName);
                 if (file != null)
                 {
+                    TouchedFiles.Instance.Add(file.Path);
                     using (Stream stream = await file.OpenStreamForReadAsync())
                     {
                         DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Podcast));
                         Podcast readPodcast = (Podcast)serializer.ReadObject(stream);
-                        TouchedFiles.Instance.Add(file.Path);
 
                         await UpdateFields (readPodcast);
                         await RefreshDisplay();
@@ -202,7 +205,7 @@ namespace PodCatch.DataModel
                     DateTimeOffset publishDate = item.PublishedDate;
 
                     Episode episode = GetEpisodeByUri(uri);
-                    
+
                     episode.Description = episodeSummary;
                     episode.Title = episodeTitle;
                     episode.PublishDate = publishDate;
@@ -300,7 +303,10 @@ namespace PodCatch.DataModel
             foreach (Episode episodeFromCache in fromCache.AllEpisodes)
             {
                 Episode episode = GetEpisodeByUri(episodeFromCache.Uri);
-                episode.UpdateFromCache(episodeFromCache);
+                if (episode != null)
+                {
+                    episode.UpdateFromCache(episodeFromCache);
+                }
             }
             return Task.FromResult<object>(null);
         }
@@ -314,12 +320,14 @@ namespace PodCatch.DataModel
                 return found.First();
             }
 
-            // nothing in cache, but something in roaming settings
+
+            // new episode from RSS
             Episode newEpisode = new Episode(uri)
             {
                 PodcastFileName = FileName,
             };
             AllEpisodes.Add(newEpisode);
+
             return newEpisode;
         }
 
@@ -382,12 +390,13 @@ namespace PodCatch.DataModel
         public async Task Store()
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            StorageFile jsonFile = await localFolder.CreateFileAsync(CacheFileName, CreationCollisionOption.ReplaceExisting);
+            StorageFile jsonFile = await localFolder.CreateFileAsync(CacheFileName+".tmp", CreationCollisionOption.ReplaceExisting);
             DataContractJsonSerializer serialzer = new DataContractJsonSerializer(typeof(Podcast));
             using (Stream stream = await jsonFile.OpenStreamForWriteAsync())
             {
                 serialzer.WriteObject(stream, this);
             }
+            await jsonFile.RenameAsync(CacheFileName, NameCollisionOption.ReplaceExisting);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

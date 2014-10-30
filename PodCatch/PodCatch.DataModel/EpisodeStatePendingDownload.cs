@@ -28,7 +28,11 @@ namespace PodCatch.DataModel
                     {
                         try
                         {
-                            StorageFile file = await owner.GetStorageFile();
+                            StorageFile file = await owner.GetStorageFile(false);
+                            if (file == null)
+                            {
+                                break;
+                            }
                             MusicProperties musicProperties = await file.Properties.GetMusicPropertiesAsync();
 
                             owner.Duration = musicProperties.Duration;
