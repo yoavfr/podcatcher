@@ -36,12 +36,9 @@ namespace PodCatch.DataModel
                 // set position
                 owner.Position = TimeSpan.FromMilliseconds(0);
 
-                if (!string.IsNullOrEmpty(musicProperties.Title))
-                {
-                    TouchedFiles.Instance.Add(localFile.Path);
-                    TouchedFiles.Instance.Add(Path.GetDirectoryName(localFile.Path));
-                    Task t = stateMachine.PostEvent(EpisodeEvent.DownloadSuccess);
-                }
+                TouchedFiles.Instance.Add(localFile.Path);
+                TouchedFiles.Instance.Add(Path.GetDirectoryName(localFile.Path));
+                Task t = stateMachine.PostEvent(EpisodeEvent.DownloadSuccess);
             }
             catch (Exception e)
             {

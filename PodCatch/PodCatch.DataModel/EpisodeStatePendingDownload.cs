@@ -36,13 +36,9 @@ namespace PodCatch.DataModel
                             MusicProperties musicProperties = await file.Properties.GetMusicPropertiesAsync();
 
                             owner.Duration = musicProperties.Duration;
-                            if (!string.IsNullOrEmpty(musicProperties.Title))
-                            {
-                                // We have a fully downloaded file - mark it as downloaded
-                                TouchedFiles.Instance.Add(file.Path);
-                                TouchedFiles.Instance.Add(Path.GetDirectoryName(file.Path));
-                                return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloaded>();
-                            }
+                            TouchedFiles.Instance.Add(file.Path);
+                            TouchedFiles.Instance.Add(Path.GetDirectoryName(file.Path));
+                            return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloaded>();
                         }
                         catch (FileNotFoundException)
                         {
