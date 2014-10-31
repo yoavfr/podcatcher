@@ -116,6 +116,12 @@ namespace PodCatch
             PodcastDataSource.Instance.RemoveFromFavorites((Podcast)DefaultViewModel["Podcast"]);
             NavigationHelper.GoBack();
         }
+        private async void AddToFavoritesAppBarButtonClicked(object sender, RoutedEventArgs e)
+        {
+            BottomAppBar.IsOpen = false;
+            await PodcastDataSource.Instance.AddToFavorites((Podcast)DefaultViewModel["Podcast"]);
+            NavigationHelper.GoBack();
+        }
 
         private void PlayButton_Clicked (object sender, RoutedEventArgs e)
         {

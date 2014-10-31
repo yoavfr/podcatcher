@@ -35,7 +35,7 @@
         <AppBar Padding="10,0,10,0">
             <Grid>
                 <StackPanel Orientation="Horizontal">
-                    <AppBarButton Label="Add to Favorites" Icon="Add" Name="AddToFavoritesAppBarButton"/>
+                    <AppBarButton Label="Add to Favorites" Icon="Add" Name="AddToFavoritesAppBarButton" Click="AddToFavoritesAppBarButtonClicked"/>
                     <AppBarButton Label="Remove from Favorites" Icon="Remove" Name="RemoveFromFavoritesAppBarButton" Click="RemoveFromFavoritesButtonClicked"/>
                     <AppBarButton Label="Refresh" Icon="Refresh" Click="RefreshButtonClicked"/>
                      <AppBarButton Label="Show more" Icon="ShowBcc" Click="ShowMoreButtonClicked"/>
