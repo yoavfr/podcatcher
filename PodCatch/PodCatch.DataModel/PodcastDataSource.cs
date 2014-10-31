@@ -56,9 +56,19 @@ namespace PodCatch.DataModel
             return searchGroup;
         }
 
-        private PodcastGroup GetGroup(string groupId)
+        public PodcastGroup GetGroup(string groupId)
         {
             var matches = Groups.Where((group) => group.Id.Equals(groupId));
+            if (matches.Count() > 0)
+            {
+                return matches.First();
+            }
+            return null;
+        }
+
+        public Podcast GetPodcast(string podcastId)
+        {
+            var matches = Groups.SelectMany(group => group.Podcasts).Where((podcast) => podcast.Id.Equals(podcastId));
             if (matches.Count() > 0)
             {
                 return matches.First();

@@ -68,7 +68,7 @@ namespace PodCatch
         /// session.  The state will be null the first time a page is visited.</param>
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            PodcastGroup group = (PodcastGroup)e.NavigationParameter;
+            PodcastGroup group = PodcastDataSource.Instance.GetGroup((String)e.NavigationParameter);
             this.DefaultViewModel["Group"] = group;
             this.DefaultViewModel["Podcasts"] = group.Podcasts;
         }
@@ -82,8 +82,8 @@ namespace PodCatch
         {
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
-            Podcast selectedPodcast = (Podcast)e.ClickedItem;
-            this.Frame.Navigate(typeof(PodcastPage), selectedPodcast);
+            string podcastId = ((Podcast)e.ClickedItem).Id;
+            this.Frame.Navigate(typeof(PodcastPage), podcastId);
         }
 
         #region NavigationHelper registration

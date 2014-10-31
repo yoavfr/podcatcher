@@ -87,6 +87,7 @@ namespace PodCatch.Common
             {
                 throw new SuspensionManagerException(e);
             }
+            //return Task.FromResult<object>(null);
         }
 
         /// <summary>
@@ -239,7 +240,8 @@ namespace PodCatch.Common
         private static void SaveFrameNavigationState(Frame frame)
         {
             var frameState = SessionStateForFrame(frame);
-            frameState["Navigation"] = frame.GetNavigationState();
+            string frameNavigationState = frame.GetNavigationState();
+            frameState["Navigation"] = frameNavigationState;
         }
     }
     public class SuspensionManagerException : Exception
