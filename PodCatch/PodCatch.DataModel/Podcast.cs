@@ -33,7 +33,7 @@ namespace PodCatch.DataModel
             AllEpisodes = new List<Episode>();
         }
 
-        public string Uri { get; set; }
+        public string PodcastUri { get; set; }
         
         /// <summary>
         /// All the episodes of this podcast
@@ -64,9 +64,9 @@ namespace PodCatch.DataModel
         {
             get
             {
-                if (Uri != null)
+                if (PodcastUri != null)
                 {
-                    return String.Format("0x{0:X8}", Uri.GetFixedHashCode());
+                    return String.Format("0x{0:X8}", PodcastUri.GetFixedHashCode());
                 }
                 return null;
             }
@@ -147,7 +147,7 @@ namespace PodCatch.DataModel
             SyndicationFeed syndicationFeed = new SyndicationFeed();
 
             HttpClient httpClient = new HttpClient();
-            string xmlString = await httpClient.GetStringAsync(new Uri(Uri));
+            string xmlString = await httpClient.GetStringAsync(new Uri(PodcastUri));
             XmlDocument feedXml = new XmlDocument();
             feedXml.LoadXml(xmlString);
 
@@ -166,7 +166,11 @@ namespace PodCatch.DataModel
 
                 if (syndicationFeed.ImageUri != null)
                 {
-                    await LoadImage(syndicationFeed.ImageUri);
+                    await LoadImage(syndicationFeed.ImageUri.ToString());
+                }
+                else if (Image != null)
+                {
+                    await LoadImage(Image);
                 }
 
                 ReadRssEpisodes(syndicationFeed);
@@ -235,25 +239,25 @@ namespace PodCatch.DataModel
             }
         }
 
-        private async Task LoadImage(Uri imageUri)
+        private async Task LoadImage(string imageUri)
         {
             Uri validUri;
-            if (!System.Uri.TryCreate(imageUri.ToString(), UriKind.Absolute, out validUri))
+            if (!System.Uri.TryCreate(imageUri, UriKind.Absolute, out validUri))
             {
                 return;
             }
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            string imageExtension = Path.GetExtension(imageUri.AbsolutePath);
+            string imageExtension = Path.GetExtension(validUri.AbsolutePath);
             string localImagePath = string.Format("{0}{1}", FileName, imageExtension);
             ulong oldFileSize = await GetCachedFileSize(localImagePath);
             // the image we have is from the cache
             StorageFile localImageFile = await localFolder.CreateFileAsync(localImagePath, CreationCollisionOption.ReplaceExisting);
-            Downloader downloader = new Downloader(imageUri, localImageFile);
+            Downloader downloader = new Downloader(validUri, localImageFile);
             try
             {
-                Debug.WriteLine("Podcast.LoadImage(): Downloading {0} -> {1}", imageUri, localImageFile.Path);
+                Debug.WriteLine("Podcast.LoadImage(): Downloading {0} -> {1}", validUri, localImageFile.Path);
                 await downloader.Download();
-                Debug.WriteLine("Podcast.LoadImage(): Finished downloading {0} -> {1}", imageUri, localImageFile.Path);
+                Debug.WriteLine("Podcast.LoadImage(): Finished downloading {0} -> {1}", validUri, localImageFile.Path);
                 Image = localImageFile.Path;
 
                 TouchedFiles.Instance.Add(Image);
@@ -265,7 +269,7 @@ namespace PodCatch.DataModel
             }
             catch (Exception e)
             {
-                Debug.WriteLine("Podcast.LoadImage(): Failed downloading {0} -> {1}. {2}", imageUri, localImageFile.Path, e);
+                Debug.WriteLine("Podcast.LoadImage(): Failed downloading {0} -> {1}. {2}", validUri, localImageFile.Path, e);
             }
         }
 
@@ -291,8 +295,14 @@ namespace PodCatch.DataModel
         private Task UpdateFields (Podcast fromCache)
         {
             Title = fromCache.Title;
-            Description = fromCache.Description;
-            Image = fromCache.Image;
+            if (fromCache.Description != null)
+            {
+                Description = fromCache.Description;
+            }
+            if (fromCache.Image != null)
+            {
+                Image = fromCache.Image;
+            }
             TouchedFiles.Instance.Add(Image);
             LastRefreshTimeTicks = fromCache.LastRefreshTimeTicks;
             if (fromCache.AllEpisodes == null)

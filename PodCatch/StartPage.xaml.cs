@@ -184,7 +184,7 @@ namespace PodCatch
             {
                 Podcast newItem = new Podcast()
                 {
-                    Uri = searchTerm
+                    PodcastUri = searchTerm
                 };
                 matches = new List<Podcast>() { newItem };
             }
@@ -246,7 +246,7 @@ namespace PodCatch
                 {
                     case 1: // Copy RSS feed to clipboard
                         DataPackage dataPackage = new DataPackage();
-                        dataPackage.SetText(selectedPodcast.Uri);
+                        dataPackage.SetText(selectedPodcast.PodcastUri);
                         Clipboard.SetContent(dataPackage);
                         break;
                     case 2: // Remove from favorites

@@ -25,7 +25,7 @@ namespace PodCatch.DataModel
         public static RoamingPodcastData FromPodcast(Podcast podcast)
         {
             RoamingPodcastData roamingPodcastData = new RoamingPodcastData();
-            roamingPodcastData.Uri = podcast.Uri;
+            roamingPodcastData.Uri = podcast.PodcastUri;
             roamingPodcastData.Title = podcast.Title;
             foreach (Episode episode in podcast.AllEpisodes)
             {
@@ -43,7 +43,7 @@ namespace PodCatch.DataModel
         {
             Podcast podcast = new Podcast()
             {
-                Uri = Uri,
+                PodcastUri = Uri,
                 Title = Title,
             };
             foreach (RoamingEpisodeData roamingEpisodeData in RoamingEpisodesData)

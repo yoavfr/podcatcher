@@ -33,7 +33,7 @@ namespace PodCatch.Search
                         Podcast podcast = new Podcast()
                         {
                             Title = result.artistName,
-                            Uri = result.feedUrl,
+                            PodcastUri = result.feedUrl,
                             Image = result.artworkUrl100,
                         };
                         results.Add(podcast);
