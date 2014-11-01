@@ -16,36 +16,39 @@ namespace PodCatch.Search
     {
         public async Task<IEnumerable<Podcast>> FindAsync(string searchTerm, int limit)
         {
-            IList<Podcast> results = new List<Podcast>();
-            try
-            {
-                string query = string.Format(@"https://itunes.apple.com/search?term={0}&media=podcast&entity=podcast&attribute=titleTerm&limit={1}", searchTerm, limit);
-                HttpClient httpClient = new HttpClient();
-
-                HttpResponseMessage response = await httpClient.GetAsync(query);
-                byte[] jsonResult = response.Content.ReadAsByteArrayAsync().Result;
-                using (Stream stream = new MemoryStream(jsonResult))
+            return await Task<IEnumerable<Podcast>>.Run(async () =>
                 {
-                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ITunesSearchResults));
-                    ITunesSearchResults appleSearchResults = (ITunesSearchResults)serializer.ReadObject(stream);
-                    foreach (ITunesSearchResult result in appleSearchResults.results)
+                    IList<Podcast> results = new List<Podcast>();
+                    try
                     {
-                        Podcast podcast = new Podcast()
+                        string query = string.Format(@"https://itunes.apple.com/search?term={0}&media=podcast&entity=podcast&attribute=titleTerm&limit={1}", searchTerm, limit);
+                        HttpClient httpClient = new HttpClient();
+
+                        HttpResponseMessage response = await httpClient.GetAsync(query);
+                        byte[] jsonResult = response.Content.ReadAsByteArrayAsync().Result;
+                        using (Stream stream = new MemoryStream(jsonResult))
                         {
-                            Title = result.artistName,
-                            PodcastUri = result.feedUrl,
-                            Image = result.artworkUrl100,
-                        };
-                        results.Add(podcast);
+                            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ITunesSearchResults));
+                            ITunesSearchResults appleSearchResults = (ITunesSearchResults)serializer.ReadObject(stream);
+                            foreach (ITunesSearchResult result in appleSearchResults.results)
+                            {
+                                Podcast podcast = new Podcast()
+                                {
+                                    Title = result.artistName,
+                                    PodcastUri = result.feedUrl,
+                                    Image = result.artworkUrl100,
+                                };
+                                results.Add(podcast);
+                            }
+                        }
+                        return results;
                     }
-                }
-                return results;
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-                return results;
-            }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e);
+                        return results;
+                    }
+                });
         }
     }
 

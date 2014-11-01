@@ -111,74 +111,80 @@ namespace PodCatch.DataModel
 
         public async Task Load()
         {
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            Debug.WriteLine("Podcast.Load(): {0} from {1}", Title, localFolder.Path);
-            try
-            {
-                StorageFile file = await localFolder.GetFileAsync(CacheFileName);
-                if (file != null)
+            await Task.Run(async () =>
                 {
-                    TouchedFiles.Instance.Add(file.Path);
-                    using (Stream stream = await file.OpenStreamForReadAsync())
+                    StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                    Debug.WriteLine("Podcast.Load(): {0} from {1}", Title, localFolder.Path);
+                    try
                     {
-                        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Podcast));
-                        Podcast readPodcast = (Podcast)serializer.ReadObject(stream);
+                        StorageFile file = await localFolder.GetFileAsync(CacheFileName);
+                        if (file != null)
+                        {
+                            TouchedFiles.Instance.Add(file.Path);
+                            using (Stream stream = await file.OpenStreamForReadAsync())
+                            {
+                                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Podcast));
+                                Podcast readPodcast = (Podcast)serializer.ReadObject(stream);
 
-                        await UpdateFields (readPodcast);
-                        await RefreshDisplay();
+                                await UpdateFields(readPodcast);
+                                await RefreshDisplay();
+                            }
+                        }
                     }
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Podcast.Load(): error loading {0}. {1}", CacheFileName, e);
-            }
-            await RefreshFromRss(false);
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Podcast.Load(): error loading {0}. {1}", CacheFileName, e);
+                    }
+                    await RefreshFromRss(false);
+                });
         }
 
         public async Task RefreshFromRss(bool force)
         {
-            DateTime lastRefreshTime = new DateTime(LastRefreshTimeTicks);
-            if (DateTime.UtcNow - lastRefreshTime < TimeSpan.FromHours(2) && !force && AllEpisodes.Count > 0)
-            {
-                return;
-            }
-
-            SyndicationFeed syndicationFeed = new SyndicationFeed();
-
-            HttpClient httpClient = new HttpClient();
-            string xmlString = await httpClient.GetStringAsync(new Uri(PodcastUri));
-            XmlDocument feedXml = new XmlDocument();
-            feedXml.LoadXml(xmlString);
-
-            syndicationFeed.LoadFromXml(feedXml);
-
-            // don't refresh if feed has not been updated since
-            if ((syndicationFeed.LastUpdatedTime != null && syndicationFeed.LastUpdatedTime.DateTime > lastRefreshTime) ||
-                force)
-            {
-                Title = syndicationFeed.Title.Text;
-
-                if (syndicationFeed.Subtitle != null)
+            await Task.Run(async () =>
                 {
-                    Description = syndicationFeed.Subtitle.Text;
-                }
+                    DateTime lastRefreshTime = new DateTime(LastRefreshTimeTicks);
+                    if (DateTime.UtcNow - lastRefreshTime < TimeSpan.FromHours(2) && !force && AllEpisodes.Count > 0)
+                    {
+                        return;
+                    }
 
-                if (syndicationFeed.ImageUri != null)
-                {
-                    await LoadImage(syndicationFeed.ImageUri.ToString());
-                }
-                else if (Image != null)
-                {
-                    await LoadImage(Image);
-                }
+                    SyndicationFeed syndicationFeed = new SyndicationFeed();
 
-                ReadRssEpisodes(syndicationFeed);
-            }
+                    HttpClient httpClient = new HttpClient();
+                    string xmlString = await httpClient.GetStringAsync(new Uri(PodcastUri));
+                    XmlDocument feedXml = new XmlDocument();
+                    feedXml.LoadXml(xmlString);
 
-            // keep record of last update time
-            LastRefreshTimeTicks = DateTime.UtcNow.Ticks;
-            await RefreshDisplay();
+                    syndicationFeed.LoadFromXml(feedXml);
+
+                    // don't refresh if feed has not been updated since
+                    if ((syndicationFeed.LastUpdatedTime != null && syndicationFeed.LastUpdatedTime.DateTime > lastRefreshTime) ||
+                        force)
+                    {
+                        Title = syndicationFeed.Title.Text;
+
+                        if (syndicationFeed.Subtitle != null)
+                        {
+                            Description = syndicationFeed.Subtitle.Text;
+                        }
+
+                        if (syndicationFeed.ImageUri != null)
+                        {
+                            await LoadImage(syndicationFeed.ImageUri.ToString());
+                        }
+                        else if (Image != null)
+                        {
+                            await LoadImage(Image);
+                        }
+
+                        ReadRssEpisodes(syndicationFeed);
+                    }
+
+                    // keep record of last update time
+                    LastRefreshTimeTicks = DateTime.UtcNow.Ticks;
+                    await RefreshDisplay();
+                });
         }
 
         private async Task RefreshDisplay()
@@ -246,17 +252,16 @@ namespace PodCatch.DataModel
             {
                 return;
             }
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+
             string imageExtension = Path.GetExtension(validUri.AbsolutePath);
             string localImagePath = string.Format("{0}{1}", FileName, imageExtension);
             ulong oldFileSize = await GetCachedFileSize(localImagePath);
             // the image we have is from the cache
-            StorageFile localImageFile = await localFolder.CreateFileAsync(localImagePath, CreationCollisionOption.ReplaceExisting);
-            Downloader downloader = new Downloader(validUri, localImageFile);
+            Downloader downloader = new Downloader(validUri, ApplicationData.Current.LocalFolder, localImagePath);
             try
             {
-                Debug.WriteLine("Podcast.LoadImage(): Downloading {0} -> {1}", validUri, localImageFile.Path);
-                await downloader.Download();
+                Debug.WriteLine("Podcast.LoadImage(): Downloading {0} -> {1}", validUri, localImagePath);
+                StorageFile localImageFile = await downloader.Download();
                 Debug.WriteLine("Podcast.LoadImage(): Finished downloading {0} -> {1}", validUri, localImageFile.Path);
                 Image = localImageFile.Path;
 
@@ -269,7 +274,7 @@ namespace PodCatch.DataModel
             }
             catch (Exception e)
             {
-                Debug.WriteLine("Podcast.LoadImage(): Failed downloading {0} -> {1}. {2}", validUri, localImageFile.Path, e);
+                Debug.WriteLine("Podcast.LoadImage(): Failed downloading {0} -> {1}. {2}", validUri, localImagePath, e);
             }
         }
 

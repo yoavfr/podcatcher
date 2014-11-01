@@ -28,7 +28,7 @@ namespace PodCatch.DataModel
                     {
                         try
                         {
-                            StorageFile file = await owner.GetStorageFile(false);
+                            StorageFile file = await owner.GetStorageFile();
                             if (file == null)
                             {
                                 break;

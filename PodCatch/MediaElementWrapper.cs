@@ -49,7 +49,7 @@ namespace PodCatch
                 Pause(m_NowPlaying);
             }
 
-            StorageFile storageFile = await episode.GetStorageFile(false);
+            StorageFile storageFile = await episode.GetStorageFile();
             if (storageFile == null)
             {
                 Debug.WriteLine("MediaElementWrapper.Play() - can't find file {0}", storageFile);

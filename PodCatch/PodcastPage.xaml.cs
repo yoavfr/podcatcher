@@ -1,6 +1,7 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
@@ -230,25 +231,31 @@ namespace PodCatch
             {
                 popupMenu.Commands.Add(new UICommand() { Id = 3, Label = "Download again" });
             }
-            
-            IUICommand selectedCommand = await popupMenu.ShowAsync(e.GetPosition(this));
-            if (selectedCommand == null)
+            try
             {
-                return;
+                IUICommand selectedCommand = await popupMenu.ShowAsync(e.GetPosition(this));
+                if (selectedCommand == null)
+                {
+                    return;
+                }
+                switch ((int)selectedCommand.Id)
+                {
+                    case 1:
+                        selectedEpisode.Played = false;
+                        await PodcastDataSource.Instance.Store();
+                        break;
+                    case 2:
+                        selectedEpisode.Played = true;
+                        await PodcastDataSource.Instance.Store();
+                        break;
+                    case 3:
+                        Task t = selectedEpisode.PostEvent(EpisodeEvent.Refresh);
+                        break;
+                }
             }
-            switch ((int)selectedCommand.Id)
+            catch (Exception ex)
             {
-                case 1:
-                    selectedEpisode.Played = false;
-                    await PodcastDataSource.Instance.Store();
-                    break;
-                case 2:
-                    selectedEpisode.Played = true;
-                    await PodcastDataSource.Instance.Store();
-                    break;
-                case 3:
-                    Task t = selectedEpisode.PostEvent(EpisodeEvent.Refresh);
-                    break;
+                Debug.WriteLine("PodcastPage.xaml.Grid_RightTapped() - Error occured displaying popup menu {0}", ex);
             }
         }
 

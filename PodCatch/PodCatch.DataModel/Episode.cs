@@ -198,13 +198,14 @@ namespace PodCatch.DataModel
             m_PublishDateTicks = fromCache.m_PublishDateTicks;
         }
 
-        public async Task<StorageFile> GetStorageFile(bool create)
+        public async Task<StorageFolder> GetStorageFolder()
         {
-            var folder = await Windows.Storage.KnownFolders.MusicLibrary.CreateFolderAsync(Constants.ApplicationName, CreationCollisionOption.OpenIfExists);
-            if (create)
-            {
-                return await folder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
-            }
+            return await Windows.Storage.KnownFolders.MusicLibrary.CreateFolderAsync(Constants.ApplicationName, CreationCollisionOption.OpenIfExists);
+        }
+
+        public async Task<StorageFile> GetStorageFile()
+        {
+            var folder = await GetStorageFolder();
             try
             {
                 return await folder.GetFileAsync(FileName);
