@@ -49,8 +49,7 @@ namespace PodCatch.DataModel
             foreach (RoamingEpisodeData roamingEpisodeData in RoamingEpisodesData)
             {
                 Episode episode = roamingEpisodeData.ToEpisode(podcast.FileName);
-                //episode.ParentCollection = podcast.AllEpisodes;
-                podcast.AllEpisodes.Add(episode);
+                podcast.AddEpisode(episode);
             }
             return podcast;
         }

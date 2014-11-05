@@ -123,7 +123,7 @@ namespace PodCatch
             BackgroundTaskBuilder builder = new BackgroundTaskBuilder();
             builder.Name = "PodCatchHouseKeeping";
             builder.TaskEntryPoint = "PodCatch.BackgroundTasks.BackgroundTask";
-            builder.SetTrigger(new MaintenanceTrigger(480, false));
+            builder.SetTrigger(new MaintenanceTrigger(15, false));
             builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
             builder.AddCondition(new SystemCondition(SystemConditionType.UserNotPresent));
             try

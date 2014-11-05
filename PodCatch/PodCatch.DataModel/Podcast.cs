@@ -26,6 +26,7 @@ namespace PodCatch.DataModel
         private string m_Description;
         private string m_Image;
         int m_numEpisodesToShow = 3;
+        int m_numUnplayedEpisodes = 0;
         ObservableCollection<Episode> m_Episodes;
 
         public Podcast()
@@ -40,6 +41,20 @@ namespace PodCatch.DataModel
         /// </summary>
         [DataMember]
         public List<Episode> AllEpisodes { get; set; }
+
+        public void AddEpisode(Episode episode)
+        {
+            episode.PropertyChanged += OnEpisodePropertyChanged; 
+            AllEpisodes.Add(episode);
+        }
+
+        private void OnEpisodePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Played" || e.PropertyName == "State")
+            {
+                UpdateUnplayedEpisodes();
+            }
+        }
 
         /// <summary>
         /// Episodes that have Episode.Visible == true. Ideally we would do the filtering in a binding converter, but this is difficult in WinRT's ICollectionView
@@ -84,28 +99,63 @@ namespace PodCatch.DataModel
         public string Title
         {
             get { return m_Title; }
-            set { m_Title = value; NotifyPropertyChanged("Title"); }
+            set 
+            { 
+                if (m_Title != value)
+                {
+                    m_Title = value; 
+                    NotifyPropertyChanged("Title"); 
+                }
+            }
         }
         [DataMember]
         public string Description
         {
             get { return m_Description; }
-            private set { m_Description = value; NotifyPropertyChanged("Description"); }
+            private set 
+            {
+                if (m_Description != value)
+                {
+                    m_Description = value; 
+                    NotifyPropertyChanged("Description"); 
+                }
+            }
         }
         [DataMember]
         public string Image
         {
             get { return m_Image; }
-            set { m_Image = value; NotifyPropertyChanged("Image"); }
+            set
+            {
+                if (m_Image != value)
+                {
+                    m_Image = value; 
+                    NotifyPropertyChanged("Image");
+                }
+            }
         }
         [DataMember]
         private long LastRefreshTimeTicks { get; set; }
+
+        public void UpdateUnplayedEpisodes()
+        {
+            NumUnplayedEpisodes = AllEpisodes.Where((episode) => episode.Visible && !episode.Played && episode.IsDownloaded()).Count();
+        }
 
         public int NumUnplayedEpisodes
         {
             get
             {
-                return AllEpisodes.Where((episode) => episode.Visible && !episode.Played && episode.IsDownloaded()).Count();
+                return m_numUnplayedEpisodes;
+            }
+            private set
+            {
+                if (m_numUnplayedEpisodes != value)
+                {
+                    m_numUnplayedEpisodes = value;
+                    NotifyPropertyChanged("NumUnplayedEpisodes");
+                    NotifyPropertyChanged("Self"); // visibility of the unplayed number is bound to Self
+                }
             }
         }
 
@@ -192,7 +242,7 @@ namespace PodCatch.DataModel
             AllEpisodes.Sort((a, b) => { return a.PublishDate > b.PublishDate ? -1 : 1; });
             MarkVisibleEpisodes();
             await DisplayEpisodes();
-            NotifyPropertyChanged("NumUnplayedEpisodes");
+            UpdateUnplayedEpisodes();
         }
 
         private void ReadRssEpisodes(SyndicationFeed syndicationFeed)
@@ -225,16 +275,16 @@ namespace PodCatch.DataModel
 
         public async Task DownloadEpisodes()
         {
-            List<Task> allEpisodes = new List<Task>();
+            List<Task> downloadTasks = new List<Task>();
             MarkVisibleEpisodes();
             foreach (Episode episode in AllEpisodes)
             {
                 if (episode.Visible)
                 {
-                    allEpisodes.Add(episode.PostEvent(EpisodeEvent.Download));
+                    downloadTasks.Add(episode.PostEvent(EpisodeEvent.Download));
                 }
             }
-            await Task.WhenAll(allEpisodes);
+            await Task.WhenAll(downloadTasks);
         }
 
         public Podcast Self
@@ -267,7 +317,7 @@ namespace PodCatch.DataModel
 
                 TouchedFiles.Instance.Add(Image);
                 ulong newFileSize = await GetCachedFileSize(localImagePath);
-                //if (newFileSize != oldFileSize)
+                if (newFileSize != oldFileSize)
                 {
                     NotifyPropertyChanged("Image");
                 }
@@ -341,7 +391,8 @@ namespace PodCatch.DataModel
             {
                 PodcastFileName = FileName,
             };
-            AllEpisodes.Add(newEpisode);
+            
+            AddEpisode(newEpisode);
 
             return newEpisode;
         }

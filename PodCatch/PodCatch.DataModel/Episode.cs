@@ -57,8 +57,11 @@ namespace PodCatch.DataModel
             }
             set
             {
-                m_Title = value;
-                NotifyPropertyChanged("Title");
+                if (m_Title != value)
+                {
+                    m_Title = value;
+                    NotifyPropertyChanged("Title");
+                }
             }
         }
         [DataMember]
@@ -70,8 +73,11 @@ namespace PodCatch.DataModel
             }
             set
             {
-                m_Description = value;
-                NotifyPropertyChanged("FormattedShortDescription");
+                if (m_Description != value)
+                {
+                    m_Description = value;
+                    NotifyPropertyChanged("FormattedShortDescription");
+                }
             }
         }
 
@@ -101,8 +107,11 @@ namespace PodCatch.DataModel
             }
             set
             {
-                m_Played = value;
-                NotifyPropertyChanged("Played");
+                if (m_Played != value)
+                {
+                    m_Played = value;
+                    NotifyPropertyChanged("Played");
+                }
             } 
         }
 
@@ -151,8 +160,11 @@ namespace PodCatch.DataModel
             }
             set
             {
-                m_Position = value;
-                NotifyPropertyChanged("Position");
+                if (m_Position != value)
+                {
+                    m_Position = value;
+                    NotifyPropertyChanged("Position");
+                }
             }
         }
         public TimeSpan Duration
@@ -163,8 +175,11 @@ namespace PodCatch.DataModel
             }
             set
             {
-                m_Duration = value;
-                NotifyPropertyChanged("Duration");
+                if (m_Duration != value)
+                {
+                    m_Duration = value;
+                    NotifyPropertyChanged("Duration");
+                }
             }
         }
 
@@ -184,8 +199,11 @@ namespace PodCatch.DataModel
             }
             set
             {
-                m_DownloadProgress = value;
-                NotifyPropertyChanged("DownloadProgress");
+                if (m_DownloadProgress != value)
+                {
+                    m_DownloadProgress = value;
+                    NotifyPropertyChanged("DownloadProgress");
+                }
             }
         }
 
