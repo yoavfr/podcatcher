@@ -69,6 +69,10 @@ namespace PodCatch
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             Podcast podcast = PodcastDataSource.Instance.GetPodcast((String)e.NavigationParameter);  
+            if (podcast == null)
+            {
+                return;
+            }
             this.DefaultViewModel["Podcast"] = podcast;
             this.DefaultViewModel["Episodes"] = podcast.Episodes;
 

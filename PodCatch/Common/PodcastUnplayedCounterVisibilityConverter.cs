@@ -1,11 +1,5 @@
-﻿using PodCatch.DataModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 
 namespace PodCatch.Common
@@ -14,10 +8,10 @@ namespace PodCatch.Common
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value != null && value is Podcast)
+            if (value != null && value is int)
             {
-                Podcast podcast = value as Podcast;
-                if (PodcastDataSource.Instance.IsPodcastInFavorites(podcast) && podcast.NumUnplayedEpisodes > 0)
+                int numUnplayedEpisodes = (int)value;
+                if (numUnplayedEpisodes > 0)
                 {
                     return Visibility.Visible;
                 }

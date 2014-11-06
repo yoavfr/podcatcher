@@ -73,7 +73,7 @@
                             <Image Source="{Binding Image}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"/>
                         </Border>
                         <!-- Podcasts -->
-                        <Canvas Margin="210,10" Visibility="{Binding Self, Converter={StaticResource PodcastUnplayedCounterVisibilityConverter}}">
+                        <Canvas Margin="210,10" Visibility="{Binding NumUnplayedEpisodes, Converter={StaticResource PodcastUnplayedCounterVisibilityConverter}}">
                             <Ellipse Fill="Red" Height="30" Width="30"/>
                             <TextBlock Text="{Binding NumUnplayedEpisodes,Converter={StaticResource NumUnplayedEpisodesConverter}}" Margin="{Binding NumUnplayedEpisodes, Converter={StaticResource NumUnplayedEpisodesMarginConverter}}" Foreground="White" FontWeight="Bold" />
                         </Canvas>

@@ -40,11 +40,13 @@ namespace PodCatch.DataModel
                     {
                         httpClient.DefaultRequestHeaders.Add("user-agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)");
                         HttpResponseMessage response = await httpClient.GetAsync(m_SourceUri, HttpCompletionOption.ResponseHeadersRead);
-                        if (response.StatusCode != HttpStatusCode.Ok)
+                        if (response.StatusCode != HttpStatusCode.Ok ||
+                            Path.GetFileName(response.RequestMessage.RequestUri.AbsoluteUri) != Path.GetFileName(m_SourceUri.ToString()))
                         {
                             string result = await response.Content.ReadAsStringAsync();
                             throw new Exception(result);
                         }
+                        
                         if (response.Content.Headers.ContentLength != null)
                         {
                             TotalBytes = response.Content.Headers.ContentLength.Value;

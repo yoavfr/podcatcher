@@ -154,7 +154,6 @@ namespace PodCatch.DataModel
                 {
                     m_numUnplayedEpisodes = value;
                     NotifyPropertyChanged("NumUnplayedEpisodes");
-                    NotifyPropertyChanged("Self"); // visibility of the unplayed number is bound to Self
                 }
             }
         }
@@ -285,14 +284,6 @@ namespace PodCatch.DataModel
                 }
             }
             await Task.WhenAll(downloadTasks);
-        }
-
-        public Podcast Self
-        {
-            get
-            {
-                return this;
-            }
         }
 
         private async Task LoadImage(string imageUri)
