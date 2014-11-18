@@ -41,7 +41,7 @@ namespace PodCatch.DataModel
             }
             catch (Exception e)
             {
-                Debug.WriteLine("Episode.Download(): error downloading {0}. {1}", owner.Uri, e);
+                Debug.WriteLine("EpisodeStateDownloading.OnEntry(): error downloading {0}. {1}", owner.Uri, e);
             }
             Task task = stateMachine.PostEvent(EpisodeEvent.DownloadFail);
 
