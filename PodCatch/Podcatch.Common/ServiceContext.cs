@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 
-namespace Podcatch.Common
+namespace PodCatch.Common
 {
     public interface IServiceContext
     {

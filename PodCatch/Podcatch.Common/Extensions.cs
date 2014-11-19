@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Podcatch.Common
+namespace PodCatch.Common
 {
     public static class Extensions
     {

@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 
-namespace Podcatch.Common
+namespace PodCatch.Common
 {
     public enum TracingLevel
     {

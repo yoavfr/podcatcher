@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.StateMachine.Test"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.StateMachine", "Podcatch.StateMachine\PodCatch.StateMachine.csproj", "{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Podcatch.Common", "Podcatch.Common\Podcatch.Common.csproj", "{41FFF775-2A10-461E-9F74-968B13C18537}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.Common", "Podcatch.Common\PodCatch.Common.csproj", "{41FFF775-2A10-461E-9F74-968B13C18537}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution

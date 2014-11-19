@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Podcatch.Common
+namespace PodCatch.Common
 {
     public class DebugTracer : ITracer
     {

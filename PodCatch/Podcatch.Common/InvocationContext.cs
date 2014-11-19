@@ -2,7 +2,7 @@
 using System.Text;
 using System.Threading;
 
-namespace Podcatch.Common
+namespace PodCatch.Common
 {
     internal class InvocationContext : SynchronizationContext, IDisposable
     {
