@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="4019YoavFrandzel.Podcatcher" Publisher="CN=C60356C3-A0C0-4E2A-946D-14B96E87C36C" Version="1.1.1.5" />
+  <Identity Name="4019YoavFrandzel.Podcatcher" Publisher="CN=C60356C3-A0C0-4E2A-946D-14B96E87C36C" Version="1.1.1.8" />
   <Properties>
     <DisplayName>Podcatcher</DisplayName>
     <PublisherDisplayName>Yoav Frandzel</PublisherDisplayName>
