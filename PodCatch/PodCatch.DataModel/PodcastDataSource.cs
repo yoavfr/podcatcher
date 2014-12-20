@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using PodCatch.Common;
+using PodCatch.DataModel.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,34 +8,30 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Json;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace PodCatch.DataModel
 {
-    public class PodcastDataSource
+    public class PodcastDataSource : ServiceConsumer, IPodcastDataSource
     {
-        private static Lazy<PodcastDataSource> s_Intance = new Lazy<PodcastDataSource>(() => new PodcastDataSource());
         private bool m_Loaded;
-        public ObservableCollection<PodcastGroup> Groups { get; private set; }
-        public static PodcastDataSource Instance
-        {
-            get
-            {
-                return s_Intance.Value;
-            }
-        }
+        private ObservableCollection<PodcastGroup> Groups { get; set; }
 
-        private PodcastDataSource()
+        public PodcastDataSource(IServiceContext serviceContext) : base (serviceContext)
         {
             Groups = new ObservableCollection<PodcastGroup>();
             AddDefaultGroups();
         }
 
+        public ObservableCollection<PodcastGroup> GetGroups()
+        {
+            return Groups;
+        }
+
         private void AddDefaultGroups()
         {
-            PodcastGroup favorites = new PodcastGroup()
+            PodcastGroup favorites = new PodcastGroup(ServiceContext)
             {
                 Id = Constants.FavoritesGroupId,
                 TitleText = "FavoritesTitleText",
@@ -45,7 +43,7 @@ namespace PodCatch.DataModel
 
         private PodcastGroup AddSearchResultsGroup()
         {
-            PodcastGroup searchGroup = new PodcastGroup()
+            PodcastGroup searchGroup = new PodcastGroup(ServiceContext)
             {
                 Id = Constants.SearchGroupId,
                 TitleText = "SearchTitleText",
@@ -88,18 +86,21 @@ namespace PodCatch.DataModel
             }
         }
 
-        private async Task<Collection<PodcastGroup>> LoadFavorites()
+        private async Task<IEnumerable<PodcastGroup>> LoadFavorites()
         {
             StorageFile roamingFavoritesFile;
             try
             {
                 roamingFavoritesFile = await ApplicationData.Current.RoamingFolder.GetFileAsync("podcatch.json");
-                string favoritesAsJson = await FileIO.ReadTextAsync(roamingFavoritesFile);
-                // Json.NET would be more concise, but it doesn't handle this correctly
-                using (MemoryStream stream = new MemoryStream(Encoding.Unicode.GetBytes(favoritesAsJson)))
+                using (Stream stream = await roamingFavoritesFile.OpenStreamForReadAsync())
                 {
-                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Collection<PodcastGroup>));
-                    Collection<PodcastGroup> favorites = (Collection<PodcastGroup>)serializer.ReadObject(stream);
+                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(IEnumerable<PodcastGroupData>));
+                    IEnumerable<PodcastGroupData> favoritesData = (IEnumerable<PodcastGroupData>)serializer.ReadObject(stream);
+                    List<PodcastGroup> favorites = new List<PodcastGroup>();
+                    foreach (PodcastGroupData groupData in favoritesData)
+                    {
+                        favorites.Add(PodcastGroup.FromData(ServiceContext, groupData));
+                    }
                     return favorites;
                 }
             }
@@ -137,6 +138,7 @@ namespace PodCatch.DataModel
                     try
                     {
                         await podcast.Load();
+                        await podcast.Store();
                         await podcast.DownloadEpisodes();
                         await podcast.Store();
                         return true;
@@ -156,7 +158,7 @@ namespace PodCatch.DataModel
                     try
                     {
                         StorageFile roamingFavoritesFile = await ApplicationData.Current.RoamingFolder.CreateFileAsync("podcatch.json.tmp", CreationCollisionOption.ReplaceExisting);
-                        Collection<PodcastGroup> favorites = new Collection<PodcastGroup>() { GetGroup(Constants.FavoritesGroupId) };
+                        Collection<PodcastGroupData> favorites = new Collection<PodcastGroupData>() { GetGroup(Constants.FavoritesGroupId).ToData() };
                         string favoritesAsJson = JsonConvert.SerializeObject(favorites, Formatting.Indented);
                         await FileIO.WriteTextAsync(roamingFavoritesFile, favoritesAsJson);
                         await roamingFavoritesFile.RenameAsync("podcatch.json", NameCollisionOption.ReplaceExisting);
@@ -168,7 +170,7 @@ namespace PodCatch.DataModel
                 });
         }
 
-        public async Task ShowSearchResults(IEnumerable<Podcast> podcasts)
+        public async Task SetSearchResults(IEnumerable<Podcast> podcasts)
         {
             PodcastGroup searchGroup = GetGroup(Constants.SearchGroupId);
             if (searchGroup == null)
@@ -210,11 +212,11 @@ namespace PodCatch.DataModel
             return await LoadPodcast(podcast);
         }
 
-        public void RemoveFromFavorites(Podcast podcast)
+        public async Task RemoveFromFavorites(Podcast podcast)
         {
             PodcastGroup favorites = GetGroup(Constants.FavoritesGroupId);
             favorites.Podcasts.Remove(podcast);
-            Task t = Store();
+            Store();
         }
 
         public bool IsPodcastInFavorites(Podcast podcast)

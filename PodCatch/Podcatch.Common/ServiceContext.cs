@@ -26,7 +26,7 @@ namespace PodCatch.Common
         ServiceContext CreateChild(string prefixAddition = null, StringBuilder prePrefix = null);
     }
 
-    public class ServiceContext : IServiceContext
+    public sealed class ServiceContext : IServiceContext
     {
         private ITracer m_Tracer;
         private PrefixTracer m_PrefixTracer;

@@ -46,7 +46,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Data\EpisodeData.cs" />
+    <Compile Include="Data\PodcastData.cs" />
+    <Compile Include="Data\PodcastGroupData.cs" />
     <Compile Include="Downloader.cs" />
+    <Compile Include="DownloadService.cs" />
     <Compile Include="Episode.cs" />
     <Compile Include="EpisodeEvent.cs" />
     <Compile Include="EpisodeStateFactory.cs" />
@@ -56,12 +60,15 @@
     <Compile Include="EpisodeStateScanning.cs" />
     <Compile Include="EpisodeStatePendingDownload.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="IDownloader.cs" />
+    <Compile Include="IDownloadService.cs" />
+    <Compile Include="IPodcastDataSource.cs" />
     <Compile Include="Podcast.cs" />
     <Compile Include="PodcastDataSource.cs" />
     <Compile Include="PodcastGroup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RoamingEpisodeData.cs" />
-    <Compile Include="RoamingPodcastData.cs" />
+    <Compile Include="Data\RoamingEpisodeData.cs" />
+    <Compile Include="Data\RoamingPodcastData.cs" />
     <Compile Include="TouchedFiles.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -73,6 +80,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Podcatch.Common\PodCatch.Common.csproj">
+      <Project>{41fff775-2a10-461e-9f74-968b13c18537}</Project>
+      <Name>PodCatch.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Podcatch.StateMachine\PodCatch.StateMachine.csproj">
       <Project>{d4fea332-22e2-480e-bfe8-f2b668fb9c1d}</Project>
       <Name>PodCatch.StateMachine</Name>

@@ -1,19 +1,22 @@
-﻿using PodCatch.DataModel;
+﻿using PodCatch.Common;
+using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PodCatch.Search
 {
-    public class ITunesSearch : ISearch
+    public class ITunesSearch : ServiceConsumer, ISearch
     {
+        public ITunesSearch(IServiceContext serviceContext) : base (serviceContext)
+        {
+        }
+
         public async Task<IEnumerable<Podcast>> FindAsync(string searchTerm, int limit)
         {
             return await Task<IEnumerable<Podcast>>.Run(async () =>
@@ -32,7 +35,7 @@ namespace PodCatch.Search
                             ITunesSearchResults appleSearchResults = (ITunesSearchResults)serializer.ReadObject(stream);
                             foreach (ITunesSearchResult result in appleSearchResults.results)
                             {
-                                Podcast podcast = new Podcast()
+                                Podcast podcast = new Podcast(ServiceContext)
                                 {
                                     Title = result.artistName,
                                     PodcastUri = result.feedUrl,

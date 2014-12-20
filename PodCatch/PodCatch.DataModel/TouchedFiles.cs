@@ -21,12 +21,18 @@ namespace PodCatch.DataModel
 
         public void Add (string fileName)
         {
-            m_Files.Add(fileName);
+            lock(m_Files)
+            {
+                m_Files.Add(fileName);
+            }
         }
 
         public void Clear()
         {
-            m_Files.Clear();
+            lock(m_Files)
+            {
+                m_Files.Clear();
+            }
         }
 
         public bool Contains(string fileName)

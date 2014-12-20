@@ -1,4 +1,5 @@
-﻿using PodCatch.DataModel;
+﻿using PodCatch.Common;
+using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,10 +18,28 @@ namespace PodCatch.BackgroundTasks
         public async void Run(IBackgroundTaskInstance taskInstance)
         {
             BackgroundTaskDeferral deferral = taskInstance.GetDeferral();
-            taskInstance.Canceled += OnTaskInstanceCanceled;
             try
             {
-                await PodcastDataSource.Instance.DoHouseKeeping();
+                taskInstance.Canceled += OnTaskInstanceCanceled;
+
+                DoHouseCleaning();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("BackgroundTask.Run() - Error {0}", e);
+            }
+            finally
+            {
+                deferral.Complete();
+            }
+        }
+
+        public async void DoHouseCleaning()
+        {
+            try
+            {
+                IPodcastDataSource podcastDataSource = BackgroundTaskServiceContext.Instance.GetService<PodcastDataSource>();
+                await podcastDataSource.DoHouseKeeping();
             }
             catch (Exception e)
             {
@@ -48,7 +67,6 @@ namespace PodCatch.BackgroundTasks
             updater.Update(notification);
             
             Task.WaitAll(pendingDownloads.ToArray(), m_cancellationTokenSouce.Token);*/
-            deferral.Complete();
         }
 
         void OnTaskInstanceCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)

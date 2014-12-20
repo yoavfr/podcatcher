@@ -29,6 +29,8 @@ namespace PodCatch
         private bool m_ShowingPopUp;
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        private IServiceContext m_ServiceContext;
+        private IPodcastDataSource m_PodcastDataSource; 
 
         /// <summary>
         /// NavigationHelper is used on each page to aid in navigation and 
@@ -51,6 +53,8 @@ namespace PodCatch
         public GroupPage()
         {
             this.InitializeComponent();
+            m_ServiceContext = ApplicationServiceContext.Instance;
+            m_PodcastDataSource = m_ServiceContext.GetService<IPodcastDataSource>();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
         }
@@ -68,7 +72,7 @@ namespace PodCatch
         /// session.  The state will be null the first time a page is visited.</param>
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            PodcastGroup group = PodcastDataSource.Instance.GetGroup((String)e.NavigationParameter);
+            PodcastGroup group = m_PodcastDataSource.GetGroup((String)e.NavigationParameter);
             this.DefaultViewModel["Group"] = group;
             this.DefaultViewModel["Podcasts"] = group.Podcasts;
         }
@@ -135,7 +139,7 @@ namespace PodCatch
                 // this is useful for debugging
                 //popupMenu.Commands.Add(new UICommand(){Id=1, Label="Copy RSS feed URL to clipboard"});
 
-                if (PodcastDataSource.Instance.IsPodcastInFavorites(selectedPodcast))
+                if (m_PodcastDataSource.IsPodcastInFavorites(selectedPodcast))
                 {
                     popupMenu.Commands.Add(new UICommand() { Id = 2, Label = "Remove from favorites" });
                 }
@@ -151,11 +155,11 @@ namespace PodCatch
                 switch ((int)selectedCommand.Id)
                 {
                     case 2: // Remove from favorites
-                        PodcastDataSource.Instance.RemoveFromFavorites(selectedPodcast);
+                        m_PodcastDataSource.RemoveFromFavorites(selectedPodcast);
                         NavigationHelper.GoBack();
                         break;
                     case 3: // Add to favorites
-                        await PodcastDataSource.Instance.AddToFavorites(selectedPodcast);
+                        await m_PodcastDataSource.AddToFavorites(selectedPodcast);
                         break;
                 }
             }

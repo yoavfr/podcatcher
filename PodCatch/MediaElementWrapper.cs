@@ -1,4 +1,5 @@
-﻿using PodCatch.DataModel;
+﻿using PodCatch.Common;
+using PodCatch.DataModel;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ using Windows.UI.Xaml.Media;
 
 namespace PodCatch
 {
-    public class MediaElementWrapper
+    public class MediaElementWrapper : ServiceConsumer
     {
         private static MediaElementWrapper s_Insatnce;
         private Episode m_NowPlaying; 
@@ -20,6 +21,8 @@ namespace PodCatch
         private MediaElement MediaElement { get; set; }
         private SystemMediaTransportControls SystemMediaTransportControls { get; set;}
         public static CoreDispatcher Dispatcher { private get; set; }
+
+        private IPodcastDataSource m_PodcastDataSource; 
 
         public TimeSpan Position 
         {
@@ -73,7 +76,7 @@ namespace PodCatch
                 m_NowPlaying = null;
                 episode.Played = true;
                 Task t = episode.PostEvent(EpisodeEvent.DonePlaying);
-                await PodcastDataSource.Instance.Store();
+                await m_PodcastDataSource.Store();
             }
             MediaElement.MediaEnded -= MediaElement_MediaEnded;
         }
@@ -94,15 +97,16 @@ namespace PodCatch
                     DependencyObject rootGrid = VisualTreeHelper.GetChild(Window.Current.Content, 0);
                     MediaElement mediaElement = (MediaElement)VisualTreeHelper.GetChild(rootGrid, 0);
                     mediaElement.AutoPlay = true;
-                    s_Insatnce = new MediaElementWrapper(mediaElement);
+                    s_Insatnce = new MediaElementWrapper(ApplicationServiceContext.Instance, mediaElement);
                 }
                 return s_Insatnce;
             }
         }
 
-        private MediaElementWrapper(MediaElement mediaElement)
+        private MediaElementWrapper(IServiceContext serviceContext, MediaElement mediaElement): base(serviceContext)
         {
             MediaElement = mediaElement;
+            m_PodcastDataSource = serviceContext.GetService<IPodcastDataSource>();
             MediaElement.MediaOpened += MediaElement_MediaOpened;
             MediaElement.CurrentStateChanged += MediaElement_CurrentStateChanged;
 
@@ -128,7 +132,7 @@ namespace PodCatch
                     if (DateTime.UtcNow.AddSeconds(-10) > m_LastSaveTime)
                     {
                         // save location
-                        Task t = PodcastDataSource.Instance.Store();
+                        Task t = m_PodcastDataSource.Store();
                         m_LastSaveTime = DateTime.UtcNow;
                     }
                 }

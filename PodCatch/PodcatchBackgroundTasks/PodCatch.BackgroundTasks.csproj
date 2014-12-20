@@ -106,9 +106,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BackgroundTask.cs" />
+    <Compile Include="BackgroundTaskServiceContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Podcatch.Common\PodCatch.Common.csproj">
+      <Project>{41fff775-2a10-461e-9f74-968b13c18537}</Project>
+      <Name>PodCatch.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PodCatch.DataModel\PodCatch.DataModel.csproj">
       <Project>{a0237286-45e6-4e83-8591-82d5822ac8d4}</Project>
       <Name>PodCatch.DataModel</Name>

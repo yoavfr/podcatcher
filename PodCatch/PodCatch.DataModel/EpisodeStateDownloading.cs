@@ -13,20 +13,20 @@ namespace PodCatch.DataModel
         public override async Task OnEntry(Episode owner, IState<Episode, EpisodeEvent> fromState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
             owner.NotifyPropertyChanged("State");
-            Progress<Downloader> progress = new Progress<Downloader>((downloader) =>
+            Progress<IDownloader> progress = new Progress<IDownloader>((downloader) =>
             {
-                ulong totalBytesToReceive = downloader.TotalBytes;
+                ulong totalBytesToReceive = downloader.GetTotalBytes();
                 double at = 0;
                 if (totalBytesToReceive > 0)
                 {
-                    at = (double)downloader.DownloadedBytes / totalBytesToReceive;
+                    at = (double)downloader.GetBytesDownloaded() / totalBytesToReceive;
                 }
                 owner.DownloadProgress = at;
             });
 
             try
             {
-                Downloader downloader = new Downloader(owner.Uri, await owner.GetStorageFolder(), owner.FileName, progress);
+                IDownloader downloader = owner.m_DownloadService.CreateDownloader(owner.Uri, await owner.GetStorageFolder(), owner.FileName, progress);
                 StorageFile localFile = await downloader.Download();
 
                 // set duration

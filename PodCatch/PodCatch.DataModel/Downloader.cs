@@ -7,16 +7,15 @@ using Windows.Web.Http;
 
 namespace PodCatch.DataModel
 {
-    public class Downloader
+    public class Downloader : IDownloader
     {
         private Uri m_SourceUri;
         private StorageFolder m_DestinationStorageFolder;
         private string m_DestinationFileName;
         private uint m_bufferSize = 2048;
-        private Progress<Downloader> m_Progress;
-
-        public ulong TotalBytes { private set; get; }
-        public ulong DownloadedBytes { private set; get; }
+        private Progress<IDownloader> m_Progress;
+        private ulong m_TotalBytes;
+        private ulong m_DownloadedBytes;
 
         public Downloader(Uri sourceUri, StorageFolder destinationStorageFolder, string destinationFileName)
         {
@@ -25,10 +24,20 @@ namespace PodCatch.DataModel
             m_DestinationFileName = destinationFileName;
         }
 
-        public Downloader(Uri sourceUri, StorageFolder destinationStorageFolder, string destinationFileName, Progress<Downloader> progress)
+        public Downloader(Uri sourceUri, StorageFolder destinationStorageFolder, string destinationFileName, Progress<IDownloader> progress)
             : this(sourceUri, destinationStorageFolder, destinationFileName)
         {
             m_Progress = progress;
+        }
+
+        public ulong GetTotalBytes()
+        {
+            return m_TotalBytes;
+        }
+
+        public ulong GetBytesDownloaded()
+        {
+            return m_DownloadedBytes;
         }
 
         public async Task<StorageFile> Download()
@@ -49,7 +58,7 @@ namespace PodCatch.DataModel
                         
                         if (response.Content.Headers.ContentLength != null)
                         {
-                            TotalBytes = response.Content.Headers.ContentLength.Value;
+                            m_TotalBytes = response.Content.Headers.ContentLength.Value;
                         }
                         IBuffer buffer = new Windows.Storage.Streams.Buffer(m_bufferSize);
                         using (IRandomAccessStream fileStream = await tempFile.OpenAsync(FileAccessMode.ReadWrite))
@@ -64,7 +73,7 @@ namespace PodCatch.DataModel
                                         await fileStream.WriteAsync(buffer);
                                         if (m_Progress != null)
                                         {
-                                            DownloadedBytes += buffer.Length;
+                                            m_DownloadedBytes += buffer.Length;
                                             ((IProgress<Downloader>)m_Progress).Report(this);
                                         }
                                     }

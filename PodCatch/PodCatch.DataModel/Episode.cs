@@ -1,9 +1,10 @@
 ﻿using Podcatch.StateMachine;
+using PodCatch.Common;
+using PodCatch.DataModel.Data;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Data.Html;
@@ -13,8 +14,7 @@ using Windows.UI.Core;
 
 namespace PodCatch.DataModel
 {
-    [DataContract]
-    public class Episode : INotifyPropertyChanged, IBasicLogger 
+    public class Episode : ServiceConsumer, INotifyPropertyChanged, IBasicLogger 
     {
         private TimeSpan m_Position;
         private TimeSpan m_Duration;
@@ -25,30 +25,69 @@ namespace PodCatch.DataModel
         private Uri m_Uri;
         private bool m_Played;
         private bool m_Visible;
+        public IDownloadService m_DownloadService;
 
-        public Episode(Uri uri)
+        public Episode(IServiceContext serviceContext, string podcastFileName, Uri uri) : base(serviceContext)
         {
             Uri = uri;
+            PodcastFileName = podcastFileName;
+            m_DownloadService = serviceContext.GetService<IDownloadService>();
             m_StateMachine = new SimpleStateMachine<Episode, EpisodeEvent>(this, this, 0);
             m_StateMachine.InitState(EpisodeStateFactory.Instance.GetState<EpisodeStatePendingDownload>(), true);
             m_StateMachine.StartPumpEvents();
         }
 
+        public static Episode FromData(IServiceContext serviceContext, string podcastFileName, EpisodeData data)
+        {
+            Episode episode = new Episode(serviceContext, podcastFileName, data.Uri);
+            episode.Uri = data.Uri;
+            episode.Title = data.Title;
+            episode.Description = data.Description;
+            episode.PublishDate = new DateTimeOffset(data.PublishDateTicks, TimeSpan.FromTicks(0));
+            return episode;
+        }
+
+        public static Episode FromRoamingData(IServiceContext serviceContext, string podcastFileName,RoamingEpisodeData data)
+        {
+            Episode episode = new Episode(serviceContext, podcastFileName, new Uri(data.Uri));
+            // backward compatibility with m_PositionTicks
+            if (data.PositionTicks == 0)
+            {
+                episode.Position = TimeSpan.FromTicks(data.m_PositionTicks);
+            }
+            else
+            {
+                episode.Position = TimeSpan.FromTicks(data.PositionTicks);
+            }
+            episode.Played = data.Played;
+            return episode;
+        }
+
+        public EpisodeData ToData()
+        {
+            return new EpisodeData()
+            {
+                Uri = Uri,
+                Title = Title,
+                Description = Description,
+                PublishDateTicks = PublishDate.Ticks
+            };
+        }
+
+        public RoamingEpisodeData ToRoamingData()
+        {
+            return new RoamingEpisodeData()
+            {
+                Uri = Uri.ToString(),
+                Played = Played,
+                PositionTicks = Position.Ticks
+            };
+        }
+
         public string PodcastFileName { get; set; }
 
-        [DataMember]
-        public Uri Uri
-        {
-            get
-            {
-                return m_Uri;
-            }
-            set
-            {
-                m_Uri = value;
-            }
-        }
-        [DataMember]
+        public Uri Uri { get; set; }
+        
         public string Title
         {
             get
@@ -64,7 +103,7 @@ namespace PodCatch.DataModel
                 }
             }
         }
-        [DataMember]
+
         public string Description
         {
             get
@@ -81,20 +120,7 @@ namespace PodCatch.DataModel
             }
         }
 
-        [DataMember]
-        private long m_PublishDateTicks;
-
-        public DateTimeOffset PublishDate
-        {
-            get
-            {
-                return new DateTimeOffset(m_PublishDateTicks, TimeSpan.FromTicks(0));
-            }
-            set
-            {
-                m_PublishDateTicks = value.Ticks;
-            }
-        }
+        public DateTimeOffset PublishDate { get; set; }
         
         // index for alternate coloring in UI
         public int Index { get; set; }
@@ -213,7 +239,7 @@ namespace PodCatch.DataModel
             Duration = fromCache.Duration;
             Uri = fromCache.Uri;
             Description = fromCache.Description;
-            m_PublishDateTicks = fromCache.m_PublishDateTicks;
+            PublishDate = fromCache.PublishDate;
         }
 
         public async Task<StorageFolder> GetStorageFolder()

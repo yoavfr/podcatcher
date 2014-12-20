@@ -15,9 +15,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.StateMachine", "Po
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.Common", "Podcatch.Common\PodCatch.Common.csproj", "{41FFF775-2A10-461E-9F74-968B13C18537}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.Common.Test", "PodCatch.Common.Test\PodCatch.Common.Test.csproj", "{FFA9D50F-52F5-444B-8790-DFC72003ADBD}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
+		SccNumberOfProjects = 8
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs13
 		SccLocalPath0 = .
@@ -38,6 +40,9 @@ Global
 		SccProjectUniqueName6 = Podcatch.Common\\Podcatch.Common.csproj
 		SccProjectName6 = Podcatch.Common
 		SccLocalPath6 = Podcatch.Common
+		SccProjectUniqueName7 = PodCatch.Common.Test\\PodCatch.Common.Test.csproj
+		SccProjectName7 = PodCatch.Common.Test
+		SccLocalPath7 = PodCatch.Common.Test
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -174,6 +179,36 @@ Global
 		{41FFF775-2A10-461E-9F74-968B13C18537}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{41FFF775-2A10-461E-9F74-968B13C18537}.Release|x64.ActiveCfg = Release|Any CPU
 		{41FFF775-2A10-461E-9F74-968B13C18537}.Release|x86.ActiveCfg = Release|Any CPU
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|ARM.ActiveCfg = Debug|ARM
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|ARM.Build.0 = Debug|ARM
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|ARM.Deploy.0 = Debug|ARM
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|Mixed Platforms.Deploy.0 = Debug|x86
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|x64.ActiveCfg = Debug|x64
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|x64.Build.0 = Debug|x64
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|x64.Deploy.0 = Debug|x64
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|x86.ActiveCfg = Debug|x86
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|x86.Build.0 = Debug|x86
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Debug|x86.Deploy.0 = Debug|x86
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|ARM.ActiveCfg = Release|ARM
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|ARM.Build.0 = Release|ARM
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|ARM.Deploy.0 = Release|ARM
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|Mixed Platforms.Build.0 = Release|x86
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|Mixed Platforms.Deploy.0 = Release|x86
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|x64.ActiveCfg = Release|x64
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|x64.Build.0 = Release|x64
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|x64.Deploy.0 = Release|x64
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|x86.ActiveCfg = Release|x86
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|x86.Build.0 = Release|x86
+		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

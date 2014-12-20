@@ -1,11 +1,12 @@
-﻿using System;
+﻿using PodCatch.Common;
+using PodCatch.DataModel.Data;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -19,19 +20,89 @@ using Windows.Web.Syndication;
 
 namespace PodCatch.DataModel
 {
-    [DataContract]
-    public class Podcast : INotifyPropertyChanged
+    public class Podcast : ServiceConsumer, INotifyPropertyChanged
     {
         private string m_Title;
         private string m_Description;
         private string m_Image;
+        private IDownloadService m_DownloadService;
         int m_numEpisodesToShow = 3;
         int m_numUnplayedEpisodes = 0;
         ObservableCollection<Episode> m_Episodes;
 
-        public Podcast()
+        public Podcast(IServiceContext serviceContext) : base(serviceContext)
         {
+            m_DownloadService = serviceContext.GetService<IDownloadService>();
             AllEpisodes = new List<Episode>();
+        }
+
+        public static Podcast FromData (IServiceContext serviceContext, PodcastData data)
+        {
+            Podcast podcast = new Podcast(serviceContext);
+            podcast.Title = data.Title;
+            podcast.Description = data.Description;
+            podcast.Image = data.Image;
+            podcast.LastRefreshTimeTicks = data.LastRefreshTimeTicks;
+            podcast.AllEpisodes = new List<Episode>();
+            foreach(EpisodeData episodeData in data.Episodes)
+            {
+                Episode episode = Episode.FromData(serviceContext, podcast.FileName, episodeData);
+                podcast.AllEpisodes.Add(episode);
+            }
+            return podcast;
+        }
+
+        public static Podcast FromRoamingData (IServiceContext serviceContext, RoamingPodcastData data)
+        {
+            Podcast podcast = new Podcast(serviceContext);
+            podcast.Title = data.Title;
+            podcast.PodcastUri = data.Uri;
+            List<Episode> episodes = new List<Episode>();
+            podcast.AllEpisodes = episodes;
+            foreach (RoamingEpisodeData episodeData in data.RoamingEpisodesData)
+            {
+                episodes.Add(Episode.FromRoamingData(serviceContext, podcast.FileName, episodeData));
+            }
+            return podcast;
+        }
+
+        public PodcastData ToData ()
+        {
+            PodcastData data = new PodcastData()
+            {
+                Title = Title,
+                Description = Description,
+                Image = Image,
+                LastRefreshTimeTicks = LastRefreshTimeTicks
+            };
+            List<EpisodeData> episodes = new List<EpisodeData>();
+            data.Episodes = episodes;
+            foreach (Episode episode in AllEpisodes)
+            {
+                episodes.Add(episode.ToData());
+            }
+            return data;
+        }
+
+        public RoamingPodcastData ToRoamingData()
+        {
+            RoamingPodcastData data = new RoamingPodcastData()
+            {
+                Uri = PodcastUri,
+                Title = Title
+            };
+            List<RoamingEpisodeData> episodes = new List<RoamingEpisodeData>();
+            data.RoamingEpisodesData = episodes;
+            foreach (Episode episode in AllEpisodes)
+            {
+                // Store as little as possible in roaming settings. 
+                // If there is no Position to record or this has not been played, we can rely on the default values upon deserialization
+                if (episode.Position > TimeSpan.FromTicks(0) || episode.Played)
+                {
+                    episodes.Add(episode.ToRoamingData());
+                }
+            }
+            return data;
         }
 
         public string PodcastUri { get; set; }
@@ -39,7 +110,6 @@ namespace PodCatch.DataModel
         /// <summary>
         /// All the episodes of this podcast
         /// </summary>
-        [DataMember]
         public List<Episode> AllEpisodes { get; set; }
 
         public void AddEpisode(Episode episode)
@@ -91,11 +161,11 @@ namespace PodCatch.DataModel
         {
             get
             {
-                return Title.StripIllegalPathChars();
+                string fileName = Title.StripIllegalPathChars();
+                return fileName.Substring(0, Math.Min(fileName.Length, 100));
             }
         }
 
-        [DataMember]
         public string Title
         {
             get { return m_Title; }
@@ -108,7 +178,6 @@ namespace PodCatch.DataModel
                 }
             }
         }
-        [DataMember]
         public string Description
         {
             get { return m_Description; }
@@ -121,7 +190,7 @@ namespace PodCatch.DataModel
                 }
             }
         }
-        [DataMember]
+
         public string Image
         {
             get { return m_Image; }
@@ -134,8 +203,8 @@ namespace PodCatch.DataModel
                 }
             }
         }
-        [DataMember]
-        private long LastRefreshTimeTicks { get; set; }
+
+        public long LastRefreshTimeTicks { get; set; }
 
         public void UpdateUnplayedEpisodes()
         {
@@ -172,19 +241,19 @@ namespace PodCatch.DataModel
                             TouchedFiles.Instance.Add(file.Path);
                             using (Stream stream = await file.OpenStreamForReadAsync())
                             {
-                                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Podcast));
-                                Podcast readPodcast = (Podcast)serializer.ReadObject(stream);
+                                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PodcastData));
+                                Podcast readPodcast = Podcast.FromData(ServiceContext, (PodcastData)serializer.ReadObject(stream));
 
                                 await UpdateFields(readPodcast);
                                 await RefreshDisplay();
                             }
                         }
+                        await RefreshFromRss(false);
                     }
                     catch (Exception e)
                     {
                         Debug.WriteLine("Podcast.Load(): error loading {0}. {1}", CacheFileName, e);
                     }
-                    await RefreshFromRss(false);
                 });
         }
 
@@ -298,7 +367,7 @@ namespace PodCatch.DataModel
             string localImagePath = string.Format("{0}{1}", FileName, imageExtension);
             ulong oldFileSize = await GetCachedFileSize(localImagePath);
             // the image we have is from the cache
-            Downloader downloader = new Downloader(validUri, ApplicationData.Current.LocalFolder, localImagePath);
+            IDownloader downloader = m_DownloadService.CreateDownloader(validUri, ApplicationData.Current.LocalFolder, localImagePath, null);
             try
             {
                 Debug.WriteLine("Podcast.LoadImage(): Downloading {0} -> {1}", validUri, localImagePath);
@@ -378,11 +447,7 @@ namespace PodCatch.DataModel
 
 
             // new episode from RSS
-            Episode newEpisode = new Episode(uri)
-            {
-                PodcastFileName = FileName,
-            };
-            
+            Episode newEpisode = new Episode(ServiceContext, FileName, uri);
             AddEpisode(newEpisode);
 
             return newEpisode;
@@ -448,10 +513,10 @@ namespace PodCatch.DataModel
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile jsonFile = await localFolder.CreateFileAsync(CacheFileName+".tmp", CreationCollisionOption.ReplaceExisting);
-            DataContractJsonSerializer serialzer = new DataContractJsonSerializer(typeof(Podcast));
+            DataContractJsonSerializer serialzer = new DataContractJsonSerializer(typeof(PodcastData));
             using (Stream stream = await jsonFile.OpenStreamForWriteAsync())
             {
-                serialzer.WriteObject(stream, this);
+                serialzer.WriteObject(stream, this.ToData());
             }
             await jsonFile.RenameAsync(CacheFileName, NameCollisionOption.ReplaceExisting);
         }

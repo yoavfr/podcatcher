@@ -26,6 +26,8 @@ namespace PodCatch
         private bool m_ShowingPopUp;
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        private IServiceContext m_ServiceContext;
+        private IPodcastDataSource m_PodcastDataSource; 
         /// <summary>
         /// NavigationHelper is used on each page to aid in navigation and 
         /// process lifetime management
@@ -46,6 +48,8 @@ namespace PodCatch
         public StartPage()
         {
             this.InitializeComponent();
+            m_ServiceContext = ApplicationServiceContext.Instance;
+            m_PodcastDataSource = m_ServiceContext.GetService<IPodcastDataSource>();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
         }
@@ -67,8 +71,8 @@ namespace PodCatch
             MediaElementWrapper.Dispatcher = Dispatcher;
             
             // load from cache
-            this.DefaultViewModel["Groups"] = PodcastDataSource.Instance.Groups;
-            PodcastDataSource.Instance.Load(false);
+            this.DefaultViewModel["Groups"] = m_PodcastDataSource.GetGroups();
+            m_PodcastDataSource.Load(false);
         }
 
         /// <summary>
@@ -144,7 +148,7 @@ namespace PodCatch
 
         private async void OnBackgroundTask_Completed(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
         {
-            await PodcastDataSource.Instance.Load(true);
+            await m_PodcastDataSource.Load(true);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -182,7 +186,7 @@ namespace PodCatch
             if (Uri.TryCreate(searchTerm, UriKind.Absolute, out validUri) && 
                 (validUri.Scheme == "http" || validUri.Scheme == "https"))
             {
-                Podcast newItem = new Podcast()
+                Podcast newItem = new Podcast(m_ServiceContext)
                 {
                     PodcastUri = searchTerm
                 };
@@ -192,13 +196,13 @@ namespace PodCatch
             {
                 // Search term
                 BottomAppBar.IsOpen = false;
-                ITunesSearch iTunesSearch = new ITunesSearch();
+                ITunesSearch iTunesSearch = new ITunesSearch(m_ServiceContext);
                 matches = await iTunesSearch.FindAsync(searchTerm, 50);
-                matches = matches.Where(podcast => !PodcastDataSource.Instance.IsPodcastInFavorites(podcast));
+                matches = matches.Where(podcast => !m_PodcastDataSource.IsPodcastInFavorites(podcast));
             }
             
             // add podcasts shell to data source
-            PodcastDataSource.Instance.ShowSearchResults(matches);
+            m_PodcastDataSource.SetSearchResults(matches);
         }
 
         private async void PodcastRightTapped(object sender, RightTappedRoutedEventArgs e)
@@ -229,7 +233,7 @@ namespace PodCatch
                 // this is useful for debugging
                 //popupMenu.Commands.Add(new UICommand(){Id=1, Label="Copy RSS feed URL to clipboard"});
 
-                if (PodcastDataSource.Instance.IsPodcastInFavorites(selectedPodcast))
+                if (m_PodcastDataSource.IsPodcastInFavorites(selectedPodcast))
                 {
                     popupMenu.Commands.Add(new UICommand() { Id = 2, Label = "Remove from favorites" });
                 }
@@ -250,12 +254,12 @@ namespace PodCatch
                         Clipboard.SetContent(dataPackage);
                         break;
                     case 2: // Remove from favorites
-                        PodcastDataSource.Instance.RemoveFromFavorites(selectedPodcast);
+                        m_PodcastDataSource.RemoveFromFavorites(selectedPodcast);
                         NavigationHelper.GoBack();
                         break;
                     case 3: // Add to favorites
                         // Don't wait for this - It will leave the m_ShowingPopUp open
-                        Task t = PodcastDataSource.Instance.AddToFavorites(selectedPodcast);
+                        Task t = m_PodcastDataSource.AddToFavorites(selectedPodcast);
                         break;
                 }
             }

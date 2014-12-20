@@ -24,6 +24,10 @@ namespace PodCatch
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
+
+        private IServiceContext m_ServiceContext;
+        private IPodcastDataSource m_PodcastDataSource; 
+
         private MediaElementWrapper MediaPlayer
         {
             get
@@ -51,6 +55,8 @@ namespace PodCatch
         public PodcastPage()
         {
             this.InitializeComponent();
+            m_ServiceContext = ApplicationServiceContext.Instance;
+            m_PodcastDataSource = m_ServiceContext.GetService<IPodcastDataSource>();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
         }
@@ -68,7 +74,7 @@ namespace PodCatch
         /// session.  The state will be null the first time a page is visited.</param>
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            Podcast podcast = PodcastDataSource.Instance.GetPodcast((String)e.NavigationParameter);  
+            Podcast podcast = m_PodcastDataSource.GetPodcast((String)e.NavigationParameter);  
             if (podcast == null)
             {
                 return;
@@ -76,7 +82,7 @@ namespace PodCatch
             this.DefaultViewModel["Podcast"] = podcast;
             this.DefaultViewModel["Episodes"] = podcast.Episodes;
 
-            bool inFavorites = PodcastDataSource.Instance.IsPodcastInFavorites(podcast);
+            bool inFavorites = m_PodcastDataSource.IsPodcastInFavorites(podcast);
             if (inFavorites)
             {
                 AddToFavoritesAppBarButton.IsEnabled = false;
@@ -118,13 +124,13 @@ namespace PodCatch
         private void RemoveFromFavoritesButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
-            PodcastDataSource.Instance.RemoveFromFavorites((Podcast)DefaultViewModel["Podcast"]);
+            m_PodcastDataSource.RemoveFromFavorites((Podcast)DefaultViewModel["Podcast"]);
             NavigationHelper.GoBack();
         }
         private async void AddToFavoritesAppBarButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
-            await PodcastDataSource.Instance.AddToFavorites((Podcast)DefaultViewModel["Podcast"]);
+            await m_PodcastDataSource.AddToFavorites((Podcast)DefaultViewModel["Podcast"]);
             NavigationHelper.GoBack();
         }
 
@@ -246,11 +252,11 @@ namespace PodCatch
                 {
                     case 1:
                         selectedEpisode.Played = false;
-                        await PodcastDataSource.Instance.Store();
+                        await m_PodcastDataSource.Store();
                         break;
                     case 2:
                         selectedEpisode.Played = true;
-                        await PodcastDataSource.Instance.Store();
+                        await m_PodcastDataSource.Store();
                         break;
                     case 3:
                         Task t = selectedEpisode.PostEvent(EpisodeEvent.Refresh);
