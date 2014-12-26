@@ -370,17 +370,22 @@ namespace PodCatch.DataModel
             IDownloader downloader = m_DownloadService.CreateDownloader(validUri, ApplicationData.Current.LocalFolder, localImagePath, null);
             try
             {
-                Debug.WriteLine("Podcast.LoadImage(): Downloading {0} -> {1}", validUri, localImagePath);
-                StorageFile localImageFile = await downloader.Download();
-                Debug.WriteLine("Podcast.LoadImage(): Finished downloading {0} -> {1}", validUri, localImageFile.Path);
-                Image = localImageFile.Path;
+                // Don't try to download if all we have is the local file
+                if (!validUri.IsFile)
+                {
+                    Debug.WriteLine("Podcast.LoadImage(): Downloading {0} -> {1}", validUri, localImagePath);
+                    StorageFile localImageFile = await downloader.Download();
+                    Debug.WriteLine("Podcast.LoadImage(): Finished downloading {0} -> {1}", validUri, localImageFile.Path);
+                    Image = localImageFile.Path;
+                    
+                    ulong newFileSize = await GetCachedFileSize(localImagePath);
+                    if (newFileSize != oldFileSize)
+                    {
+                        NotifyPropertyChanged("Image");
+                    }
+                }
 
                 TouchedFiles.Instance.Add(Image);
-                ulong newFileSize = await GetCachedFileSize(localImagePath);
-                if (newFileSize != oldFileSize)
-                {
-                    NotifyPropertyChanged("Image");
-                }
             }
             catch (Exception e)
             {

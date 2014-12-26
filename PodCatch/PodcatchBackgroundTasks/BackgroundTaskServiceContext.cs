@@ -15,6 +15,7 @@ namespace PodCatch.BackgroundTasks
                 {
                     ServiceContext serviceContext = new ServiceContext(new DebugTracer());
                     serviceContext.PublishService<PodcastDataSource>();
+                    serviceContext.PublishService<DownloadService>();
                     s_Instance = serviceContext;
                 }
                 return s_Instance;

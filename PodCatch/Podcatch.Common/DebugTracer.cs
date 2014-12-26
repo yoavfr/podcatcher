@@ -7,7 +7,7 @@ namespace PodCatch.Common
     {
         public override void TraceError(string format, params object[] args)
         {
-            Debug.WriteLine(String.Format("Error {1}: {2}", DateTime.UtcNow, format), args);
+            Debug.WriteLine(String.Format("Error {0}: {1}", DateTime.UtcNow, format), args);
         }
 
         public override void TraceWarning(string format, params object[] args)

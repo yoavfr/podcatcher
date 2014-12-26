@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PodCatch.Common;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -44,6 +45,10 @@ namespace PodCatch.DataModel
         {
             return await Task<StorageFile>.Run(async () =>
                 {
+                    if (m_SourceUri == null || m_SourceUri.IsFile)
+                    {
+                        return null;
+                    }
                     StorageFile tempFile = await m_DestinationStorageFolder.CreateFileAsync(m_DestinationFileName + ".tmp", CreationCollisionOption.GenerateUniqueName);
                     using (HttpClient httpClient = new HttpClient())
                     {
