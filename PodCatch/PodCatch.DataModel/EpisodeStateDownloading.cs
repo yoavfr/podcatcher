@@ -12,7 +12,7 @@ namespace PodCatch.DataModel
     {
         public override async Task OnEntry(Episode owner, IState<Episode, EpisodeEvent> fromState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
-            owner.NotifyPropertyChanged("State");
+            owner.NotifyPropertyChanged(() => owner.State);
             Progress<IDownloader> progress = new Progress<IDownloader>((downloader) =>
             {
                 ulong totalBytesToReceive = downloader.GetTotalBytes();

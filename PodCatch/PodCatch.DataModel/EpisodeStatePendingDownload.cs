@@ -11,7 +11,7 @@ namespace PodCatch.DataModel
     {
         public override Task OnEntry(Episode owner, IState<Episode, EpisodeEvent> fromState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
-            owner.NotifyPropertyChanged("State");
+            owner.NotifyPropertyChanged(() => owner.State);
             return Task.FromResult<object>(null);
         }
 

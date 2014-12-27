@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Data.Html;
@@ -99,7 +100,7 @@ namespace PodCatch.DataModel
                 if (m_Title != value)
                 {
                     m_Title = value;
-                    NotifyPropertyChanged("Title");
+                    NotifyPropertyChanged(() => Title);
                 }
             }
         }
@@ -115,7 +116,7 @@ namespace PodCatch.DataModel
                 if (m_Description != value)
                 {
                     m_Description = value;
-                    NotifyPropertyChanged("FormattedShortDescription");
+                    NotifyPropertyChanged(() => FormattedShortDescription);
                 }
             }
         }
@@ -136,7 +137,7 @@ namespace PodCatch.DataModel
                 if (m_Played != value)
                 {
                     m_Played = value;
-                    NotifyPropertyChanged("Played");
+                    NotifyPropertyChanged(() => Played);
                 }
             } 
         }
@@ -189,7 +190,7 @@ namespace PodCatch.DataModel
                 if (m_Position != value)
                 {
                     m_Position = value;
-                    NotifyPropertyChanged("Position");
+                    NotifyPropertyChanged(() => Position);
                 }
             }
         }
@@ -204,7 +205,7 @@ namespace PodCatch.DataModel
                 if (m_Duration != value)
                 {
                     m_Duration = value;
-                    NotifyPropertyChanged("Duration");
+                    NotifyPropertyChanged(() => Duration);
                 }
             }
         }
@@ -228,7 +229,7 @@ namespace PodCatch.DataModel
                 if (m_DownloadProgress != value)
                 {
                     m_DownloadProgress = value;
-                    NotifyPropertyChanged("DownloadProgress");
+                    NotifyPropertyChanged(() => DownloadProgress);
                 }
             }
         }
@@ -273,8 +274,10 @@ namespace PodCatch.DataModel
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public void NotifyPropertyChanged(string propertyName)
+        public void NotifyPropertyChanged<TValue>(Expression<Func<TValue>> propertyId)
         {
+            string propertyName = ((MemberExpression)propertyId.Body).Member.Name;
+
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler == null || CoreApplication.Views.Count == 0)
             {

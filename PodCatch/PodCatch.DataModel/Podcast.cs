@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -173,8 +174,8 @@ namespace PodCatch.DataModel
             { 
                 if (m_Title != value)
                 {
-                    m_Title = value; 
-                    NotifyPropertyChanged("Title"); 
+                    m_Title = value;
+                    NotifyPropertyChanged(() => Title);
                 }
             }
         }
@@ -185,8 +186,8 @@ namespace PodCatch.DataModel
             {
                 if (m_Description != value)
                 {
-                    m_Description = value; 
-                    NotifyPropertyChanged("Description"); 
+                    m_Description = value;
+                    NotifyPropertyChanged(() => Description);
                 }
             }
         }
@@ -198,8 +199,8 @@ namespace PodCatch.DataModel
             {
                 if (m_Image != value)
                 {
-                    m_Image = value; 
-                    NotifyPropertyChanged("Image");
+                    m_Image = value;
+                    NotifyPropertyChanged(() => Image);
                 }
             }
         }
@@ -222,7 +223,7 @@ namespace PodCatch.DataModel
                 if (m_numUnplayedEpisodes != value)
                 {
                     m_numUnplayedEpisodes = value;
-                    NotifyPropertyChanged("NumUnplayedEpisodes");
+                    NotifyPropertyChanged(() => NumUnplayedEpisodes);
                 }
             }
         }
@@ -381,7 +382,7 @@ namespace PodCatch.DataModel
                     ulong newFileSize = await GetCachedFileSize(localImagePath);
                     if (newFileSize != oldFileSize)
                     {
-                        NotifyPropertyChanged("Image");
+                        NotifyPropertyChanged(() => Image);
                     }
                 }
 
@@ -527,8 +528,11 @@ namespace PodCatch.DataModel
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public void NotifyPropertyChanged(string propertyName)
+
+        public void NotifyPropertyChanged<TValue>(Expression<Func<TValue>> propertyId)
         {
+            string propertyName = ((MemberExpression)propertyId.Body).Member.Name;
+
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler == null || CoreApplication.Views.Count == 0)
             {
