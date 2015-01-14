@@ -13,7 +13,7 @@ namespace PodCatch.DataModel
         {
             Podcasts = new ObservableCollection<Podcast>();
         }
-        public ObservableCollection<Podcast> Podcasts { get; private set; }
+        public ObservableCollection<Podcast> Podcasts { get; set; }
         public string Id { get; set; }
         public string TitleText { get; set; }
         public string SubtitleText { get; set; }
@@ -47,6 +47,16 @@ namespace PodCatch.DataModel
                 podcasts.Add(podcast.ToRoamingData());
             }
             return data;
+        }
+
+        public override bool Equals(object obj)
+        {
+            PodcastGroup other = obj as PodcastGroup;
+            if (other != null)
+            {
+                return other.Id == Id;
+            }
+            return false;
         }
     }
 }

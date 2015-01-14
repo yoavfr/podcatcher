@@ -35,8 +35,8 @@
         <AppBar Padding="10,0,10,0">
             <Grid>
                 <StackPanel Orientation="Horizontal">
-                    <AppBarButton Label="Add to Favorites" Icon="Add" Name="AddToFavoritesAppBarButton" Click="AddToFavoritesAppBarButtonClicked"/>
-                    <AppBarButton Label="Remove from Favorites" Icon="Remove" Name="RemoveFromFavoritesAppBarButton" Click="RemoveFromFavoritesButtonClicked"/>
+                    <AppBarButton Label="Add to Favorites" Icon="Add" Name="AddToFavoritesAppBarButton" Click="AddToFavoritesAppBarButtonClicked" IsEnabled="{Binding IsAddToFavoritesEnabled}"/>
+                    <AppBarButton Label="Remove from Favorites" Icon="Remove" Name="RemoveFromFavoritesAppBarButton" Click="RemoveFromFavoritesButtonClicked" IsEnabled="{Binding IsRemoveFromFavoritesEnabled}"/>
                     <AppBarButton Label="Refresh" Icon="Refresh" Click="RefreshButtonClicked"/>
                      <AppBarButton Label="Show more" Icon="ShowBcc" Click="ShowMoreButtonClicked"/>
                 </StackPanel>
@@ -51,8 +51,7 @@
     
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-        Name="contentGrid"
-        DataContext="{Binding Podcast}">
+        Name="contentGrid">
             <Grid.ChildrenTransitions>
                 <TransitionCollection>
                     <EntranceThemeTransition/>
@@ -101,7 +100,7 @@
                                             <!-- Title -->
                                             <TextBlock Grid.Column="1" Text="{Binding Title}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="450" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='BoldText'}"/>
                                             <!-- Description -->
-                                            <TextBlock Grid.Column="2" Text="{Binding FormattedShortDescription}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="400" Height="100" ToolTipService.ToolTip="{Binding FormattedDescription}" TextWrapping="WrapWholeWords" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding ShortDescription}" HorizontalAlignment="Left" Margin="50,0,0,0" Width="400" Height="100" ToolTipService.ToolTip="{Binding Description}" TextWrapping="WrapWholeWords" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}"/>
                                             <StackPanel Orientation="Vertical">
                                                 <StackPanel Orientation="Horizontal">
                                                     <!-- Download/Play/Pause button -->

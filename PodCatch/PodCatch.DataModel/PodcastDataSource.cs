@@ -139,8 +139,6 @@ namespace PodCatch.DataModel
                     {
                         await podcast.Load();
                         await podcast.Store();
-                        await podcast.DownloadEpisodes();
-                        await podcast.Store();
                         return true;
                     }
                     catch (Exception e)

@@ -27,14 +27,11 @@ namespace PodCatch.DataModel
         private string m_Description;
         private string m_Image;
         private IDownloadService m_DownloadService;
-        int m_numEpisodesToShow = 3;
-        int m_numUnplayedEpisodes = 0;
-        ObservableCollection<Episode> m_Episodes;
 
         public Podcast(IServiceContext serviceContext) : base(serviceContext)
         {
             m_DownloadService = serviceContext.GetService<IDownloadService>();
-            AllEpisodes = new List<Episode>();
+            Episodes = new ObservableCollection<Episode>();
         }
 
         public static Podcast FromData (IServiceContext serviceContext, PodcastData data)
@@ -44,11 +41,11 @@ namespace PodCatch.DataModel
             podcast.Description = data.Description;
             podcast.Image = data.Image;
             podcast.LastRefreshTimeTicks = data.LastRefreshTimeTicks;
-            podcast.AllEpisodes = new List<Episode>();
+            podcast.Episodes = new ObservableCollection<Episode>();
             foreach(EpisodeData episodeData in data.Episodes)
             {
                 Episode episode = Episode.FromData(serviceContext, podcast.FileName, episodeData);
-                podcast.AllEpisodes.Add(episode);
+                podcast.Episodes.Add(episode);
             }
             return podcast;
         }
@@ -58,8 +55,8 @@ namespace PodCatch.DataModel
             Podcast podcast = new Podcast(serviceContext);
             podcast.Title = data.Title;
             podcast.PodcastUri = data.Uri;
-            List<Episode> episodes = new List<Episode>();
-            podcast.AllEpisodes = episodes;
+            ObservableCollection<Episode> episodes = new ObservableCollection<Episode>();
+            podcast.Episodes = episodes;
             foreach (RoamingEpisodeData episodeData in data.RoamingEpisodesData)
             {
                 episodes.Add(Episode.FromRoamingData(serviceContext, podcast.FileName, episodeData));
@@ -78,7 +75,7 @@ namespace PodCatch.DataModel
             };
             List<EpisodeData> episodes = new List<EpisodeData>();
             data.Episodes = episodes;
-            foreach (Episode episode in AllEpisodes)
+            foreach (Episode episode in Episodes)
             {
                 episodes.Add(episode.ToData());
             }
@@ -94,7 +91,7 @@ namespace PodCatch.DataModel
             };
             List<RoamingEpisodeData> episodes = new List<RoamingEpisodeData>();
             data.RoamingEpisodesData = episodes;
-            foreach (Episode episode in AllEpisodes)
+            foreach (Episode episode in Episodes)
             {
                 // Store as little as possible in roaming settings. 
                 // If there is no Position to record or this has not been played, we can rely on the default values upon deserialization
@@ -111,41 +108,22 @@ namespace PodCatch.DataModel
         /// <summary>
         /// All the episodes of this podcast
         /// </summary>
-        public List<Episode> AllEpisodes { get; set; }
+        public ObservableCollection<Episode> Episodes { get; set; }
 
         public void AddEpisode(Episode episode)
         {
             episode.PropertyChanged += OnEpisodePropertyChanged; 
-            AllEpisodes.Add(episode);
+            Episodes.Add(episode);
         }
 
         private void OnEpisodePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Played" || e.PropertyName == "State")
             {
-                UpdateUnplayedEpisodes();
+                NotifyPropertyChanged(() => Episodes);
             }
         }
 
-        /// <summary>
-        /// Episodes that have Episode.Visible == true. Ideally we would do the filtering in a binding converter, but this is difficult in WinRT's ICollectionView
-        /// </summary>
-        public ObservableCollection<Episode> Episodes 
-        {
-            get
-            {
-                if (m_Episodes == null)
-                {
-                    m_Episodes = new ObservableCollection<Episode>(AllEpisodes.Where((episode) => episode.Visible));
-                    int i = 0;
-                    foreach (Episode episode in m_Episodes)
-                    {
-                        episode.Index = i++;
-                    }
-                }
-                return m_Episodes;
-            }
-        }
         public string Id
         {
             get
@@ -179,10 +157,11 @@ namespace PodCatch.DataModel
                 }
             }
         }
+
         public string Description
         {
             get { return m_Description; }
-            private set 
+            set 
             {
                 if (m_Description != value)
                 {
@@ -207,27 +186,6 @@ namespace PodCatch.DataModel
 
         public long LastRefreshTimeTicks { get; set; }
 
-        public void UpdateUnplayedEpisodes()
-        {
-            NumUnplayedEpisodes = AllEpisodes.Where((episode) => episode.Visible && !episode.Played && episode.IsDownloaded()).Count();
-        }
-
-        public int NumUnplayedEpisodes
-        {
-            get
-            {
-                return m_numUnplayedEpisodes;
-            }
-            private set
-            {
-                if (m_numUnplayedEpisodes != value)
-                {
-                    m_numUnplayedEpisodes = value;
-                    NotifyPropertyChanged(() => NumUnplayedEpisodes);
-                }
-            }
-        }
-
         public async Task Load()
         {
             await Task.Run(async () =>
@@ -236,7 +194,16 @@ namespace PodCatch.DataModel
                     Debug.WriteLine("Podcast.Load(): {0} from {1}", Title, localFolder.Path);
                     try
                     {
-                        StorageFile file = await localFolder.GetFileAsync(CacheFileName);
+                        StorageFile file = null;
+                        try
+                        {
+                            file = await localFolder.GetFileAsync(CacheFileName);
+
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            Debug.WriteLine("Can't find cache file {0} for podcast {1}", CacheFileName, Id);
+                        }
                         if (file != null)
                         {
                             TouchedFiles.Instance.Add(file.Path);
@@ -246,10 +213,9 @@ namespace PodCatch.DataModel
                                 Podcast readPodcast = Podcast.FromData(ServiceContext, (PodcastData)serializer.ReadObject(stream));
 
                                 await UpdateFields(readPodcast);
-                                await RefreshDisplay();
                             }
                         }
-                        await RefreshFromRss(false);
+                        await RefreshFromRss(true);
                     }
                     catch (Exception e)
                     {
@@ -263,7 +229,7 @@ namespace PodCatch.DataModel
             await Task.Run(async () =>
                 {
                     DateTime lastRefreshTime = new DateTime(LastRefreshTimeTicks);
-                    if (DateTime.UtcNow - lastRefreshTime < TimeSpan.FromHours(2) && !force && AllEpisodes.Count > 0)
+                    if (DateTime.UtcNow - lastRefreshTime < TimeSpan.FromHours(2) && !force && Episodes.Count > 0)
                     {
                         return;
                     }
@@ -302,17 +268,10 @@ namespace PodCatch.DataModel
 
                     // keep record of last update time
                     LastRefreshTimeTicks = DateTime.UtcNow.Ticks;
-                    await RefreshDisplay();
                 });
         }
 
-        private async Task RefreshDisplay()
-        {
-            AllEpisodes.Sort((a, b) => { return a.PublishDate > b.PublishDate ? -1 : 1; });
-            MarkVisibleEpisodes();
-            await DisplayEpisodes();
-            UpdateUnplayedEpisodes();
-        }
+
 
         private void ReadRssEpisodes(SyndicationFeed syndicationFeed)
         {
@@ -340,20 +299,6 @@ namespace PodCatch.DataModel
                     episode.PublishDate = publishDate;
                 }
             }
-        }
-
-        public async Task DownloadEpisodes()
-        {
-            List<Task> downloadTasks = new List<Task>();
-            MarkVisibleEpisodes();
-            foreach (Episode episode in AllEpisodes)
-            {
-                if (episode.Visible)
-                {
-                    downloadTasks.Add(episode.PostEvent(EpisodeEvent.Download));
-                }
-            }
-            await Task.WhenAll(downloadTasks);
         }
 
         private async Task LoadImage(string imageUri)
@@ -426,12 +371,12 @@ namespace PodCatch.DataModel
             }
             TouchedFiles.Instance.Add(Image);
             LastRefreshTimeTicks = fromCache.LastRefreshTimeTicks;
-            if (fromCache.AllEpisodes == null)
+            if (fromCache.Episodes == null)
             {
                 return Task.FromResult<object>(null);
             }
 
-            foreach (Episode episodeFromCache in fromCache.AllEpisodes)
+            foreach (Episode episodeFromCache in fromCache.Episodes)
             {
                 Episode episode = GetEpisodeByUri(episodeFromCache.Uri);
                 if (episode != null)
@@ -444,7 +389,7 @@ namespace PodCatch.DataModel
 
         private Episode GetEpisodeByUri(Uri uri)
         {
-            IEnumerable<Episode> found = AllEpisodes.Where((episode) => episode.Uri.Equals(uri));
+            IEnumerable<Episode> found = Episodes.Where((episode) => episode.Uri.Equals(uri));
 
             if (found.Count() > 0)
             {
@@ -467,53 +412,16 @@ namespace PodCatch.DataModel
             }
         }
 
-        public int DisplayNextEpisodes(int increment)
+        /*public int DisplayNextEpisodes(int increment)
         {
-            if (m_numEpisodesToShow >= AllEpisodes.Count())
+            if (NumEpisodesToShow >= Episodes.Count())
             {
-                return m_numEpisodesToShow;
+                return NumEpisodesToShow;
             }
-            int target = m_numEpisodesToShow + increment;
-            m_numEpisodesToShow = Math.Min(AllEpisodes.Count(), target);
-            MarkVisibleEpisodes();
-            Task t = DisplayEpisodes();
-            return m_numEpisodesToShow;
-        }
-
-        public void MarkVisibleEpisodes()
-        {
-            AllEpisodes.ForEach((episode, index) =>
-            {
-                if (index < m_numEpisodesToShow)
-                {
-                    episode.Visible = true;
-                }
-                else
-                {
-                    episode.Visible = false;
-                }
-            });
-        }
-
-        private async Task DisplayEpisodes()
-        {
-            // when not running in UI
-            if (CoreApplication.Views.Count == 0)
-            {
-                return;
-            }
-            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
-            await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-            {
-                Episodes.Clear();
-                Episodes.AddAll(AllEpisodes.Where((episode) => episode.Visible));
-                int i=0;
-                foreach(Episode episode in Episodes)
-                {
-                    episode.Index = i++;
-                }
-            });
-        }
+            int target = NumEpisodesToShow + increment;
+            NumEpisodesToShow = Math.Min(Episodes.Count(), target);
+            return NumEpisodesToShow;
+        }*/
 
         public async Task Store()
         {
@@ -531,25 +439,10 @@ namespace PodCatch.DataModel
 
         public void NotifyPropertyChanged<TValue>(Expression<Func<TValue>> propertyId)
         {
-            string propertyName = ((MemberExpression)propertyId.Body).Member.Name;
-
             PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler == null || CoreApplication.Views.Count == 0)
+            if (handler != null)
             {
-                return;
-            }
-            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
-
-            if (dispatcher.HasThreadAccess)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-            else
-            {
-                IAsyncAction t = dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    handler(this, new PropertyChangedEventArgs(propertyName));
-                });
+                handler(this, new PropertyChangedEventArgs(((MemberExpression)propertyId.Body).Member.Name));
             }
         }
 

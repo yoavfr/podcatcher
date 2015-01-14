@@ -115,6 +115,7 @@
     <Compile Include="ApplicationServiceContext.cs" />
     <Compile Include="Common\AltBackgroundConverter.cs" />
     <Compile Include="Common\EpisodePlayedStyleConverter.cs" />
+    <Compile Include="Common\ItemClickCommand.cs" />
     <Compile Include="Common\NumUnplayedEpisodesConverter.cs" />
     <Compile Include="Common\NumUnplayedEpisodesMarginConverter.cs" />
     <Compile Include="Common\PodcastUnplayedCounterVisibilityConverter.cs" />
@@ -151,6 +152,12 @@
     <Compile Include="Common\NavigationHelper.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Common\ObservableDictionary.cs" />
+    <Compile Include="Common\BaseViewModel.cs" />
+    <Compile Include="ViewModels\EpisodeViewModel.cs" />
+    <Compile Include="ViewModels\PodcastGroupViewModel.cs" />
+    <Compile Include="ViewModels\PodcastPageViewModel.cs" />
+    <Compile Include="ViewModels\PodcastSummaryViewModel.cs" />
+    <Compile Include="ViewModels\StartPageViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

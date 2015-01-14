@@ -25,7 +25,6 @@ namespace PodCatch.DataModel
         private string m_Description;
         private Uri m_Uri;
         private bool m_Played;
-        private bool m_Visible;
         public IDownloadService m_DownloadService;
 
         public Episode(IServiceContext serviceContext, string podcastFileName, Uri uri) : base(serviceContext)
@@ -113,19 +112,21 @@ namespace PodCatch.DataModel
             }
             set
             {
-                if (m_Description != value)
+                if (m_Description != value && m_Description != null)
                 {
                     m_Description = value;
-                    NotifyPropertyChanged(() => FormattedShortDescription);
+                    FormattedDescription = HtmlUtilities.ConvertToText(Description).Trim('\n', '\r', '\t', ' ');
+                    int lineLimit = FormattedDescription.IndexOfOccurence("\n", 10);
+                    if (lineLimit != -1)
+                    {
+                        FormattedShortDescription = FormattedDescription.Substring(0, lineLimit) + "\n...";
+                    }
                 }
             }
         }
 
         public DateTimeOffset PublishDate { get; set; }
         
-        // index for alternate coloring in UI
-        public int Index { get; set; }
-
         public bool Played 
         { 
             get
@@ -142,40 +143,37 @@ namespace PodCatch.DataModel
             } 
         }
 
-        public bool Visible
-        {
-            get
-            {
-                return m_Visible;
-            }
-            set
-            {
-                if (value)
-                {
-                    PostEvent(EpisodeEvent.UpdateDownloadStatus);
-                }
-                m_Visible = value;
-            }
-        }
-
+        private string m_FormattedDescription;
         public string FormattedDescription
         {
             get
+        {
+            return m_FormattedDescription;
+        }
+            set
             {
-                return HtmlUtilities.ConvertToText(Description).Trim('\n', '\r', '\t', ' ');
+                if (value != m_FormattedDescription)
+                {
+                    m_FormattedDescription = value;
+                    NotifyPropertyChanged(() => FormattedShortDescription);
+                }
             }
         }
+
+        private string m_FormattedShortDescription;
         public string FormattedShortDescription
         {
             get
             {
-                string descriptionAsPlainString = FormattedDescription;
-                int lineLimit = descriptionAsPlainString.IndexOfOccurence("\n", 10);
-                if (lineLimit != -1)
+                return m_FormattedShortDescription;
+            }
+            set
+            {
+                if (m_FormattedShortDescription != value)
                 {
-                    descriptionAsPlainString = descriptionAsPlainString.Substring(0, lineLimit) + "\n...";
+                    m_FormattedShortDescription = value;
+                    NotifyPropertyChanged(() => FormattedShortDescription);
                 }
-                return descriptionAsPlainString;
             }
         }
 
@@ -194,6 +192,7 @@ namespace PodCatch.DataModel
                 }
             }
         }
+
         public TimeSpan Duration
         {
             get
@@ -246,6 +245,17 @@ namespace PodCatch.DataModel
         public async Task<StorageFolder> GetStorageFolder()
         {
             return await Windows.Storage.KnownFolders.MusicLibrary.CreateFolderAsync(Constants.ApplicationName, CreationCollisionOption.OpenIfExists);
+        }
+
+        public async Task Download()
+        {
+            await UpdateDownloadStatus();
+            PostEvent(EpisodeEvent.Download);
+        }
+
+        public Task UpdateDownloadStatus()
+        {
+            return PostEvent(EpisodeEvent.UpdateDownloadStatus);
         }
 
         public async Task<StorageFile> GetStorageFile()
@@ -303,6 +313,8 @@ namespace PodCatch.DataModel
             return !(m_StateMachine.State is EpisodeStateDownloading ||
                 m_StateMachine.State is EpisodeStatePendingDownload);
         }
+
+     
 
         public Task<IState<Episode, EpisodeEvent>> PostEvent(EpisodeEvent anEvent)
         {

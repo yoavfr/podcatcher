@@ -49,6 +49,7 @@
     <Compile Include="Data\EpisodeData.cs" />
     <Compile Include="Data\PodcastData.cs" />
     <Compile Include="Data\PodcastGroupData.cs" />
+    <Compile Include="DesignTimePodcastDataSource.cs" />
     <Compile Include="Downloader.cs" />
     <Compile Include="DownloadService.cs" />
     <Compile Include="Episode.cs" />

@@ -1,5 +1,6 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
+using PodCatch.ViewModels;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace PodCatch
     public sealed partial class PodcastPage : Page
     {
         private NavigationHelper navigationHelper;
-        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        PodcastPageViewModel m_ViewModel;
 
         private IServiceContext m_ServiceContext;
         private IPodcastDataSource m_PodcastDataSource; 
@@ -47,54 +48,26 @@ namespace PodCatch
         /// <summary>
         /// This can be changed to a strongly typed view model.
         /// </summary>
-        public ObservableDictionary DefaultViewModel
+        public PodcastPageViewModel DefaultViewModel
         {
-            get { return this.defaultViewModel; }
+            get 
+            { 
+                if (m_ViewModel == null)
+                {
+                    m_ViewModel = new PodcastPageViewModel(this, m_ServiceContext);
+                }
+                return m_ViewModel; 
+            }
         }
 
         public PodcastPage()
         {
-            this.InitializeComponent();
             m_ServiceContext = ApplicationServiceContext.Instance;
+            this.InitializeComponent();
             m_PodcastDataSource = m_ServiceContext.GetService<IPodcastDataSource>();
             this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
+            this.navigationHelper.LoadState += m_ViewModel.OnLoadState;
         }
-
-        /// <summary>
-        /// Populates the page with content passed during navigation.  Any saved state is also
-        /// provided when recreating a page from a prior session.
-        /// </summary>
-        /// <param name="sender">
-        /// The source of the event; typically <see cref="NavigationHelper"/>
-        /// </param>
-        /// <param name="e">Event data that provides both the navigation parameter passed to
-        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
-        /// a dictionary of state preserved by this page during an earlier
-        /// session.  The state will be null the first time a page is visited.</param>
-        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
-        {
-            Podcast podcast = m_PodcastDataSource.GetPodcast((String)e.NavigationParameter);  
-            if (podcast == null)
-            {
-                return;
-            }
-            this.DefaultViewModel["Podcast"] = podcast;
-            this.DefaultViewModel["Episodes"] = podcast.Episodes;
-
-            bool inFavorites = m_PodcastDataSource.IsPodcastInFavorites(podcast);
-            if (inFavorites)
-            {
-                AddToFavoritesAppBarButton.IsEnabled = false;
-                RemoveFromFavoritesAppBarButton.IsEnabled = true;
-            }
-            else
-            {
-                AddToFavoritesAppBarButton.IsEnabled = true;
-                RemoveFromFavoritesAppBarButton.IsEnabled = false;
-            }
-        }
-
 
 
         #region NavigationHelper registration
@@ -124,28 +97,29 @@ namespace PodCatch
         private void RemoveFromFavoritesButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
-            m_PodcastDataSource.RemoveFromFavorites((Podcast)DefaultViewModel["Podcast"]);
+            m_ViewModel.RemoveFromFavorites();
             NavigationHelper.GoBack();
         }
         private async void AddToFavoritesAppBarButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
-            await m_PodcastDataSource.AddToFavorites((Podcast)DefaultViewModel["Podcast"]);
+            await m_ViewModel.AddToFavorites();
             NavigationHelper.GoBack();
         }
 
         private void PlayButton_Clicked (object sender, RoutedEventArgs e)
         {
             AppBarButton playButton = (AppBarButton)sender;
-            Episode episode = (Episode)playButton.DataContext;
+            EpisodeViewModel episode = (EpisodeViewModel)playButton.DataContext;
             TogglePlayState(episode);
         }
 
-        private void TogglePlayState(Episode episode)
+        private void TogglePlayState(EpisodeViewModel episodeViewModel)
         {
+            Episode episode = episodeViewModel.Data;
             if (episode.State is EpisodeStatePendingDownload)
             {
-                episode.PostEvent(EpisodeEvent.Download);
+                episode.Download();
             }
             else if (episode.State is EpisodeStateDownloaded)
             {
@@ -197,15 +171,14 @@ namespace PodCatch
         private void ShowMoreButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
-            Podcast podcastDataItem = (Podcast)DefaultViewModel["Podcast"];
-            podcastDataItem.DisplayNextEpisodes(10);
+            //m_ViewModel.Podcast.Data.DisplayNextEpisodes(10);
         }
 
         private async void RefreshButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
             MessageDialog dlg = null;
-            Podcast podcastDataItem = (Podcast)DefaultViewModel["Podcast"];
+            Podcast podcastDataItem = m_ViewModel.Podcast;
             try
             {
                 await podcastDataItem.RefreshFromRss(true);
@@ -225,7 +198,7 @@ namespace PodCatch
         {
             e.Handled = true;
 
-            Episode selectedEpisode = (Episode)((Grid)sender).DataContext;
+            EpisodeViewModel selectedEpisode = (EpisodeViewModel)((Grid)sender).DataContext;
             
             PopupMenu popupMenu = new PopupMenu();
             if (selectedEpisode.Played)
@@ -237,7 +210,7 @@ namespace PodCatch
                 popupMenu.Commands.Add(new UICommand() { Id = 2, Label = "Mark as played" });
             }
 
-            if (selectedEpisode.State is EpisodeStateDownloaded)
+            if (selectedEpisode.Data.State is EpisodeStateDownloaded)
             {
                 popupMenu.Commands.Add(new UICommand() { Id = 3, Label = "Download again" });
             }
@@ -259,7 +232,7 @@ namespace PodCatch
                         await m_PodcastDataSource.Store();
                         break;
                     case 3:
-                        Task t = selectedEpisode.PostEvent(EpisodeEvent.Refresh);
+                        Task t = selectedEpisode.Data.PostEvent(EpisodeEvent.Refresh);
                         break;
                 }
             }
@@ -271,7 +244,7 @@ namespace PodCatch
 
         private void episodesListView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            Episode episode = (Episode)e.ClickedItem;
+            EpisodeViewModel episode = (EpisodeViewModel)e.ClickedItem;
             TogglePlayState(episode);
         }
     }
