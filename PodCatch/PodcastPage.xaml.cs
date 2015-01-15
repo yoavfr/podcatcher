@@ -160,11 +160,11 @@ namespace PodCatch
         private void PlayEpisodeSlider_PointerCaptureLost(object sender, PointerRoutedEventArgs e)
         {
             Slider slider = (Slider)sender;
-            Episode episode = (Episode)slider.DataContext;
-            if (MediaPlayer.IsEpisodePlaying(episode))
+            EpisodeViewModel episode = (EpisodeViewModel)slider.DataContext;
+            if (MediaPlayer.IsEpisodePlaying(episode.Data))
             {
                 MediaPlayer.Position = TimeSpan.FromTicks((long)slider.Value);
-                episode.PostEvent(EpisodeEvent.Play);
+                episode.Data.PostEvent(EpisodeEvent.Play);
             }
         }
 
