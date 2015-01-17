@@ -1,4 +1,5 @@
 ﻿using PodCatch.Common;
+using PodCatch.Common.Collections;
 using PodCatch.DataModel.Data;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,9 +12,9 @@ namespace PodCatch.DataModel
     {
         public PodcastGroup(IServiceContext serviceContext) : base (serviceContext)
         {
-            Podcasts = new ObservableCollection<Podcast>();
+            Podcasts = new ObservableConcurrentCollection<Podcast>();
         }
-        public ObservableCollection<Podcast> Podcasts { get; set; }
+        public ObservableConcurrentCollection<Podcast> Podcasts { get; set; }
         public string Id { get; set; }
         public string TitleText { get; set; }
         public string SubtitleText { get; set; }
@@ -25,7 +26,7 @@ namespace PodCatch.DataModel
             {
                 Id = data.Id
             };
-            group.Podcasts = new ObservableCollection<Podcast>();
+            group.Podcasts = new ObservableConcurrentCollection<Podcast>();
             foreach (RoamingPodcastData podcastData in data.RoamingPodcastsData)
             {
                 group.Podcasts.Add(Podcast.FromRoamingData(serviceContext, podcastData));
@@ -57,6 +58,11 @@ namespace PodCatch.DataModel
                 return other.Id == Id;
             }
             return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
         }
     }
 }

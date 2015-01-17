@@ -24,7 +24,6 @@ namespace PodCatch.DataModel
         private IStateMachine<Episode, EpisodeEvent> m_StateMachine;
         private string m_Title;
         private string m_Description;
-        private Uri m_Uri;
         private bool m_Played;
         public IDownloadService m_DownloadService;
 
@@ -261,15 +260,33 @@ namespace PodCatch.DataModel
 
         public async Task<StorageFile> GetStorageFile()
         {
-            var folder = await GetStorageFolder();
+            var storageFolder = await GetStorageFolder();
             try
             {
-                var files = await folder.GetFilesAsync();
+                var folders = await storageFolder.GetFoldersAsync();
+                var podcastFolder = folders.FirstOrDefault(f => f.Name == PodcastFileName);
+                if (podcastFolder == null)
+                {
+                    return null;
+                }
+                var files = await podcastFolder.GetFilesAsync();
                 return files.FirstOrDefault(f => f.Name == FileName);
             }
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        public string FolderAndFileName
+        {
+            get
+            {
+                if (Uri == null || PodcastFileName == null)
+                {
+                    return null;
+                }
+                return System.IO.Path.Combine(PodcastFileName, FileName);
             }
         }
 
@@ -281,7 +298,7 @@ namespace PodCatch.DataModel
                 {
                     return null;
                 }
-                return System.IO.Path.Combine(PodcastFileName, Path.GetFileName(Uri.AbsolutePath.ToString()));
+                return Path.GetFileName(Uri.AbsolutePath.ToString());
             }
         }
 

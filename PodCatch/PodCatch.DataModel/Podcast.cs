@@ -1,4 +1,5 @@
 ﻿using PodCatch.Common;
+using PodCatch.Common.Collections;
 using PodCatch.DataModel.Data;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ namespace PodCatch.DataModel
         public Podcast(IServiceContext serviceContext) : base(serviceContext)
         {
             m_DownloadService = serviceContext.GetService<IDownloadService>();
-            Episodes = new ObservableCollection<Episode>();
+            Episodes = new ObservableConcurrentCollection<Episode>();
         }
 
         public static Podcast FromData (IServiceContext serviceContext, PodcastData data)
@@ -41,7 +42,7 @@ namespace PodCatch.DataModel
             podcast.Description = data.Description;
             podcast.Image = data.Image;
             podcast.LastRefreshTimeTicks = data.LastRefreshTimeTicks;
-            podcast.Episodes = new ObservableCollection<Episode>();
+            podcast.Episodes = new ObservableConcurrentCollection<Episode>();
             foreach(EpisodeData episodeData in data.Episodes)
             {
                 Episode episode = Episode.FromData(serviceContext, podcast.FileName, episodeData);
@@ -55,7 +56,7 @@ namespace PodCatch.DataModel
             Podcast podcast = new Podcast(serviceContext);
             podcast.Title = data.Title;
             podcast.PodcastUri = data.Uri;
-            ObservableCollection<Episode> episodes = new ObservableCollection<Episode>();
+            ObservableConcurrentCollection<Episode> episodes = new ObservableConcurrentCollection<Episode>();
             podcast.Episodes = episodes;
             foreach (RoamingEpisodeData episodeData in data.RoamingEpisodesData)
             {
@@ -108,7 +109,7 @@ namespace PodCatch.DataModel
         /// <summary>
         /// All the episodes of this podcast
         /// </summary>
-        public ObservableCollection<Episode> Episodes { get; set; }
+        public ObservableConcurrentCollection<Episode> Episodes { get; set; }
 
         public void AddEpisode(Episode episode)
         {

@@ -1,4 +1,5 @@
 ﻿using PodCatch.Common;
+using PodCatch.Common.Collections;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -37,7 +38,7 @@ namespace PodCatch.DataModel
                 };
                 PodcastGroup group = new PodcastGroup(ServiceContext)
                 {
-                    Podcasts = new ObservableCollection<Podcast>() { podcast },
+                    Podcasts = new ObservableConcurrentCollection<Podcast>() { podcast },
                     Id = "Favorites",
                     TitleText = "Favorites"
                 };

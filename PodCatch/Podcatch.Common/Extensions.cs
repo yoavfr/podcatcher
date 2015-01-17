@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -59,6 +60,23 @@ namespace PodCatch.Common
                     collection.Remove(element);
                     return;
                 }
+            }
+        }
+
+        public static void Clear<T>(this ConcurrentBag<T> bag)
+        {
+            T element;
+            while (!bag.IsEmpty)
+            {
+                bag.TryTake(out element);
+            }
+        }
+
+        public static void AddAll<T>(this ConcurrentBag<T> bag, IEnumerable<T> elements)
+        {
+            foreach(T element in elements)
+            {
+                bag.Add(element);
             }
         }
     }

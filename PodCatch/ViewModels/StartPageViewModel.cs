@@ -63,7 +63,7 @@ namespace PodCatch.ViewModels
             }
             catch (Exception ex)
             {
-                Tracer.TraceError("Error registering background task");
+                Tracer.TraceError("Error registering background task: {0}", ex);
             }
         }
 

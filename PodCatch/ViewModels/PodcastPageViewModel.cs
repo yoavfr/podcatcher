@@ -1,10 +1,10 @@
 ﻿using PodCatch.Common;
+using PodCatch.Common.Collections;
 using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Popups;
@@ -16,6 +16,7 @@ namespace PodCatch.ViewModels
         private PodcastPage m_View;
         private RelayCommand m_RefreshCommand;
         private RelayCommand m_ShowMoreCommand;
+
         private MediaElementWrapper MediaPlayer
         {
             get
@@ -25,10 +26,12 @@ namespace PodCatch.ViewModels
         }
 
         public Podcast Podcast { get; set; }
+
         private ObservableCollection<EpisodeViewModel> m_Episodes = new ObservableCollection<EpisodeViewModel>();
         private int m_NumEpisodesToShow = 10;
 
         private string m_Image;
+
         public string Image
         {
             get { return m_Image; }
@@ -43,6 +46,7 @@ namespace PodCatch.ViewModels
         }
 
         private string m_Description;
+
         public string Description
         {
             get { return m_Description; }
@@ -57,6 +61,7 @@ namespace PodCatch.ViewModels
         }
 
         private string m_Title;
+
         public string Title
         {
             get { return m_Title; }
@@ -71,6 +76,7 @@ namespace PodCatch.ViewModels
         }
 
         private int m_NumUnplayedEpisodes;
+
         public int NumUnplayedEpisodes
         {
             get
@@ -87,8 +93,8 @@ namespace PodCatch.ViewModels
             }
         }
 
-
         private Collection<Episode> m_AllEpisodes = new ObservableCollection<Episode>();
+
         private Collection<Episode> AllEpisodes
         {
             get
@@ -107,7 +113,7 @@ namespace PodCatch.ViewModels
                 return m_Episodes;
             }
         }
-       
+
         public PodcastPageViewModel(PodcastPage podcastPage, IServiceContext serviceContext)
             : base(serviceContext.GetService<IPodcastDataSource>(), serviceContext)
         {
@@ -138,7 +144,7 @@ namespace PodCatch.ViewModels
             UpdateFields();
         }
 
-        void OnEpisodesChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void OnEpisodesChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             UpdateAllEpisodes();
         }
@@ -168,34 +174,43 @@ namespace PodCatch.ViewModels
             UpdateVisibleEpisodes();
         }
 
-
         private void UpdateVisibleEpisodes()
         {
-            m_Episodes.Clear();
-            int i = 0;
-            foreach (Episode episode in AllEpisodes)
-            {
-                if (i >= m_NumEpisodesToShow)
+            UIThread.Dispatch(() =>
                 {
-                    break;
-                }
-                EpisodeViewModel viewModel = new EpisodeViewModel(episode, ServiceContext);
-                viewModel.Index = i++;
-                viewModel.Data.UpdateDownloadStatus();
-                m_Episodes.Add(viewModel);
+                    m_Episodes.Clear();
+                    int i = 0;
+                    foreach (Episode episode in AllEpisodes)
+                    {
+                        if (i >= m_NumEpisodesToShow)
+                        {
+                            break;
+                        }
+                        EpisodeViewModel viewModel = new EpisodeViewModel(episode, ServiceContext);
+                        viewModel.Index = i++;
+                        viewModel.Data.UpdateDownloadStatus();
+                        m_Episodes.Add(viewModel);
+                    }
+
+                });
+        }
+
+        public bool IsAddToFavoritesEnabled
+        {
+            get
+            {
+                bool inFavorites = Data.IsPodcastInFavorites(Podcast);
+                return !inFavorites;
             }
         }
 
-        public bool IsAddToFavoritesEnabled()
+        public bool IsRemoveFromFavoritesEnabled
         {
-            bool inFavorites = Data.IsPodcastInFavorites(Podcast);
-            return !inFavorites;
-        }
-
-        public bool IsRemoveFromFavoritesEnabled()
-        {
-            bool inFavorites = Data.IsPodcastInFavorites(Podcast);
-            return inFavorites;
+            get
+            {
+                bool inFavorites = Data.IsPodcastInFavorites(Podcast);
+                return inFavorites;
+            }
         }
 
         public void RemoveFromFavorites()
@@ -210,7 +225,6 @@ namespace PodCatch.ViewModels
 
         public async void ExecuteEpisodeRightClickedCommand(EpisodeViewModel episode, Point point)
         {
-
             PopupMenu popupMenu = new PopupMenu();
             if (episode.Played)
             {
@@ -238,10 +252,12 @@ namespace PodCatch.ViewModels
                         episode.Played = false;
                         await Data.Store();
                         break;
+
                     case 2:
                         episode.Played = true;
                         await Data.Store();
                         break;
+
                     case 3:
                         Task t = episode.Data.PostEvent(EpisodeEvent.Refresh);
                         break;
@@ -251,7 +267,6 @@ namespace PodCatch.ViewModels
             {
                 Tracer.TraceError("PodcastPage.xaml.Grid_RightTapped() - Error occured displaying popup menu {0}", ex);
             }
-
         }
 
         public void TogglePlayState(EpisodeViewModel episodeViewModel)
@@ -323,6 +338,23 @@ namespace PodCatch.ViewModels
         {
             m_NumEpisodesToShow += 10;
             UpdateVisibleEpisodes();
+        }
+
+        public void ExecuteReleaseSliderCommand(EpisodeViewModel episode, long sliderValue)
+        {
+            if (MediaPlayer.IsEpisodePlaying(episode.Data))
+            {
+                MediaPlayer.Position = TimeSpan.FromTicks(sliderValue);
+                episode.Data.PostEvent(EpisodeEvent.Play);
+            }
+        }
+
+        public void ExecuteManipulateSliderCommand(EpisodeViewModel episode)
+        {
+            if (MediaPlayer.IsEpisodePlaying(episode.Data))
+            {
+                episode.Data.PostEvent(EpisodeEvent.Scan);
+            }
         }
     }
 }

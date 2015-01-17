@@ -25,17 +25,8 @@ namespace PodCatch
     {
         private NavigationHelper navigationHelper;
         PodcastPageViewModel m_ViewModel;
-
         private IServiceContext m_ServiceContext;
-        private IPodcastDataSource m_PodcastDataSource; 
 
-        private MediaElementWrapper MediaPlayer
-        {
-            get
-            {
-                return MediaElementWrapper.Instance;
-            }
-        }
         /// <summary>
         /// NavigationHelper is used on each page to aid in navigation and 
         /// process lifetime management
@@ -64,7 +55,6 @@ namespace PodCatch
         {
             m_ServiceContext = ApplicationServiceContext.Instance;
             this.InitializeComponent();
-            m_PodcastDataSource = m_ServiceContext.GetService<IPodcastDataSource>();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += m_ViewModel.OnLoadState;
         }
@@ -117,33 +107,25 @@ namespace PodCatch
         private void PlayEpisodeSlider_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
         {
             Slider slider = (Slider)sender;
-            Episode episode = (Episode)slider.DataContext;
-            if (MediaPlayer.IsEpisodePlaying(episode))
-            {
-                episode.PostEvent(EpisodeEvent.Scan);
-            }
+            EpisodeViewModel episode = (EpisodeViewModel)slider.DataContext;
+            m_ViewModel.ExecuteManipulateSliderCommand(episode);
         }
 
         private void PlayEpisodeSlider_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
             Slider slider = (Slider)sender;
-            Episode episode = (Episode)slider.DataContext;
-            if (MediaPlayer.IsEpisodePlaying(episode))
-            {
-                episode.PostEvent(EpisodeEvent.Play);
-                MediaPlayer.Position = TimeSpan.FromTicks((long)slider.Value);
-            }
+            EpisodeViewModel episode = (EpisodeViewModel)slider.DataContext;
+            long sliderValue = (long)slider.Value;
+            m_ViewModel.ExecuteReleaseSliderCommand(episode, sliderValue);
         }
 
         private void PlayEpisodeSlider_PointerCaptureLost(object sender, PointerRoutedEventArgs e)
         {
             Slider slider = (Slider)sender;
             EpisodeViewModel episode = (EpisodeViewModel)slider.DataContext;
-            if (MediaPlayer.IsEpisodePlaying(episode.Data))
-            {
-                MediaPlayer.Position = TimeSpan.FromTicks((long)slider.Value);
-                episode.Data.PostEvent(EpisodeEvent.Play);
-            }
+            long sliderValue = (long)slider.Value;
+            m_ViewModel.ExecuteReleaseSliderCommand(episode, sliderValue);
+
         }
 
         private void ShowMoreButtonClicked(object sender, RoutedEventArgs e)
@@ -151,7 +133,7 @@ namespace PodCatch
             BottomAppBar.IsOpen = false;
         }
 
-        private async void Grid_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        private void Grid_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             e.Handled = true;
             EpisodeViewModel selectedEpisode = (EpisodeViewModel)((Grid)sender).DataContext;
