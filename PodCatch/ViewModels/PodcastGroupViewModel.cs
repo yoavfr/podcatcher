@@ -3,6 +3,7 @@ using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,7 +32,7 @@ namespace PodCatch.ViewModels
             podcastGroup.Podcasts.CollectionChanged += OnPodcastsChanged;
         }
 
-        void OnPodcastsChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        void OnPodcastsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             UpdatePodcasts();
         }
@@ -45,14 +46,14 @@ namespace PodCatch.ViewModels
             UpdatePodcasts();
         }
 
-        private async Task UpdatePodcasts()
+        private void UpdatePodcasts()
         {
             CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
-            await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-            {
-                Podcasts.Clear();
-                Podcasts.AddAll(Data.Podcasts.Select((podcast) => new PodcastSummaryViewModel(podcast, ServiceContext)));
-            });
+            UIThread.Dispatch(() =>
+                {
+                    Podcasts.Clear();
+                    Podcasts.AddAll(Data.Podcasts.Select((podcast) => new PodcastSummaryViewModel(podcast, ServiceContext)));
+                });
         }
     }
 }

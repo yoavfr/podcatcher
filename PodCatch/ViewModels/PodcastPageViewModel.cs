@@ -6,12 +6,24 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Foundation;
+using Windows.UI.Popups;
 
 namespace PodCatch.ViewModels
 {
     public class PodcastPageViewModel : BaseViewModel<IPodcastDataSource>
     {
         private PodcastPage m_View;
+        private RelayCommand m_RefreshCommand;
+        private RelayCommand m_ShowMoreCommand;
+        private MediaElementWrapper MediaPlayer
+        {
+            get
+            {
+                return MediaElementWrapper.Instance;
+            }
+        }
+
         public Podcast Podcast { get; set; }
         private ObservableCollection<EpisodeViewModel> m_Episodes = new ObservableCollection<EpisodeViewModel>();
         private int m_NumEpisodesToShow = 10;
@@ -194,6 +206,123 @@ namespace PodCatch.ViewModels
         public Task AddToFavorites()
         {
             return Data.AddToFavorites(Podcast);
+        }
+
+        public async void ExecuteEpisodeRightClickedCommand(EpisodeViewModel episode, Point point)
+        {
+
+            PopupMenu popupMenu = new PopupMenu();
+            if (episode.Played)
+            {
+                popupMenu.Commands.Add(new UICommand() { Id = 1, Label = "Mark as unplayed" });
+            }
+            else
+            {
+                popupMenu.Commands.Add(new UICommand() { Id = 2, Label = "Mark as played" });
+            }
+
+            if (episode.Data.State is EpisodeStateDownloaded)
+            {
+                popupMenu.Commands.Add(new UICommand() { Id = 3, Label = "Download again" });
+            }
+            try
+            {
+                IUICommand selectedCommand = await popupMenu.ShowAsync(point);
+                if (selectedCommand == null)
+                {
+                    return;
+                }
+                switch ((int)selectedCommand.Id)
+                {
+                    case 1:
+                        episode.Played = false;
+                        await Data.Store();
+                        break;
+                    case 2:
+                        episode.Played = true;
+                        await Data.Store();
+                        break;
+                    case 3:
+                        Task t = episode.Data.PostEvent(EpisodeEvent.Refresh);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Tracer.TraceError("PodcastPage.xaml.Grid_RightTapped() - Error occured displaying popup menu {0}", ex);
+            }
+
+        }
+
+        public void TogglePlayState(EpisodeViewModel episodeViewModel)
+        {
+            Episode episode = episodeViewModel.Data;
+            if (episode.State is EpisodeStatePendingDownload)
+            {
+                episode.Download();
+            }
+            else if (episode.State is EpisodeStateDownloaded)
+            {
+                if (episode.Played)
+                {
+                    episode.Position = TimeSpan.FromSeconds(0);
+                    episode.Played = false;
+                }
+                Task t = MediaPlayer.Play(episode);
+            }
+            else if (episode.State is EpisodeStatePlaying)
+            {
+                MediaPlayer.Pause(episode);
+            }
+        }
+
+        public RelayCommand RefreshCommand
+        {
+            get
+            {
+                if (m_RefreshCommand == null)
+                {
+                    m_RefreshCommand = new RelayCommand(ExecuteRefreshCommand);
+                }
+                return m_RefreshCommand;
+            }
+        }
+
+        private async void ExecuteRefreshCommand()
+        {
+            MessageDialog dlg = null;
+            Podcast podcastDataItem = Podcast;
+            try
+            {
+                await podcastDataItem.RefreshFromRss(true);
+                await podcastDataItem.Store();
+            }
+            catch (Exception ex)
+            {
+                dlg = new MessageDialog(string.Format("Unable to refresh {0}. {1}", podcastDataItem.Title, ex.Message));
+            }
+            if (dlg != null)
+            {
+                await dlg.ShowAsync();
+            }
+        }
+
+        public RelayCommand ShowMoreCommand
+        {
+            get
+            {
+                if (m_ShowMoreCommand == null)
+                {
+                    m_ShowMoreCommand = new RelayCommand(ExecuteShowMoreCommand);
+                }
+                return m_ShowMoreCommand;
+            }
+        }
+
+        private void ExecuteShowMoreCommand()
+        {
+            m_NumEpisodesToShow += 10;
+            UpdateVisibleEpisodes();
         }
     }
 }

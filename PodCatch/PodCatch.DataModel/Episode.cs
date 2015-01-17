@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -263,7 +264,8 @@ namespace PodCatch.DataModel
             var folder = await GetStorageFolder();
             try
             {
-                return await folder.GetFileAsync(FileName);
+                var files = await folder.GetFilesAsync();
+                return files.FirstOrDefault(f => f.Name == FileName);
             }
             catch (Exception)
             {

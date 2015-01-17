@@ -37,8 +37,8 @@
                 <StackPanel Orientation="Horizontal">
                     <AppBarButton Label="Add to Favorites" Icon="Add" Name="AddToFavoritesAppBarButton" Click="AddToFavoritesAppBarButtonClicked" IsEnabled="{Binding IsAddToFavoritesEnabled}"/>
                     <AppBarButton Label="Remove from Favorites" Icon="Remove" Name="RemoveFromFavoritesAppBarButton" Click="RemoveFromFavoritesButtonClicked" IsEnabled="{Binding IsRemoveFromFavoritesEnabled}"/>
-                    <AppBarButton Label="Refresh" Icon="Refresh" Click="RefreshButtonClicked"/>
-                     <AppBarButton Label="Show more" Icon="ShowBcc" Click="ShowMoreButtonClicked"/>
+                    <AppBarButton Label="Refresh" Icon="Refresh" Click="RefreshButtonClicked" Command="{Binding RefreshCommand}"/>
+                     <AppBarButton Label="Show more" Icon="ShowBcc" Click="ShowMoreButtonClicked" Command="{Binding ShowMoreCommand}"/>
                 </StackPanel>
             </Grid>
         </AppBar>

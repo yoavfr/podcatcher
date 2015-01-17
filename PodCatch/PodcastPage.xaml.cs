@@ -111,29 +111,7 @@ namespace PodCatch
         {
             AppBarButton playButton = (AppBarButton)sender;
             EpisodeViewModel episode = (EpisodeViewModel)playButton.DataContext;
-            TogglePlayState(episode);
-        }
-
-        private void TogglePlayState(EpisodeViewModel episodeViewModel)
-        {
-            Episode episode = episodeViewModel.Data;
-            if (episode.State is EpisodeStatePendingDownload)
-            {
-                episode.Download();
-            }
-            else if (episode.State is EpisodeStateDownloaded)
-            {
-                if (episode.Played)
-                {
-                    episode.Position = TimeSpan.FromSeconds(0);
-                    episode.Played = false;
-                }
-                Task t = MediaPlayer.Play(episode);
-            }
-            else if (episode.State is EpisodeStatePlaying)
-            {
-                MediaPlayer.Pause(episode);
-            }
+            m_ViewModel.TogglePlayState(episode);
         }
 
         private void PlayEpisodeSlider_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
@@ -171,81 +149,25 @@ namespace PodCatch
         private void ShowMoreButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
-            //m_ViewModel.Podcast.Data.DisplayNextEpisodes(10);
-        }
-
-        private async void RefreshButtonClicked(object sender, RoutedEventArgs e)
-        {
-            BottomAppBar.IsOpen = false;
-            MessageDialog dlg = null;
-            Podcast podcastDataItem = m_ViewModel.Podcast;
-            try
-            {
-                await podcastDataItem.RefreshFromRss(true);
-                await podcastDataItem.Store();
-            }
-            catch (Exception ex)
-            {
-                dlg = new MessageDialog(string.Format("Unable to refresh {0}. {1}", podcastDataItem.Title, ex.Message));
-            }
-            if (dlg != null) 
-            {
-                await dlg.ShowAsync();
-            }
         }
 
         private async void Grid_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             e.Handled = true;
-
             EpisodeViewModel selectedEpisode = (EpisodeViewModel)((Grid)sender).DataContext;
-            
-            PopupMenu popupMenu = new PopupMenu();
-            if (selectedEpisode.Played)
-            {
-                popupMenu.Commands.Add(new UICommand() { Id = 1, Label = "Mark as unplayed" });
-            }
-            else
-            {
-                popupMenu.Commands.Add(new UICommand() { Id = 2, Label = "Mark as played" });
-            }
-
-            if (selectedEpisode.Data.State is EpisodeStateDownloaded)
-            {
-                popupMenu.Commands.Add(new UICommand() { Id = 3, Label = "Download again" });
-            }
-            try
-            {
-                IUICommand selectedCommand = await popupMenu.ShowAsync(e.GetPosition(this));
-                if (selectedCommand == null)
-                {
-                    return;
-                }
-                switch ((int)selectedCommand.Id)
-                {
-                    case 1:
-                        selectedEpisode.Played = false;
-                        await m_PodcastDataSource.Store();
-                        break;
-                    case 2:
-                        selectedEpisode.Played = true;
-                        await m_PodcastDataSource.Store();
-                        break;
-                    case 3:
-                        Task t = selectedEpisode.Data.PostEvent(EpisodeEvent.Refresh);
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("PodcastPage.xaml.Grid_RightTapped() - Error occured displaying popup menu {0}", ex);
-            }
+            Point point = e.GetPosition(this);
+            m_ViewModel.ExecuteEpisodeRightClickedCommand(selectedEpisode, point);
         }
 
         private void episodesListView_ItemClick(object sender, ItemClickEventArgs e)
         {
             EpisodeViewModel episode = (EpisodeViewModel)e.ClickedItem;
-            TogglePlayState(episode);
+            m_ViewModel.TogglePlayState(episode);
+        }
+
+        private void RefreshButtonClicked(object sender, RoutedEventArgs e)
+        {
+            BottomAppBar.IsOpen = false;
         }
     }
 }

@@ -26,13 +26,13 @@ namespace PodCatch.Common
                 {
                     ((INotifyPropertyChanged)data).PropertyChanged += OnDataPropertyChanged;
                 }
-                UpdateFields();
+                UIThread.Dispatch(() => UpdateFields());
             }
         }
 
         protected void OnDataPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            UpdateFields();
+            UIThread.Dispatch(() => UpdateFields());
         }
 
         protected abstract void UpdateFields();
@@ -47,19 +47,7 @@ namespace PodCatch.Common
             {
                 return;
             }
-            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
-
-            if (dispatcher.HasThreadAccess)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-            else
-            {
-                IAsyncAction t = dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    handler(this, new PropertyChangedEventArgs(propertyName));
-                });
-            }
+            UIThread.Dispatch(() => handler(this, new PropertyChangedEventArgs(propertyName)));
         }
     }
 }

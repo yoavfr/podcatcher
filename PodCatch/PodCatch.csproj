@@ -129,6 +129,7 @@
     <Compile Include="Common\EpisodeStateToolTipConverter.cs" />
     <Compile Include="Common\EpisodeStateIconConverter.cs" />
     <Compile Include="Common\InverseBooleanConverter.cs" />
+    <Compile Include="Common\UIThread.cs" />
     <Compile Include="Common\VisualTreeHelperExt.cs" />
     <Compile Include="BackgroundTask.cs" />
     <Compile Include="InputMessageDialog.xaml.cs">
