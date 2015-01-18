@@ -189,87 +189,82 @@ namespace PodCatch.DataModel
 
         public async Task Load()
         {
-            await Task.Run(async () =>
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            Debug.WriteLine("Podcast.Load(): {0} from {1}", Title, localFolder.Path);
+            try
+            {
+                StorageFile file = null;
+                try
                 {
-                    StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-                    Debug.WriteLine("Podcast.Load(): {0} from {1}", Title, localFolder.Path);
-                    try
-                    {
-                        StorageFile file = null;
-                        try
-                        {
-                            file = await localFolder.GetFileAsync(CacheFileName);
+                    file = await localFolder.GetFileAsync(CacheFileName);
 
-                        }
-                        catch (FileNotFoundException)
-                        {
-                            Debug.WriteLine("Can't find cache file {0} for podcast {1}", CacheFileName, Id);
-                        }
-                        if (file != null)
-                        {
-                            TouchedFiles.Instance.Add(file.Path);
-                            using (Stream stream = await file.OpenStreamForReadAsync())
-                            {
-                                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PodcastData));
-                                Podcast readPodcast = Podcast.FromData(ServiceContext, (PodcastData)serializer.ReadObject(stream));
-
-                                await UpdateFields(readPodcast);
-                            }
-                        }
-                        await RefreshFromRss(true);
-                    }
-                    catch (Exception e)
+                }
+                catch (FileNotFoundException)
+                {
+                    Debug.WriteLine("Can't find cache file {0} for podcast {1}", CacheFileName, Id);
+                }
+                if (file != null)
+                {
+                    TouchedFiles.Instance.Add(file.Path);
+                    using (Stream stream = await file.OpenStreamForReadAsync())
                     {
-                        Debug.WriteLine("Podcast.Load(): error loading {0}. {1}", CacheFileName, e);
+                        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PodcastData));
+                        Podcast readPodcast = Podcast.FromData(ServiceContext, (PodcastData)serializer.ReadObject(stream));
+
+                        await UpdateFields(readPodcast);
                     }
-                });
+                }
+                await RefreshFromRss(true);
+                        
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Podcast.Load(): error loading {0}. {1}", CacheFileName, e);
+            }
         }
 
         public async Task RefreshFromRss(bool force)
         {
-            await Task.Run(async () =>
+            DateTime lastRefreshTime = new DateTime(LastRefreshTimeTicks);
+            if (DateTime.UtcNow - lastRefreshTime < TimeSpan.FromHours(2) && !force && Episodes.Count > 0)
+            {
+                return;
+            }
+
+            SyndicationFeed syndicationFeed = new SyndicationFeed();
+
+            HttpClient httpClient = new HttpClient();
+            string xmlString = await httpClient.GetStringAsync(new Uri(PodcastUri));
+            XmlDocument feedXml = new XmlDocument();
+            feedXml.LoadXml(xmlString);
+
+            syndicationFeed.LoadFromXml(feedXml);
+
+            // don't refresh if feed has not been updated since
+            if ((syndicationFeed.LastUpdatedTime != null && syndicationFeed.LastUpdatedTime.DateTime > lastRefreshTime) ||
+                force)
+            {
+                Title = syndicationFeed.Title.Text;
+
+                if (syndicationFeed.Subtitle != null)
                 {
-                    DateTime lastRefreshTime = new DateTime(LastRefreshTimeTicks);
-                    if (DateTime.UtcNow - lastRefreshTime < TimeSpan.FromHours(2) && !force && Episodes.Count > 0)
-                    {
-                        return;
-                    }
+                    Description = syndicationFeed.Subtitle.Text;
+                }
 
-                    SyndicationFeed syndicationFeed = new SyndicationFeed();
+                if (syndicationFeed.ImageUri != null)
+                {
+                    await LoadImage(syndicationFeed.ImageUri.ToString());
+                }
+                else if (Image != null)
+                {
+                    await LoadImage(Image);
+                }
 
-                    HttpClient httpClient = new HttpClient();
-                    string xmlString = await httpClient.GetStringAsync(new Uri(PodcastUri));
-                    XmlDocument feedXml = new XmlDocument();
-                    feedXml.LoadXml(xmlString);
+                ReadRssEpisodes(syndicationFeed);
+            }
 
-                    syndicationFeed.LoadFromXml(feedXml);
-
-                    // don't refresh if feed has not been updated since
-                    if ((syndicationFeed.LastUpdatedTime != null && syndicationFeed.LastUpdatedTime.DateTime > lastRefreshTime) ||
-                        force)
-                    {
-                        Title = syndicationFeed.Title.Text;
-
-                        if (syndicationFeed.Subtitle != null)
-                        {
-                            Description = syndicationFeed.Subtitle.Text;
-                        }
-
-                        if (syndicationFeed.ImageUri != null)
-                        {
-                            await LoadImage(syndicationFeed.ImageUri.ToString());
-                        }
-                        else if (Image != null)
-                        {
-                            await LoadImage(Image);
-                        }
-
-                        ReadRssEpisodes(syndicationFeed);
-                    }
-
-                    // keep record of last update time
-                    LastRefreshTimeTicks = DateTime.UtcNow.Ticks;
-                });
+            // keep record of last update time
+            LastRefreshTimeTicks = DateTime.UtcNow.Ticks;
         }
 
 

@@ -8,24 +8,7 @@ namespace PodCatch.Common
 {
     public class UIThread
     {
-        public static void Dispatch(Action action)
-        {
-            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
-
-            if (dispatcher.HasThreadAccess)
-            {
-                action();
-            }
-            else
-            {
-                IAsyncAction t = dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    action();
-                });
-            }
-        }
-
-        public static Task DispatchAsync(Action action)
+        public static Task Dispatch(Action action)
         {
             CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
 
@@ -38,6 +21,20 @@ namespace PodCatch.Common
             {
                 action();
             }).AsTask();
+        }
+
+        public static Task RunInBackground(Action action)
+        {
+            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+            if (!dispatcher.HasThreadAccess)
+            {
+                action();
+                return VoidTask.Completed;
+            }
+            else
+            {
+                return Task.Run(action);
+            }
         }
     }
 }

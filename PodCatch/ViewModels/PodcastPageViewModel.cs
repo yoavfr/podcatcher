@@ -306,7 +306,7 @@ namespace PodCatch.ViewModels
             Podcast podcastDataItem = Podcast;
             try
             {
-                await podcastDataItem.RefreshFromRss(true);
+                await UIThread.RunInBackground(async () => await podcastDataItem.RefreshFromRss(true));
                 await podcastDataItem.Store();
             }
             catch (Exception ex)

@@ -32,7 +32,7 @@ namespace PodCatch.ViewModels
             podcastGroups.CollectionChanged += OnPodcastGroupsChanged;
         
             // load from cache
-            Task.Run(() => Data.Load(false));
+            UIThread.RunInBackground(() => Data.Load(false));
             
             RegisterBackgroundTask();
         }
@@ -210,7 +210,7 @@ namespace PodCatch.ViewModels
             }
 
             // add podcasts shell to data source
-            Data.SetSearchResults(matches);
+            await Data.SetSearchResults(matches);
         }
     }
 }
