@@ -95,14 +95,6 @@ namespace PodCatch.ViewModels
 
         private Collection<Episode> m_AllEpisodes = new ObservableCollection<Episode>();
 
-        private Collection<Episode> AllEpisodes
-        {
-            get
-            {
-                return m_AllEpisodes;
-            }
-        }
-
         /// <summary>
         /// Episodes that are visible == true. Ideally we would do the filtering in a binding converter, but this is difficult in WinRT's ICollectionView
         /// </summary>
@@ -165,12 +157,15 @@ namespace PodCatch.ViewModels
         {
             List<Episode> sortedEpisodes = Podcast.Episodes.ToList<Episode>();
             sortedEpisodes.Sort((a, b) => { return a.PublishDate > b.PublishDate ? -1 : 1; });
-            if (AllEpisodes.SequenceEqual(sortedEpisodes))
+            lock(m_AllEpisodes)
             {
-                return;
+                if (m_AllEpisodes.SequenceEqual(sortedEpisodes))
+                {
+                    return;
+                }
+                m_AllEpisodes.Clear();
+                m_AllEpisodes.AddAll(sortedEpisodes);
             }
-            AllEpisodes.Clear();
-            AllEpisodes.AddAll(sortedEpisodes);
             UpdateVisibleEpisodes();
         }
 
@@ -180,18 +175,20 @@ namespace PodCatch.ViewModels
                 {
                     m_Episodes.Clear();
                     int i = 0;
-                    foreach (Episode episode in AllEpisodes)
+                    lock (m_AllEpisodes)
                     {
-                        if (i >= m_NumEpisodesToShow)
+                        foreach (Episode episode in m_AllEpisodes)
                         {
-                            break;
+                            if (i >= m_NumEpisodesToShow)
+                            {
+                                break;
+                            }
+                            EpisodeViewModel viewModel = new EpisodeViewModel(episode, ServiceContext);
+                            viewModel.Index = i++;
+                            viewModel.Data.UpdateDownloadStatus();
+                            m_Episodes.Add(viewModel);
                         }
-                        EpisodeViewModel viewModel = new EpisodeViewModel(episode, ServiceContext);
-                        viewModel.Index = i++;
-                        viewModel.Data.UpdateDownloadStatus();
-                        m_Episodes.Add(viewModel);
                     }
-
                 });
         }
 
@@ -342,9 +339,9 @@ namespace PodCatch.ViewModels
 
         public void ExecuteReleaseSliderCommand(EpisodeViewModel episode, long sliderValue)
         {
+            episode.Data.Position = MediaPlayer.Position = TimeSpan.FromTicks(sliderValue);
             if (MediaPlayer.IsEpisodePlaying(episode.Data))
             {
-                MediaPlayer.Position = TimeSpan.FromTicks(sliderValue);
                 episode.Data.PostEvent(EpisodeEvent.Play);
             }
         }

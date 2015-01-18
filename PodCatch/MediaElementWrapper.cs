@@ -15,16 +15,19 @@ namespace PodCatch
     public class MediaElementWrapper : ServiceConsumer
     {
         private static MediaElementWrapper s_Insatnce;
-        private Episode m_NowPlaying; 
+        private Episode m_NowPlaying;
         private TimeSpan m_Position;
         private DateTime m_LastSaveTime;
+
         private MediaElement MediaElement { get; set; }
-        private SystemMediaTransportControls SystemMediaTransportControls { get; set;}
+
+        private SystemMediaTransportControls SystemMediaTransportControls { get; set; }
+
         public static CoreDispatcher Dispatcher { private get; set; }
 
-        private IPodcastDataSource m_PodcastDataSource; 
+        private IPodcastDataSource m_PodcastDataSource;
 
-        public TimeSpan Position 
+        public TimeSpan Position
         {
             get
             {
@@ -37,8 +40,8 @@ namespace PodCatch
             }
         }
 
-        public TimeSpan Duration 
-        { 
+        public TimeSpan Duration
+        {
             get
             {
                 return MediaElement.NaturalDuration.TimeSpan;
@@ -68,7 +71,7 @@ namespace PodCatch
             MediaElement.MediaEnded += MediaElement_MediaEnded;
         }
 
-        async void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
+        private async void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
         {
             Episode episode = m_NowPlaying;
             if (episode != null)
@@ -103,7 +106,8 @@ namespace PodCatch
             }
         }
 
-        private MediaElementWrapper(IServiceContext serviceContext, MediaElement mediaElement): base(serviceContext)
+        private MediaElementWrapper(IServiceContext serviceContext, MediaElement mediaElement)
+            : base(serviceContext)
         {
             MediaElement = mediaElement;
             m_PodcastDataSource = serviceContext.GetService<IPodcastDataSource>();
@@ -123,9 +127,8 @@ namespace PodCatch
                 Episode episode = m_NowPlaying;
                 if (episode != null)
                 {
-                    // don't update position when slider is being manipulated 
-                    if (episode.State is EpisodeStatePlaying && 
-                        (episode.Position - Position).Duration() < TimeSpan.FromSeconds(1)) // hack - clicking directly on the slider will cause a big difference
+                    // don't update position when slider is being manipulated.
+                    if (!(episode.State is EpisodeStateScanning))
                     {
                         episode.Position = Position;
                     }
@@ -147,15 +150,19 @@ namespace PodCatch
                 case MediaElementState.Playing:
                     SystemMediaTransportControls.PlaybackStatus = MediaPlaybackStatus.Playing;
                     break;
+
                 case MediaElementState.Paused:
                     SystemMediaTransportControls.PlaybackStatus = MediaPlaybackStatus.Paused;
                     break;
+
                 case MediaElementState.Stopped:
                     SystemMediaTransportControls.PlaybackStatus = MediaPlaybackStatus.Stopped;
                     break;
+
                 case MediaElementState.Closed:
                     SystemMediaTransportControls.PlaybackStatus = MediaPlaybackStatus.Closed;
                     break;
+
                 default:
                     break;
             }
@@ -178,34 +185,36 @@ namespace PodCatch
                                 Task t = Play(episode);
                             });
                         break;
+
                     case SystemMediaTransportControlsButton.Pause:
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
                                 Pause(episode);
                             });
                         break;
+
                     case SystemMediaTransportControlsButton.Next:
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
                                 SkipForward(episode);
                             });
                         break;
+
                     case SystemMediaTransportControlsButton.Previous:
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
                                 SkipBackward(episode);
                             });
                         break;
-
                 }
             }
             catch (Exception e)
             {
-                Debug.WriteLine("{0}",e);
+                Debug.WriteLine("{0}", e);
             }
         }
 
-        void MediaElement_MediaOpened(object sender, RoutedEventArgs e)
+        private void MediaElement_MediaOpened(object sender, RoutedEventArgs e)
         {
             ((MediaElement)sender).Position = m_Position;
             Episode episode = m_NowPlaying;
@@ -244,7 +253,5 @@ namespace PodCatch
             Position = TimeSpan.FromTicks(positionTicks);
             episode.Position = Position;
         }
-
-
     }
 }

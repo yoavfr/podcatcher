@@ -11,7 +11,7 @@ namespace PodCatch.DataModel
 {
     public class DesignTimePodcastDataSource : ServiceConsumer, IPodcastDataSource
     {
-        ObservableCollection<PodcastGroup> m_Groups;
+        ObservableCollection<PodcastGroup> m_Groups = new ObservableCollection<PodcastGroup>();
 
         public DesignTimePodcastDataSource(IServiceContext serviceContext) : base (serviceContext)
         {
@@ -19,6 +19,18 @@ namespace PodCatch.DataModel
         }
         public Task Load(bool force)
         {
+            Podcast podcast = new Podcast(ServiceContext)
+            {
+                Title = "Podcast Title",
+                Description = "Podcast Descirption"
+            };
+            PodcastGroup group = new PodcastGroup(ServiceContext)
+            {
+                Podcasts = new ObservableConcurrentCollection<Podcast>() { podcast },
+                Id = "Favorites",
+                TitleText = "Favorites"
+            };
+            m_Groups.Add(group);
             return VoidTask.Completed;
         }
 
@@ -29,21 +41,6 @@ namespace PodCatch.DataModel
 
         public ObservableCollection<PodcastGroup> GetGroups()
         {
-            if (m_Groups == null)
-            {
-                Podcast podcast = new Podcast(ServiceContext)
-                {
-                    Title = "Podcast Title",
-                    Description = "Podcast Descirption"
-                };
-                PodcastGroup group = new PodcastGroup(ServiceContext)
-                {
-                    Podcasts = new ObservableConcurrentCollection<Podcast>() { podcast },
-                    Id = "Favorites",
-                    TitleText = "Favorites"
-                };
-                m_Groups = new ObservableCollection<PodcastGroup>() { group };
-            }
             return m_Groups;
         }
 
