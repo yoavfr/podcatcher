@@ -1,4 +1,4 @@
-﻿using Podcatch.StateMachine;
+﻿using Podcatch.Common.StateMachine;
 using System;
 using System.Diagnostics;
 using System.IO;

@@ -117,7 +117,6 @@
     <SDKReference Include="TestPlatform, Version=11.0" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TestLogger.cs" />
     <Compile Include="TestStateFactory.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -143,9 +142,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Podcatch.StateMachine\PodCatch.StateMachine.csproj">
-      <Project>{d4fea332-22e2-480e-bfe8-f2b668fb9c1d}</Project>
-      <Name>PodCatch.StateMachine</Name>
+    <ProjectReference Include="..\Podcatch.Common\PodCatch.Common.csproj">
+      <Project>{41fff775-2a10-461e-9f74-968b13c18537}</Project>
+      <Name>PodCatch.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">

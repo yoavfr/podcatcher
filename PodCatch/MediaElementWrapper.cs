@@ -58,7 +58,7 @@ namespace PodCatch
             StorageFile storageFile = await episode.GetStorageFile();
             if (storageFile == null)
             {
-                Debug.WriteLine("MediaElementWrapper.Play() - can't find file {0}", storageFile);
+                Tracer.TraceInformation("MediaElementWrapper.Play() - can't find file {0}", storageFile);
                 // TODO: error message to user
                 return;
             }
@@ -210,7 +210,7 @@ namespace PodCatch
             }
             catch (Exception e)
             {
-                Debug.WriteLine("{0}", e);
+                Tracer.TraceInformation("{0}", e);
             }
         }
 

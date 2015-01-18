@@ -224,10 +224,6 @@
       <Project>{a0237286-45e6-4e83-8591-82d5822ac8d4}</Project>
       <Name>PodCatch.DataModel</Name>
     </ProjectReference>
-    <ProjectReference Include="Podcatch.StateMachine\PodCatch.StateMachine.csproj">
-      <Project>{d4fea332-22e2-480e-bfe8-f2b668fb9c1d}</Project>
-      <Name>PodCatch.StateMachine</Name>
-    </ProjectReference>
     <ProjectReference Include="PodcatchBackgroundTasks\PodCatch.BackgroundTasks.csproj">
       <Project>{e9c703b2-2b40-4eed-a30e-1dadc6eca1e0}</Project>
       <Name>PodCatch.BackgroundTasks</Name>

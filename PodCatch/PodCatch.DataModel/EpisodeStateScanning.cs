@@ -1,4 +1,4 @@
-﻿using Podcatch.StateMachine;
+﻿using Podcatch.Common.StateMachine;
 using System;
 using System.Collections.Generic;
 using System.Linq;

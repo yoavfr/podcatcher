@@ -48,7 +48,7 @@ namespace PodCatch.Search
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine(e);
+                        Tracer.TraceInformation("{0}", e);
                         return results;
                     }
                 });

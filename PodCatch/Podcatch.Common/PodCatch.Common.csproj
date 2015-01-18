@@ -52,6 +52,14 @@
     <Compile Include="ServiceConsumer.cs" />
     <Compile Include="ServiceContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StateMachine\AbstractState.cs" />
+    <Compile Include="StateMachine\AbstractStateFactory.cs" />
+    <Compile Include="StateMachine\EventWrapper.cs" />
+    <Compile Include="StateMachine\IEventProcessor.cs" />
+    <Compile Include="StateMachine\IState.cs" />
+    <Compile Include="StateMachine\IStateFactory.cs" />
+    <Compile Include="StateMachine\IStateMachine.cs" />
+    <Compile Include="StateMachine\SimpleStateMachine.cs" />
     <Compile Include="Tracer.cs" />
     <Compile Include="VoidTask.cs" />
   </ItemGroup>

@@ -106,7 +106,7 @@ namespace PodCatch.DataModel
             }
             catch (Exception e)
             {
-                Debug.WriteLine("Couldn't find favorites file in roaming folder. {0}",e);
+                Tracer.TraceInformation("Couldn't find favorites file in roaming folder. {0}",e);
                 return new Collection<PodcastGroup>();
             }
         }
@@ -137,12 +137,11 @@ namespace PodCatch.DataModel
             {
                 await podcast.Load();
                 await podcast.Store();
-                        
                 return true;
             }
             catch (Exception e)
             {
-                Debug.WriteLine("Error loading {0}. {1}", podcast, e);
+                Tracer.TraceInformation("Error loading {0}. {1}", podcast, e);
                 return false;
             }
         }
@@ -159,7 +158,7 @@ namespace PodCatch.DataModel
             }
             catch (Exception e)
             {
-                Debug.WriteLine("Failed to store favorites. {0}", e);
+                Tracer.TraceInformation("Failed to store favorites. {0}", e);
             }
         }
 
@@ -181,7 +180,7 @@ namespace PodCatch.DataModel
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine("PodcastDataSource.ShowSearchResults() - failed to refresh {0}: {1}", podcast.Title, e);
+                    Tracer.TraceInformation("PodcastDataSource.ShowSearchResults() - failed to refresh {0}: {1}", podcast.Title, e);
                 }
             }
         }
@@ -240,7 +239,7 @@ namespace PodCatch.DataModel
                 }
                 if (!TouchedFiles.Instance.Contains(item.Path))
                 {
-                    Debug.WriteLine("DoHouseKeeping() - deleting {0}", item.Path);
+                    Tracer.TraceInformation("DoHouseKeeping() - deleting {0}", item.Path);
                     await item.DeleteAsync();
                 }
             }

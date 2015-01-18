@@ -1,4 +1,4 @@
-﻿using Podcatch.StateMachine;
+﻿using Podcatch.Common.StateMachine;
 using PodCatch.Common;
 using PodCatch.DataModel.Data;
 using System;
@@ -16,7 +16,7 @@ using Windows.UI.Core;
 
 namespace PodCatch.DataModel
 {
-    public class Episode : ServiceConsumer, INotifyPropertyChanged, IBasicLogger 
+    public class Episode : ServiceConsumer, INotifyPropertyChanged 
     {
         private TimeSpan m_Position;
         private TimeSpan m_Duration;
@@ -32,7 +32,7 @@ namespace PodCatch.DataModel
             Uri = uri;
             PodcastFileName = podcastFileName;
             m_DownloadService = serviceContext.GetService<IDownloadService>();
-            m_StateMachine = new SimpleStateMachine<Episode, EpisodeEvent>(this, this, 0);
+            m_StateMachine = new SimpleStateMachine<Episode, EpisodeEvent>(serviceContext, this, 0);
             m_StateMachine.InitState(EpisodeStateFactory.Instance.GetState<EpisodeStatePendingDownload>(), true);
             m_StateMachine.StartPumpEvents();
         }
@@ -338,21 +338,6 @@ namespace PodCatch.DataModel
         public Task<IState<Episode, EpisodeEvent>> PostEvent(EpisodeEvent anEvent)
         {
             return m_StateMachine.PostEvent(anEvent);
-        }
-
-        public void LogInfo(string msg, params object[] args)
-        {
-            Debug.WriteLine("Info: {0}", String.Format(msg, args));
-        }
-
-        public void LogWarning(string msg, params object[] args)
-        {
-            Debug.WriteLine("Warning: {0}", String.Format(msg, args));
-        }
-
-        public void LogError(string msg, params object[] args)
-        {
-            Debug.WriteLine("Error: {0}", String.Format(msg, args));
         }
 
         public override string ToString()

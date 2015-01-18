@@ -4,8 +4,9 @@ using System.Threading;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
+using PodCatch.Common;
 
-namespace Podcatch.StateMachine
+namespace Podcatch.Common.StateMachine
 {
     /// <summary>
     /// An implementation of IStateMachine
@@ -20,7 +21,6 @@ namespace Podcatch.StateMachine
         private int m_NumPendingEvents;
         private bool m_PumpOn;
         private readonly Object m_PumpLock = new Object();
-        private readonly IBasicLogger m_Logger;
         private const byte MIN_PRIORITY=0;
         private const byte MAX_PRIORITY=10; 
 
@@ -31,7 +31,7 @@ namespace Podcatch.StateMachine
         /// <param name="owner">the owner of this state machine</param>
         /// <param name="maxPriority">the maximum number (lowest priority) that can be provided for an event. Setting this to 0 means there will only be
         ///                         one priority. This can save memory when dealing with many objects that contain a state machine</param>
-        public SimpleStateMachine(IBasicLogger logger, O owner, byte maxPriority)
+        public SimpleStateMachine(IServiceContext serviceContext, O owner, byte maxPriority) : base (serviceContext)
         {
             if (maxPriority<MIN_PRIORITY || maxPriority>MAX_PRIORITY)
             {
@@ -45,7 +45,6 @@ namespace Podcatch.StateMachine
             }
             m_MaxPriority = maxPriority;
             m_Owner = owner;
-            m_Logger = logger;
             //Logger.LogInfo("New StateMachine owned by {0}", owner);
         }
 
@@ -278,10 +277,6 @@ namespace Podcatch.StateMachine
             return m_CurrentState.GetType().Equals(stateType);
         }
 
-        private IBasicLogger Logger
-        {
-            get { return m_Logger; }
-        }
         public IState<O, E> State
         {
             get

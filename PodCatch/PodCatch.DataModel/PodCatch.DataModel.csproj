@@ -85,10 +85,6 @@
       <Project>{41fff775-2a10-461e-9f74-968b13c18537}</Project>
       <Name>PodCatch.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Podcatch.StateMachine\PodCatch.StateMachine.csproj">
-      <Project>{d4fea332-22e2-480e-bfe8-f2b668fb9c1d}</Project>
-      <Name>PodCatch.StateMachine</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

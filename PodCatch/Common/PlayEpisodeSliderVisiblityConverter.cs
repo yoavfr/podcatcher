@@ -1,4 +1,4 @@
-﻿using Podcatch.StateMachine;
+﻿using Podcatch.Common.StateMachine;
 using PodCatch.DataModel;
 using System;
 using Windows.UI.Xaml;

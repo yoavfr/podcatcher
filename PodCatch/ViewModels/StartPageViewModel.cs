@@ -34,7 +34,7 @@ namespace PodCatch.ViewModels
             // load from cache
             UIThread.RunInBackground(() => Data.Load(false));
             
-            RegisterBackgroundTask();
+            Task t = RegisterBackgroundTask();
         }
 
         private void OnPodcastGroupsChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -89,7 +89,7 @@ namespace PodCatch.ViewModels
         /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session.  The state will be null the first time a page is visited.</param>
-        public async void OnLoadState(object sender, LoadStateEventArgs e)
+        public void OnLoadState(object sender, LoadStateEventArgs e)
         {
             // MediaElementWrapper needs the dispatcher to conrtol the MediaElement on this thread
             MediaElementWrapper.Dispatcher = m_View.Dispatcher;
@@ -152,12 +152,12 @@ namespace PodCatch.ViewModels
                         Clipboard.SetContent(dataPackage);
                         break;
                     case 2: // Remove from favorites
-                        Data.RemoveFromFavorites(podcast.Data);
+                        Task t = Data.RemoveFromFavorites(podcast.Data);
                         m_View.NavigationHelper.GoBack();
                         break;
                     case 3: // Add to favorites
                         // Don't wait for this - It will leave the m_ShowingPopUp open
-                        Task t = Data.AddToFavorites(podcast.Data);
+                        t = Data.AddToFavorites(podcast.Data);
                         podcast.DownloadEpisodes();
                         break;
                 }

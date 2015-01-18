@@ -155,7 +155,7 @@ namespace PodCatch
                 switch ((int)selectedCommand.Id)
                 {
                     case 2: // Remove from favorites
-                        m_PodcastDataSource.RemoveFromFavorites(selectedPodcast);
+                        await m_PodcastDataSource.RemoveFromFavorites(selectedPodcast);
                         NavigationHelper.GoBack();
                         break;
                     case 3: // Add to favorites

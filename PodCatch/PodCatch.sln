@@ -11,15 +11,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.DataModel", "PodCa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.StateMachine.Test", "PodCatch.StateMachine.Test\PodCatch.StateMachine.Test.csproj", "{412E8037-3919-48B2-B457-DE75D2510D92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.StateMachine", "Podcatch.StateMachine\PodCatch.StateMachine.csproj", "{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.Common", "Podcatch.Common\PodCatch.Common.csproj", "{41FFF775-2A10-461E-9F74-968B13C18537}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.Common.Test", "PodCatch.Common.Test\PodCatch.Common.Test.csproj", "{FFA9D50F-52F5-444B-8790-DFC72003ADBD}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 8
+		SccNumberOfProjects = 7
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs13
 		SccLocalPath0 = .
@@ -34,15 +32,12 @@ Global
 		SccProjectUniqueName4 = PodCatch.StateMachine.Test\\PodCatch.StateMachine.Test.csproj
 		SccProjectName4 = PodCatch.StateMachine.Test
 		SccLocalPath4 = PodCatch.StateMachine.Test
-		SccProjectUniqueName5 = Podcatch.StateMachine\\PodCatch.StateMachine.csproj
-		SccProjectName5 = Podcatch.StateMachine
-		SccLocalPath5 = Podcatch.StateMachine
-		SccProjectUniqueName6 = Podcatch.Common\\Podcatch.Common.csproj
-		SccProjectName6 = Podcatch.Common
-		SccLocalPath6 = Podcatch.Common
-		SccProjectUniqueName7 = PodCatch.Common.Test\\PodCatch.Common.Test.csproj
-		SccProjectName7 = PodCatch.Common.Test
-		SccLocalPath7 = PodCatch.Common.Test
+		SccProjectUniqueName5 = Podcatch.Common\\PodCatch.Common.csproj
+		SccProjectName5 = Podcatch.Common
+		SccLocalPath5 = Podcatch.Common
+		SccProjectUniqueName6 = PodCatch.Common.Test\\PodCatch.Common.Test.csproj
+		SccProjectName6 = PodCatch.Common.Test
+		SccLocalPath6 = PodCatch.Common.Test
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,20 +146,6 @@ Global
 		{412E8037-3919-48B2-B457-DE75D2510D92}.Release|x86.ActiveCfg = Release|x86
 		{412E8037-3919-48B2-B457-DE75D2510D92}.Release|x86.Build.0 = Release|x86
 		{412E8037-3919-48B2-B457-DE75D2510D92}.Release|x86.Deploy.0 = Release|x86
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Release|ARM.ActiveCfg = Release|Any CPU
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Release|x64.ActiveCfg = Release|Any CPU
-		{D4FEA332-22E2-480E-BFE8-F2B668FB9C1D}.Release|x86.ActiveCfg = Release|Any CPU
 		{41FFF775-2A10-461E-9F74-968B13C18537}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{41FFF775-2A10-461E-9F74-968B13C18537}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{41FFF775-2A10-461E-9F74-968B13C18537}.Debug|ARM.ActiveCfg = Debug|Any CPU

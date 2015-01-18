@@ -190,7 +190,7 @@ namespace PodCatch.DataModel
         public async Task Load()
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            Debug.WriteLine("Podcast.Load(): {0} from {1}", Title, localFolder.Path);
+            Tracer.TraceInformation("Podcast.Load(): {0} from {1}", Title, localFolder.Path);
             try
             {
                 StorageFile file = null;
@@ -201,7 +201,7 @@ namespace PodCatch.DataModel
                 }
                 catch (FileNotFoundException)
                 {
-                    Debug.WriteLine("Can't find cache file {0} for podcast {1}", CacheFileName, Id);
+                    Tracer.TraceInformation("Can't find cache file {0} for podcast {1}", CacheFileName, Id);
                 }
                 if (file != null)
                 {
@@ -219,7 +219,7 @@ namespace PodCatch.DataModel
             }
             catch (Exception e)
             {
-                Debug.WriteLine("Podcast.Load(): error loading {0}. {1}", CacheFileName, e);
+                Tracer.TraceInformation("Podcast.Load(): error loading {0}. {1}", CacheFileName, e);
             }
         }
 
@@ -315,9 +315,9 @@ namespace PodCatch.DataModel
                 // Don't try to download if all we have is the local file
                 if (!validUri.IsFile)
                 {
-                    Debug.WriteLine("Podcast.LoadImage(): Downloading {0} -> {1}", validUri, localImagePath);
+                    Tracer.TraceInformation("Podcast.LoadImage(): Downloading {0} -> {1}", validUri, localImagePath);
                     StorageFile localImageFile = await downloader.Download();
-                    Debug.WriteLine("Podcast.LoadImage(): Finished downloading {0} -> {1}", validUri, localImageFile.Path);
+                    Tracer.TraceInformation("Podcast.LoadImage(): Finished downloading {0} -> {1}", validUri, localImageFile.Path);
                     Image = localImageFile.Path;
                     
                     ulong newFileSize = await GetCachedFileSize(localImagePath);
@@ -331,7 +331,7 @@ namespace PodCatch.DataModel
             }
             catch (Exception e)
             {
-                Debug.WriteLine("Podcast.LoadImage(): Failed downloading {0} -> {1}. {2}", validUri, localImagePath, e);
+                Tracer.TraceInformation("Podcast.LoadImage(): Failed downloading {0} -> {1}. {2}", validUri, localImagePath, e);
             }
         }
 

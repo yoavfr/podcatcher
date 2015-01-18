@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using Podcatch.StateMachine;
+using Podcatch.Common.StateMachine;
 using System.Threading.Tasks;
+using PodCatch.Common;
 
 namespace PodCatch.StateMachine.Test
 {
@@ -17,8 +18,8 @@ namespace PodCatch.StateMachine.Test
         [TestMethod]
         public async Task TestMethod1()
         {
-            TestLogger logger = new TestLogger();
-            SimpleStateMachine<UnitTest1, TestEvent> stateMachine = new SimpleStateMachine<UnitTest1, TestEvent>(logger, this, 5);
+            ServiceContext serviceContext = new ServiceContext(new DebugTracer());
+            SimpleStateMachine<UnitTest1, TestEvent> stateMachine = new SimpleStateMachine<UnitTest1, TestEvent>(serviceContext, this, 5);
             TestStateFactory stateFactory = new TestStateFactory();
             stateMachine.InitState(stateFactory.GetState<StateA>(), true);
             stateMachine.StartPumpEvents();
