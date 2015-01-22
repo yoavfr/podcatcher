@@ -19,6 +19,7 @@ namespace PodCatch.DataModel
         }
         private  EpisodeStateFactory() : base (new AbstractState<Episode, EpisodeEvent>[] 
         {
+            new EpisodeStateUnknown(),
             new EpisodeStatePendingDownload(),
             new EpisodeStateDownloading(),
             new EpisodeStateDownloaded(),

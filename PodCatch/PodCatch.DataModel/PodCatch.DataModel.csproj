@@ -60,6 +60,7 @@
     <Compile Include="EpisodeStatePlaying.cs" />
     <Compile Include="EpisodeStateScanning.cs" />
     <Compile Include="EpisodeStatePendingDownload.cs" />
+    <Compile Include="EpisodeStateUnknown.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IDownloader.cs" />
     <Compile Include="IDownloadService.cs" />

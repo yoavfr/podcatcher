@@ -3,7 +3,6 @@ using PodCatch.Common;
 using PodCatch.DataModel.Data;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -16,7 +15,7 @@ using Windows.UI.Core;
 
 namespace PodCatch.DataModel
 {
-    public class Episode : ServiceConsumer, INotifyPropertyChanged 
+    public class Episode : ServiceConsumer, INotifyPropertyChanged
     {
         private TimeSpan m_Position;
         private TimeSpan m_Duration;
@@ -27,13 +26,14 @@ namespace PodCatch.DataModel
         private bool m_Played;
         public IDownloadService m_DownloadService;
 
-        public Episode(IServiceContext serviceContext, string podcastFileName, Uri uri) : base(serviceContext)
+        public Episode(IServiceContext serviceContext, string podcastFileName, Uri uri)
+            : base(serviceContext)
         {
             Uri = uri;
             PodcastFileName = podcastFileName;
             m_DownloadService = serviceContext.GetService<IDownloadService>();
             m_StateMachine = new SimpleStateMachine<Episode, EpisodeEvent>(serviceContext, this, 0);
-            m_StateMachine.InitState(EpisodeStateFactory.Instance.GetState<EpisodeStatePendingDownload>(), true);
+            m_StateMachine.InitState(EpisodeStateFactory.Instance.GetState<EpisodeStateUnknown>(), true);
             m_StateMachine.StartPumpEvents();
         }
 
@@ -47,7 +47,7 @@ namespace PodCatch.DataModel
             return episode;
         }
 
-        public static Episode FromRoamingData(IServiceContext serviceContext, string podcastFileName,RoamingEpisodeData data)
+        public static Episode FromRoamingData(IServiceContext serviceContext, string podcastFileName, RoamingEpisodeData data)
         {
             Episode episode = new Episode(serviceContext, podcastFileName, new Uri(data.Uri));
             // backward compatibility with m_PositionTicks
@@ -87,7 +87,7 @@ namespace PodCatch.DataModel
         public string PodcastFileName { get; set; }
 
         public Uri Uri { get; set; }
-        
+
         public string Title
         {
             get
@@ -126,9 +126,9 @@ namespace PodCatch.DataModel
         }
 
         public DateTimeOffset PublishDate { get; set; }
-        
-        public bool Played 
-        { 
+
+        public bool Played
+        {
             get
             {
                 return m_Played;
@@ -140,16 +140,17 @@ namespace PodCatch.DataModel
                     m_Played = value;
                     NotifyPropertyChanged(() => Played);
                 }
-            } 
+            }
         }
 
         private string m_FormattedDescription;
+
         public string FormattedDescription
         {
             get
-        {
-            return m_FormattedDescription;
-        }
+            {
+                return m_FormattedDescription;
+            }
             set
             {
                 if (value != m_FormattedDescription)
@@ -161,6 +162,7 @@ namespace PodCatch.DataModel
         }
 
         private string m_FormattedShortDescription;
+
         public string FormattedShortDescription
         {
             get
@@ -303,6 +305,7 @@ namespace PodCatch.DataModel
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
         public void NotifyPropertyChanged<TValue>(Expression<Func<TValue>> propertyId)
         {
             string propertyName = ((MemberExpression)propertyId.Body).Member.Name;
@@ -332,8 +335,6 @@ namespace PodCatch.DataModel
             return !(m_StateMachine.State is EpisodeStateDownloading ||
                 m_StateMachine.State is EpisodeStatePendingDownload);
         }
-
-     
 
         public Task<IState<Episode, EpisodeEvent>> PostEvent(EpisodeEvent anEvent)
         {

@@ -24,27 +24,7 @@ namespace PodCatch.DataModel
         {
             switch (anEvent)
             {
-                case EpisodeEvent.UpdateDownloadStatus:
-                    {
-                        try
-                        {
-                            StorageFile file = await owner.GetStorageFile();
-                            if (file == null)
-                            {
-                                break;
-                            }
-                            MusicProperties musicProperties = await file.Properties.GetMusicPropertiesAsync();
-
-                            owner.Duration = musicProperties.Duration;
-                            TouchedFiles.Instance.Add(file.Path);
-                            TouchedFiles.Instance.Add(Path.GetDirectoryName(file.Path));
-                            return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloaded>();
-                        }
-                        catch (FileNotFoundException)
-                        {
-                        }
-                        break;
-                    }
+               
                 case EpisodeEvent.Download:
                     {
                         return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloading>();

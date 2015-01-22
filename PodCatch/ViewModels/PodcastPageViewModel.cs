@@ -339,9 +339,9 @@ namespace PodCatch.ViewModels
 
         public void ExecuteReleaseSliderCommand(EpisodeViewModel episode, long sliderValue)
         {
-            episode.Data.Position = MediaPlayer.Position = TimeSpan.FromTicks(sliderValue);
             if (MediaPlayer.IsEpisodePlaying(episode.Data))
             {
+                episode.Data.Position = MediaPlayer.Position = TimeSpan.FromTicks(sliderValue);
                 episode.Data.PostEvent(EpisodeEvent.Play);
             }
         }
