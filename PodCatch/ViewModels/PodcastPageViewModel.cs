@@ -16,6 +16,8 @@ namespace PodCatch.ViewModels
         private PodcastPage m_View;
         private RelayCommand m_RefreshCommand;
         private RelayCommand m_ShowMoreCommand;
+        private RelayCommand m_AllPlayedCommand;
+        private RelayCommand m_AllUnplayedCommand;
 
         private MediaElementWrapper MediaPlayer
         {
@@ -71,24 +73,6 @@ namespace PodCatch.ViewModels
                 {
                     m_Title = value;
                     NotifyPropertyChanged(() => Title);
-                }
-            }
-        }
-
-        private int m_NumUnplayedEpisodes;
-
-        public int NumUnplayedEpisodes
-        {
-            get
-            {
-                return m_NumUnplayedEpisodes;
-            }
-            private set
-            {
-                if (m_NumUnplayedEpisodes != value)
-                {
-                    m_NumUnplayedEpisodes = value;
-                    NotifyPropertyChanged(() => NumUnplayedEpisodes);
                 }
             }
         }
@@ -246,13 +230,14 @@ namespace PodCatch.ViewModels
                 switch ((int)selectedCommand.Id)
                 {
                     case 1:
-                        episode.Played = false;
-                        await Data.Store();
+                        episode.Data.Played = false;
+                        UIThread.RunInBackground(() => Data.Store());
                         break;
 
                     case 2:
-                        episode.Played = true;
-                        await Data.Store();
+                        episode.Data.Played = true;
+                        UIThread.RunInBackground(() => Data.Store());
+
                         break;
 
                     case 3:
@@ -335,6 +320,48 @@ namespace PodCatch.ViewModels
         {
             m_NumEpisodesToShow += 10;
             UpdateVisibleEpisodes();
+        }
+
+        public RelayCommand AllPlayedCommand
+        {
+            get
+            {
+                if (m_AllPlayedCommand == null)
+                {
+                    m_AllPlayedCommand = new RelayCommand(ExecuteAllPlayedCommand);
+                }
+                return m_AllPlayedCommand;
+            }
+        }
+
+        private void ExecuteAllPlayedCommand()
+        {
+            foreach (Episode episode in m_AllEpisodes)
+            {
+                episode.Played = true;
+            }
+            UIThread.RunInBackground(() => Data.Store());
+        }
+
+        public RelayCommand AllUnplayedCommand
+        {
+            get
+            {
+                if (m_AllUnplayedCommand == null)
+                {
+                    m_AllUnplayedCommand = new RelayCommand(ExecuteAllUnplayedCommand);
+                }
+                return m_AllUnplayedCommand;
+            }
+        }
+
+        private void ExecuteAllUnplayedCommand()
+        {
+            foreach (Episode episode in m_AllEpisodes)
+            {
+                episode.Played = false;
+            }
+            UIThread.RunInBackground(() => Data.Store());
         }
 
         public void ExecuteReleaseSliderCommand(EpisodeViewModel episode, long sliderValue)

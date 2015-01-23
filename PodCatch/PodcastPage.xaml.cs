@@ -151,5 +151,15 @@ namespace PodCatch
         {
             BottomAppBar.IsOpen = false;
         }
+
+        private void MarkAllAsPlayedClicked(object sender, RoutedEventArgs e)
+        {
+            BottomAppBar.IsOpen = false;
+        }
+
+        private void MarkAllAsUnplayedClicked(object sender, RoutedEventArgs e)
+        {
+            BottomAppBar.IsOpen = false;
+        }
     }
 }

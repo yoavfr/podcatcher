@@ -408,17 +408,6 @@ namespace PodCatch.DataModel
             }
         }
 
-        /*public int DisplayNextEpisodes(int increment)
-        {
-            if (NumEpisodesToShow >= Episodes.Count())
-            {
-                return NumEpisodesToShow;
-            }
-            int target = NumEpisodesToShow + increment;
-            NumEpisodesToShow = Math.Min(Episodes.Count(), target);
-            return NumEpisodesToShow;
-        }*/
-
         public async Task Store()
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
