@@ -1,5 +1,6 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
+using PodCatch.DataModel.Search;
 
 namespace PodCatch
 {
@@ -23,6 +24,7 @@ namespace PodCatch
                         serviceContext.PublishService<PodcastDataSource>();
                     }
                     serviceContext.PublishService<DownloadService>();
+                    serviceContext.PublishService<ITunesSearch>();
                     s_Instance = serviceContext;
                 }
                 return s_Instance;

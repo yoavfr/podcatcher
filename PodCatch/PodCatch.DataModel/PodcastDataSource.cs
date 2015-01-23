@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using PodCatch.Common;
 using PodCatch.DataModel.Data;
+using PodCatch.DataModel.Search;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,11 +17,13 @@ namespace PodCatch.DataModel
     public class PodcastDataSource : ServiceConsumer, IPodcastDataSource
     {
         private bool m_Loaded;
+        private ISearch m_Search;
         private ObservableCollection<PodcastGroup> Groups { get; set; }
 
         public PodcastDataSource(IServiceContext serviceContext) : base (serviceContext)
         {
             Groups = new ObservableCollection<PodcastGroup>();
+            m_Search = serviceContext.GetService<ISearch>();
             AddDefaultGroups();
         }
 
@@ -162,8 +165,44 @@ namespace PodCatch.DataModel
             }
         }
 
-        public async Task SetSearchResults(IEnumerable<Podcast> podcasts)
+        public async Task Search(string searchTerm)
         {
+            // this is the search term
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return;
+            }
+
+            IEnumerable<Podcast> matches;
+            List<Podcast> filtered;
+
+            // RSS feed URL
+            Uri validUri;
+            if (Uri.TryCreate(searchTerm, UriKind.Absolute, out validUri) &&
+                (validUri.Scheme == "http" || validUri.Scheme == "https"))
+            {
+                Podcast newItem = new Podcast(ServiceContext)
+                {
+                    PodcastUri = searchTerm
+                };
+                matches = new List<Podcast>() { newItem };
+            }
+            else
+            {
+                // Search term
+                matches = await m_Search.FindAsync(searchTerm, 50);
+            }
+
+            filtered = new List<Podcast>();
+            foreach (Podcast podcast in matches)
+            {
+                if (!IsPodcastInFavorites(podcast))
+                {
+                    filtered.Add(podcast);
+                }
+            }
+
+
             PodcastGroup searchGroup = GetGroup(Constants.SearchGroupId);
             if (searchGroup == null)
             {
@@ -171,7 +210,7 @@ namespace PodCatch.DataModel
             }
 
             searchGroup.Podcasts.Clear();
-            searchGroup.Podcasts.AddAll(podcasts);
+            searchGroup.Podcasts.AddAll(filtered);
             foreach (Podcast podcast in searchGroup.Podcasts)
             {
                 try

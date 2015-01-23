@@ -136,8 +136,6 @@
       <DependentUpon>InputMessageDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Resources\Strings.cs" />
-    <Compile Include="Search\ISearch.cs" />
-    <Compile Include="Search\ITunesSearch.cs" />
     <Compile Include="StartPage.xaml.cs">
       <DependentUpon>StartPage.xaml</DependentUpon>
     </Compile>

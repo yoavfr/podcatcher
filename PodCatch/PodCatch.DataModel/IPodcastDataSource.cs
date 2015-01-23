@@ -16,7 +16,7 @@ namespace PodCatch.DataModel
         Task RemoveFromFavorites(Podcast podcast);
         bool IsPodcastInFavorites(Podcast podcast);
         
-        Task SetSearchResults(IEnumerable<Podcast> podcasts);
+        Task Search(string searchTerm);
         
         Podcast GetPodcast(string podcastId);
         Task DoHouseKeeping();

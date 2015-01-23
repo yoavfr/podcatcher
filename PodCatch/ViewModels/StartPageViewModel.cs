@@ -1,20 +1,16 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
-using PodCatch.Search;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.UI.Popups;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
 
 namespace PodCatch.ViewModels
 {
@@ -25,21 +21,22 @@ namespace PodCatch.ViewModels
         private RelayCommand m_SearchForPodcastCommand;
         private StartPage m_View;
 
-        public StartPageViewModel(StartPage startPage, IServiceContext serviceContext) : base (serviceContext.GetService<IPodcastDataSource>(), serviceContext)
+        public StartPageViewModel(StartPage startPage, IServiceContext serviceContext)
+            : base(serviceContext.GetService<IPodcastDataSource>(), serviceContext)
         {
             m_View = startPage;
             ObservableCollection<PodcastGroup> podcastGroups = Data.GetGroups();
             podcastGroups.CollectionChanged += OnPodcastGroupsChanged;
-        
+
             // load from cache
             UIThread.RunInBackground(() => Data.Load(false));
-            
+
             Task t = RegisterBackgroundTask();
         }
 
         private void OnPodcastGroupsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            UpdateFields();
+            UpdateFields(e);
         }
 
         private async Task RegisterBackgroundTask()
@@ -67,15 +64,33 @@ namespace PodCatch.ViewModels
             }
         }
 
-        private PodcastGroupViewModel PodcastGroupViewModelConstructor (PodcastGroup podcastGroup)
+        private PodcastGroupViewModel PodcastGroupViewModelConstructor(PodcastGroup podcastGroup)
         {
             return new PodcastGroupViewModel(podcastGroup, ServiceContext);
         }
 
         protected override void UpdateFields()
         {
-            m_Groups.Clear();
-            m_Groups.AddAll(Data.GetGroups().Select(PodcastGroupViewModelConstructor));
+            UpdateFields(null);
+        }
+
+        protected void UpdateFields(NotifyCollectionChangedEventArgs e)
+        {
+            UIThread.Dispatch(() =>
+                {
+                    if (e == null)
+                    {
+                        m_Groups.Clear();
+                        m_Groups.AddAll(Data.GetGroups().Select(PodcastGroupViewModelConstructor));
+                    }
+                    else if (e.Action == NotifyCollectionChangedAction.Add)
+                    {
+                        foreach (PodcastGroup group in e.NewItems)
+                        {
+                            m_Groups.Add(new PodcastGroupViewModel(group, ServiceContext));
+                        }
+                    }
+                });
         }
 
         /// <summary>
@@ -95,8 +110,7 @@ namespace PodCatch.ViewModels
             MediaElementWrapper.Dispatcher = m_View.Dispatcher;
         }
 
-
-        public ObservableCollection<PodcastGroupViewModel> Groups 
+        public ObservableCollection<PodcastGroupViewModel> Groups
         {
             get
             {
@@ -151,10 +165,12 @@ namespace PodCatch.ViewModels
                         dataPackage.SetText(podcast.Data.PodcastUri);
                         Clipboard.SetContent(dataPackage);
                         break;
+
                     case 2: // Remove from favorites
                         Task t = Data.RemoveFromFavorites(podcast.Data);
                         m_View.NavigationHelper.GoBack();
                         break;
+
                     case 3: // Add to favorites
                         // Don't wait for this - It will leave the m_ShowingPopUp open
                         t = Data.AddToFavorites(podcast.Data);
@@ -181,36 +197,13 @@ namespace PodCatch.ViewModels
                 return;
             }
 
-            // this is the search term
             string searchTerm = dlg.TextBox.Text;
-            if (string.IsNullOrEmpty(searchTerm))
-            {
-                return;
-            }
-
-            IEnumerable<Podcast> matches;
-
-            // RSS feed URL
-            Uri validUri;
-            if (Uri.TryCreate(searchTerm, UriKind.Absolute, out validUri) &&
-                (validUri.Scheme == "http" || validUri.Scheme == "https"))
-            {
-                Podcast newItem = new Podcast(ServiceContext)
+            
+            UIThread.RunInBackground(() =>
                 {
-                    PodcastUri = searchTerm
-                };
-                matches = new List<Podcast>() { newItem };
-            }
-            else
-            {
-                // Search term
-                ITunesSearch iTunesSearch = new ITunesSearch(ServiceContext);
-                matches = await iTunesSearch.FindAsync(searchTerm, 50);
-                matches = matches.Where(podcast => !Data.IsPodcastInFavorites(podcast));
-            }
-
-            // add podcasts shell to data source
-            await Data.SetSearchResults(matches);
+                    Data.Search(searchTerm);
+                });
+            
         }
     }
 }

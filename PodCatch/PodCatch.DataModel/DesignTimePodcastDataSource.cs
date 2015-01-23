@@ -66,7 +66,7 @@ namespace PodCatch.DataModel
             return true;
         }
 
-        public Task SetSearchResults(IEnumerable<Podcast> podcasts)
+        public Task Search(string searchTerm)
         {
             return VoidTask.Completed;
         }

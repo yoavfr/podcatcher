@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PodCatch.Search
+namespace PodCatch.DataModel.Search
 {
     public interface ISearch
     {

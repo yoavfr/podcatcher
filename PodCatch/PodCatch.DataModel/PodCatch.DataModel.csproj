@@ -71,6 +71,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\RoamingEpisodeData.cs" />
     <Compile Include="Data\RoamingPodcastData.cs" />
+    <Compile Include="Search\ISearch.cs" />
+    <Compile Include="Search\ITunesSearch.cs" />
     <Compile Include="TouchedFiles.cs" />
   </ItemGroup>
   <ItemGroup>

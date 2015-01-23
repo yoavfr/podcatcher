@@ -1,19 +1,9 @@
 ﻿using PodCatch.Common;
-using PodCatch.DataModel;
-using PodCatch.Search;
-using System;
-using System.Collections.Generic;
-using Windows.ApplicationModel.DataTransfer;
-using Windows.UI.Popups;
+using PodCatch.ViewModels;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
-using System.Linq;
-using System.Threading.Tasks;
-using Windows.ApplicationModel.Background;
-using Windows.Foundation;
-using PodCatch.ViewModels;
 
 // The Grouped Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234231
 
@@ -27,9 +17,9 @@ namespace PodCatch
         private StartPageViewModel m_ViewModel;
         private NavigationHelper navigationHelper;
         private IServiceContext m_ServiceContext;
-        
+
         /// <summary>
-        /// NavigationHelper is used on each page to aid in navigation and 
+        /// NavigationHelper is used on each page to aid in navigation and
         /// process lifetime management
         /// </summary>
         public NavigationHelper NavigationHelper
@@ -42,13 +32,13 @@ namespace PodCatch
         /// </summary>
         public StartPageViewModel DefaultViewModel
         {
-            get 
-            { 
+            get
+            {
                 if (m_ViewModel == null)
                 {
                     m_ViewModel = new StartPageViewModel(this, m_ServiceContext);
                 }
-                return m_ViewModel; 
+                return m_ViewModel;
             }
         }
 
@@ -65,7 +55,7 @@ namespace PodCatch
         /// </summary>
         /// <param name="sender">The Button used as a group header for the selected group.</param>
         /// <param name="e">Event data that describes how the click was initiated.</param>
-        void Header_Click(object sender, RoutedEventArgs e)
+        private void Header_Click(object sender, RoutedEventArgs e)
         {
             // Determine what group the Button instance represents
             var group = (sender as FrameworkElement).DataContext;
@@ -81,7 +71,7 @@ namespace PodCatch
         /// <param name="sender">The GridView (or ListView when the application is snapped)
         /// displaying the item clicked.</param>
         /// <param name="e">Event data that describes the item clicked.</param>
-        void ItemView_ItemClick(object sender, ItemClickEventArgs e)
+        private void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
@@ -93,11 +83,11 @@ namespace PodCatch
 
         /// The methods provided in this section are simply used to allow
         /// NavigationHelper to respond to the page's navigation methods.
-        /// 
-        /// Page specific logic should be placed in event handlers for the  
+        ///
+        /// Page specific logic should be placed in event handlers for the
         /// <see cref="GridCS.Common.NavigationHelper.LoadState"/>
         /// and <see cref="GridCS.Common.NavigationHelper.SaveState"/>.
-        /// The navigation parameter is available in the LoadState method 
+        /// The navigation parameter is available in the LoadState method
         /// in addition to page state preserved during an earlier session.
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -110,8 +100,7 @@ namespace PodCatch
             navigationHelper.OnNavigatedFrom(e);
         }
 
-        #endregion
-
+        #endregion NavigationHelper registration
 
         private async void PodcastRightTapped(object sender, RightTappedRoutedEventArgs e)
         {

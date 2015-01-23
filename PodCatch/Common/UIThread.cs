@@ -36,5 +36,18 @@ namespace PodCatch.Common
                 return Task.Run(action);
             }
         }
+
+        public static Task<T> RunInBackground<T>(Func<Task<T>> asyncAction)
+        {
+            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+            if (!dispatcher.HasThreadAccess)
+            {
+                return asyncAction();
+            }
+            else
+            {
+                return Task.Run(asyncAction);
+            }
+        }
     }
 }

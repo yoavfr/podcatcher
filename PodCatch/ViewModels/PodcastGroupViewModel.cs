@@ -34,7 +34,7 @@ namespace PodCatch.ViewModels
 
         void OnPodcastsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            UpdatePodcasts();
+            UpdatePodcasts(e);
         }
 
         protected override void UpdateFields()
@@ -43,16 +43,48 @@ namespace PodCatch.ViewModels
             TitleText = Data.TitleText;
             SubtitleText = Data.SubtitleText;
             DescriptionText = Data.DescriptionText;
-            UpdatePodcasts();
+            UpdatePodcasts(null);
         }
 
-        private void UpdatePodcasts()
+        private void UpdatePodcasts(NotifyCollectionChangedEventArgs e)
         {
             CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
             UIThread.Dispatch(() =>
                 {
-                    Podcasts.Clear();
-                    Podcasts.AddAll(Data.Podcasts.Select((podcast) => new PodcastSummaryViewModel(podcast, ServiceContext)));
+                    if (e == null)
+                    { 
+                        Podcasts.Clear();
+                        Podcasts.AddAll(Data.Podcasts.Select((podcast) => new PodcastSummaryViewModel(podcast, ServiceContext)));
+                        return;
+                    }
+                    
+                    if (e.Action == NotifyCollectionChangedAction.Add)
+                    {
+                        foreach(var item in e.NewItems)
+                        {
+                            Podcast podcast = item as Podcast;
+                            if (podcast != null)
+                            {
+                                Podcasts.Add(new PodcastSummaryViewModel(podcast, ServiceContext));
+                            }
+                                
+                            else
+                            {
+                                foreach (Podcast podcastItem in (IEnumerable<Podcast>)item)
+                                {
+                                    Podcasts.Add(new PodcastSummaryViewModel(podcastItem, ServiceContext));
+                                }
+                            }
+                        }
+                        return;
+                    }
+                    if (e.Action == NotifyCollectionChangedAction.Remove)
+                    {
+                        foreach(Podcast podcast in e.OldItems)
+                        {
+                            Podcasts.RemoveFirst((podcastViewModel) => podcastViewModel.Data.Id == podcast.Id);
+                        }
+                    }
                 });
         }
     }
