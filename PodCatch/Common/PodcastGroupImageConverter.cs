@@ -21,6 +21,7 @@ namespace PodCatch.Common
                     {
                         case (Constants.FavoritesGroupId):
                             return "ms-appx:///Assets/Favorites.png";
+
                         case (Constants.SearchGroupId):
                             return "ms-appx:///Assets/Search.png";
                     }

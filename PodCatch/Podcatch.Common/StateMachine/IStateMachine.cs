@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Podcatch.Common.StateMachine
 {
@@ -14,22 +12,21 @@ namespace Podcatch.Common.StateMachine
     public interface IStateMachine<O, E> : IEventProcessor<O, E>
     {
         /// <summary>
-        /// Place the state machine in it's inital state, and optionally perform it's OnEnter method. 
+        /// Place the state machine in it's inital state, and optionally perform it's OnEnter method.
         /// When recovering from persistency you may want to resume the state without performing it's
         /// OnEnter method.
         /// </summary>
         /// <param name="initialState">The initial state of the state machine</param>
         /// <param name="enter"></param>
         void InitState(IState<O, E> initialState, bool enter);
-        
-        
+
         /// <summary>
         /// Check the state of the state machine
         /// </summary>
         /// <param name="state">the type of state to check against</param>
         /// <returns>true if the current state of the state machine matches the state that was provided as a paramter</returns>
         bool ValidateStateType(Type stateType);
-        
+
         /// <summary>
         /// Get the current state of the state machine
         /// </summary>
@@ -40,7 +37,7 @@ namespace Podcatch.Common.StateMachine
         /// Stops delivering posted events to the state machine
         /// </summary>
         void StopPumpEvents();
-        
+
         /// <summary>
         /// Starts delivering posted events to the state machine
         /// </summary>

@@ -13,11 +13,11 @@
 
     <Page.Resources>
         <!-- Collection of items displayed by this page -->
-        <common:LocalizationConverter x:Key="LocalizationConverter"/>
+        <common:LocalizationConverter x:Key="LocalizationConverter" />
         <common:PodcastGroupImageConverter x:Key="PodcastGroupImageConverter" />
         <CollectionViewSource
             x:Name="itemsViewSource"
-            Source="{Binding Podcasts}"/>
+            Source="{Binding Podcasts}" />
     </Page.Resources>
 
     <!--
@@ -29,12 +29,12 @@
         DataContext="{Binding Group}" Margin="0,1,0,-1">
         <Grid.ChildrenTransitions>
             <TransitionCollection>
-                <EntranceThemeTransition/>
+                <EntranceThemeTransition />
             </TransitionCollection>
         </Grid.ChildrenTransitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="140"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="140" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Horizontal scrolling grid -->
@@ -55,29 +55,29 @@
                 <DataTemplate>
                     <Grid Height="110" Width="480" Margin="10" RightTapped="PodcastRightTapped" Holding="HoldingPodcast">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Width="110" Height="110">
-                            <Image Source="{Binding Image}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"/>
+                            <Image Source="{Binding Image}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}" />
                         </Border>
                         <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="10,0,0,0">
-                            <TextBlock Text="{Binding Title}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
-                            <TextBlock Text="{Binding Description}" Style="{StaticResource BodyTextBlockStyle}" MaxHeight="60"/>
+                            <TextBlock Text="{Binding Title}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap" />
+                            <TextBlock Text="{Binding Description}" Style="{StaticResource BodyTextBlockStyle}" MaxHeight="60" />
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
             </GridView.ItemTemplate>
             <GridView.Header>
                 <StackPanel Width="480" Margin="0,4,14,0">
-                    <TextBlock Text="{Binding SubtitleText, Converter={StaticResource LocalizationConverter}}" Margin="0,0,0,20" Style="{StaticResource SubheaderTextBlockStyle}" MaxHeight="60"/>
-                    <Image Source="{Binding Id, Converter={StaticResource PodcastGroupImageConverter}}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding TitleText}"/>
-                    <TextBlock Text="{Binding DescriptionText, Converter={StaticResource LocalizationConverter}}" Margin="0,0,0,0" Style="{StaticResource BodyTextBlockStyle}"/>
+                    <TextBlock Text="{Binding SubtitleText, Converter={StaticResource LocalizationConverter}}" Margin="0,0,0,20" Style="{StaticResource SubheaderTextBlockStyle}" MaxHeight="60" />
+                    <Image Source="{Binding Id, Converter={StaticResource PodcastGroupImageConverter}}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding TitleText}" />
+                    <TextBlock Text="{Binding DescriptionText, Converter={StaticResource LocalizationConverter}}" Margin="0,0,0,0" Style="{StaticResource BodyTextBlockStyle}" />
                 </StackPanel>
             </GridView.Header>
             <GridView.ItemContainerStyle>
                 <Style TargetType="FrameworkElement">
-                    <Setter Property="Margin" Value="52,0,0,2"/>
+                    <Setter Property="Margin" Value="52,0,0,2" />
                 </Style>
             </GridView.ItemContainerStyle>
         </GridView>
@@ -85,17 +85,17 @@
         <!-- Back button and page title -->
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="120"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Button x:Name="backButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
                         Style="{StaticResource NavigationBackButtonNormalStyle}"
                         VerticalAlignment="Top"
                         AutomationProperties.Name="Back"
                         AutomationProperties.AutomationId="BackButton"
-                        AutomationProperties.ItemType="Navigation Button"/>
-            <TextBlock x:Name="pageTitle" Text="{Binding TitleText, Converter={StaticResource LocalizationConverter}}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
-                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
+                        AutomationProperties.ItemType="Navigation Button" />
+            <TextBlock x:Name="pageTitle" Text="{Binding TitleText, Converter={StaticResource LocalizationConverter}}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1"
+                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40" />
         </Grid>
     </Grid>
 </Page>

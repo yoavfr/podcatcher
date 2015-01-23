@@ -1,10 +1,9 @@
+using PodCatch.Common;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
-using PodCatch.Common;
 
 namespace Podcatch.Common.StateMachine
 {
@@ -21,8 +20,8 @@ namespace Podcatch.Common.StateMachine
         private int m_NumPendingEvents;
         private bool m_PumpOn;
         private readonly Object m_PumpLock = new Object();
-        private const byte MIN_PRIORITY=0;
-        private const byte MAX_PRIORITY=10; 
+        private const byte MIN_PRIORITY = 0;
+        private const byte MAX_PRIORITY = 10;
 
         /// <summary>
         /// Constructor
@@ -31,11 +30,12 @@ namespace Podcatch.Common.StateMachine
         /// <param name="owner">the owner of this state machine</param>
         /// <param name="maxPriority">the maximum number (lowest priority) that can be provided for an event. Setting this to 0 means there will only be
         ///                         one priority. This can save memory when dealing with many objects that contain a state machine</param>
-        public SimpleStateMachine(IServiceContext serviceContext, O owner, byte maxPriority) : base (serviceContext)
+        public SimpleStateMachine(IServiceContext serviceContext, O owner, byte maxPriority)
+            : base(serviceContext)
         {
-            if (maxPriority<MIN_PRIORITY || maxPriority>MAX_PRIORITY)
+            if (maxPriority < MIN_PRIORITY || maxPriority > MAX_PRIORITY)
             {
-                throw new ArgumentException(String.Format(CultureInfo.InvariantCulture,"maxPriority {0} is not between {1} and {2}",maxPriority,MIN_PRIORITY,MAX_PRIORITY));
+                throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "maxPriority {0} is not between {1} and {2}", maxPriority, MIN_PRIORITY, MAX_PRIORITY));
             }
             // create a queue for every possible priority value
             m_EventQueues = new Queue<EventWrapper<O, E>>[maxPriority + 1];
@@ -91,10 +91,9 @@ namespace Podcatch.Common.StateMachine
             }
         }
 
-
         /// <summary>
         /// Stop handling events
-        /// The contract is that if an event is currently being processed, this event will complete. No guarantee is made that this method exits after 
+        /// The contract is that if an event is currently being processed, this event will complete. No guarantee is made that this method exits after
         /// the last event is handled
         /// </summary>
         public void StopPumpEvents()
@@ -216,7 +215,7 @@ namespace Podcatch.Common.StateMachine
         {
             if (priority > m_MaxPriority)
             {
-                throw new ArgumentException(String.Format(CultureInfo.InvariantCulture,"Max priority is {0} and {1} was requested",m_MaxPriority, priority));
+                throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "Max priority is {0} and {1} was requested", m_MaxPriority, priority));
             }
             if (priority < MIN_PRIORITY)
             {
@@ -256,7 +255,7 @@ namespace Podcatch.Common.StateMachine
             // wrap the event and the AsycResult together
             EventWrapper<O, E> eventWrapper = new EventWrapper<O, E>(anEvent, taskCompletionSource);
             // post the wrapper on the appropriate queue
-            Enqueue(eventWrapper,priority);
+            Enqueue(eventWrapper, priority);
             // return the AsyncResult
             return taskCompletionSource.Task;
         }
@@ -284,6 +283,5 @@ namespace Podcatch.Common.StateMachine
                 return m_CurrentState;
             }
         }
-
     }
 }

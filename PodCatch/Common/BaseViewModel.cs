@@ -2,8 +2,6 @@
 using System.ComponentModel;
 using System.Linq.Expressions;
 using Windows.ApplicationModel.Core;
-using Windows.Foundation;
-using Windows.UI.Core;
 
 namespace PodCatch.Common
 {

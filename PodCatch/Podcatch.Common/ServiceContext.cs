@@ -63,7 +63,7 @@ namespace PodCatch.Common
         }
 
         /// <summary>
-        /// Publish an instance of an object as a service. Any request for a service that this object implements will match this instance and 
+        /// Publish an instance of an object as a service. Any request for a service that this object implements will match this instance and
         /// have it returned. The object is tested with the "is" operator for matches.
         /// Common use would be registering an object that implements at least one interface, and using GetService with the interface.
         /// </summary>

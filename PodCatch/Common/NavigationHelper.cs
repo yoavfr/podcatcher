@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -13,8 +9,8 @@ using Windows.UI.Xaml.Navigation;
 namespace PodCatch.Common
 {
     /// <summary>
-    /// NavigationManager aids in navigation between pages.  It provides commands used to 
-    /// navigate back and forward as well as registers for standard mouse and keyboard 
+    /// NavigationManager aids in navigation between pages.  It provides commands used to
+    /// navigate back and forward as well as registers for standard mouse and keyboard
     /// shortcuts used to go back and forward.  In addition it integrates SuspensionManger
     /// to handle process lifetime management and state management when navigating between
     /// pages.
@@ -22,9 +18,9 @@ namespace PodCatch.Common
     /// <example>
     /// To make use of NavigationManager, follow these two steps or
     /// start with a BasicPage or any other Page item template other than BlankPage.
-    /// 
-    /// 1) Create an instance of the NaivgationHelper somewhere such as in the 
-    ///     constructor for the page and register a callback for the LoadState and 
+    ///
+    /// 1) Create an instance of the NaivgationHelper somewhere such as in the
+    ///     constructor for the page and register a callback for the LoadState and
     ///     SaveState events.
     /// <code>
     ///     public MyPage()
@@ -34,22 +30,22 @@ namespace PodCatch.Common
     ///         this.navigationHelper.LoadState += navigationHelper_LoadState;
     ///         this.navigationHelper.SaveState += navigationHelper_SaveState;
     ///     }
-    ///     
+    ///
     ///     private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
     ///     { }
     ///     private async void navigationHelper_SaveState(object sender, LoadStateEventArgs e)
     ///     { }
     /// </code>
-    /// 
-    /// 2) Register the page to call into the NavigationManager whenever the page participates 
-    ///     in navigation by overriding the <see cref="Windows.UI.Xaml.Controls.Page.OnNavigatedTo"/> 
+    ///
+    /// 2) Register the page to call into the NavigationManager whenever the page participates
+    ///     in navigation by overriding the <see cref="Windows.UI.Xaml.Controls.Page.OnNavigatedTo"/>
     ///     and <see cref="Windows.UI.Xaml.Controls.Page.OnNavigatedFrom"/> events.
     /// <code>
     ///     protected override void OnNavigatedTo(NavigationEventArgs e)
     ///     {
     ///         navigationHelper.OnNavigatedTo(e);
     ///     }
-    ///     
+    ///
     ///     protected override void OnNavigatedFrom(NavigationEventArgs e)
     ///     {
     ///         navigationHelper.OnNavigatedFrom(e);
@@ -60,13 +56,14 @@ namespace PodCatch.Common
     public class NavigationHelper : DependencyObject
     {
         private Page Page { get; set; }
+
         private Frame Frame { get { return this.Page.Frame; } }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NavigationHelper"/> class.
         /// </summary>
-        /// <param name="page">A reference to the current page used for navigation.  
-        /// This reference allows for frame manipulation and to ensure that keyboard 
+        /// <param name="page">A reference to the current page used for navigation.
+        /// This reference allows for frame manipulation and to ensure that keyboard
         /// navigation requests only occur when the page is occupying the entire window.</param>
         public NavigationHelper(Page page)
         {
@@ -101,14 +98,14 @@ namespace PodCatch.Common
 
         #region Navigation support
 
-        RelayCommand _goBackCommand;
-        RelayCommand _goForwardCommand;
+        private RelayCommand _goBackCommand;
+        private RelayCommand _goForwardCommand;
 
         /// <summary>
         /// <see cref="RelayCommand"/> used to bind to the back Button's Command property
         /// for navigating to the most recent item in back navigation history, if a Frame
         /// manages its own navigation history.
-        /// 
+        ///
         /// The <see cref="RelayCommand"/> is set up to use the virtual method <see cref="GoBack"/>
         /// as the Execute Action and <see cref="CanGoBack"/> for CanExecute.
         /// </summary>
@@ -129,10 +126,11 @@ namespace PodCatch.Common
                 _goBackCommand = value;
             }
         }
+
         /// <summary>
-        /// <see cref="RelayCommand"/> used for navigating to the most recent item in 
+        /// <see cref="RelayCommand"/> used for navigating to the most recent item in
         /// the forward navigation history, if a Frame manages its own navigation history.
-        /// 
+        ///
         /// The <see cref="RelayCommand"/> is set up to use the virtual method <see cref="GoForward"/>
         /// as the Execute Action and <see cref="CanGoForward"/> for CanExecute.
         /// </summary>
@@ -155,19 +153,20 @@ namespace PodCatch.Common
         /// to determine if the <see cref="Frame"/> can go back.
         /// </summary>
         /// <returns>
-        /// true if the <see cref="Frame"/> has at least one entry 
+        /// true if the <see cref="Frame"/> has at least one entry
         /// in the back navigation history.
         /// </returns>
         public virtual bool CanGoBack()
         {
             return this.Frame != null && this.Frame.CanGoBack;
         }
+
         /// <summary>
         /// Virtual method used by the <see cref="GoForwardCommand"/> property
         /// to determine if the <see cref="Frame"/> can go forward.
         /// </summary>
         /// <returns>
-        /// true if the <see cref="Frame"/> has at least one entry 
+        /// true if the <see cref="Frame"/> has at least one entry
         /// in the forward navigation history.
         /// </returns>
         public virtual bool CanGoForward()
@@ -183,6 +182,7 @@ namespace PodCatch.Common
         {
             if (this.Frame != null && this.Frame.CanGoBack) this.Frame.GoBack();
         }
+
         /// <summary>
         /// Virtual method used by the <see cref="GoForwardCommand"/> property
         /// to invoke the <see cref="Windows.UI.Xaml.Controls.Frame.GoForward"/> method.
@@ -263,7 +263,7 @@ namespace PodCatch.Common
             }
         }
 
-        #endregion
+        #endregion Navigation support
 
         #region Process lifetime management
 
@@ -275,6 +275,7 @@ namespace PodCatch.Common
         /// state provided when recreating a page from a prior session.
         /// </summary>
         public event LoadStateEventHandler LoadState;
+
         /// <summary>
         /// Register this event on the current page to preserve
         /// state associated with the current page in case the
@@ -284,7 +285,7 @@ namespace PodCatch.Common
         public event SaveStateEventHandler SaveState;
 
         /// <summary>
-        /// Invoked when this page is about to be displayed in a Frame.  
+        /// Invoked when this page is about to be displayed in a Frame.
         /// This method calls <see cref="LoadState"/>, where all page specific
         /// navigation and process lifetime management logic should be placed.
         /// </summary>
@@ -343,13 +344,14 @@ namespace PodCatch.Common
             frameState[_pageKey] = pageState;
         }
 
-        #endregion
+        #endregion Process lifetime management
     }
 
     /// <summary>
     /// Represents the method that will handle the <see cref="NavigationHelper.LoadState"/>event
     /// </summary>
     public delegate void LoadStateEventHandler(object sender, LoadStateEventArgs e);
+
     /// <summary>
     /// Represents the method that will handle the <see cref="NavigationHelper.SaveState"/>event
     /// </summary>
@@ -361,10 +363,11 @@ namespace PodCatch.Common
     public class LoadStateEventArgs : EventArgs
     {
         /// <summary>
-        /// The parameter value passed to <see cref="Frame.Navigate(Type, Object)"/> 
+        /// The parameter value passed to <see cref="Frame.Navigate(Type, Object)"/>
         /// when this page was initially requested.
         /// </summary>
         public Object NavigationParameter { get; private set; }
+
         /// <summary>
         /// A dictionary of state preserved by this page during an earlier
         /// session.  This will be null the first time a page is visited.
@@ -375,7 +378,7 @@ namespace PodCatch.Common
         /// Initializes a new instance of the <see cref="LoadStateEventArgs"/> class.
         /// </summary>
         /// <param name="navigationParameter">
-        /// The parameter value passed to <see cref="Frame.Navigate(Type, Object)"/> 
+        /// The parameter value passed to <see cref="Frame.Navigate(Type, Object)"/>
         /// when this page was initially requested.
         /// </param>
         /// <param name="pageState">
@@ -389,6 +392,7 @@ namespace PodCatch.Common
             this.PageState = pageState;
         }
     }
+
     /// <summary>
     /// Class used to hold the event data required when a page attempts to save state.
     /// </summary>

@@ -44,7 +44,6 @@ namespace PodCatch.DataModel
                 Debug.WriteLine("EpisodeStateDownloading.OnEntry(): error downloading {0}. {1}", owner.Uri, e);
             }
             Task task = stateMachine.PostEvent(EpisodeEvent.DownloadFail);
-
         }
 
         public override Task OnExit(Episode owner, IState<Episode, EpisodeEvent> toState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
@@ -58,6 +57,7 @@ namespace PodCatch.DataModel
             {
                 case EpisodeEvent.DownloadSuccess:
                     return Task.FromResult<IState<Episode, EpisodeEvent>>(EpisodeStateFactory.Instance.GetState<EpisodeStateDownloaded>());
+
                 case EpisodeEvent.DownloadFail:
                     return Task.FromResult<IState<Episode, EpisodeEvent>>(EpisodeStateFactory.Instance.GetState<EpisodeStatePendingDownload>());
             }

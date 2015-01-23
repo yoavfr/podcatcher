@@ -2,17 +2,14 @@
 using PodCatch.Common;
 using PodCatch.DataModel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-
 
 namespace PodCatch.ViewModels
 {
     public class EpisodeViewModel : BaseViewModel<Episode>
     {
         private string m_Title;
+
         public string Title
         {
             get
@@ -30,6 +27,7 @@ namespace PodCatch.ViewModels
         }
 
         private string m_Description;
+
         public string Description
         {
             get
@@ -47,6 +45,7 @@ namespace PodCatch.ViewModels
         }
 
         private string m_ShortDescription;
+
         public string ShortDescription
         {
             get
@@ -64,6 +63,7 @@ namespace PodCatch.ViewModels
         }
 
         private bool m_Played;
+
         public bool Played
         {
             get
@@ -81,6 +81,7 @@ namespace PodCatch.ViewModels
         }
 
         private TimeSpan m_Position;
+
         public TimeSpan Position
         {
             get
@@ -98,6 +99,7 @@ namespace PodCatch.ViewModels
         }
 
         private TimeSpan m_Duration;
+
         public TimeSpan Duration
         {
             get
@@ -115,6 +117,7 @@ namespace PodCatch.ViewModels
         }
 
         private double m_DownloadProgress;
+
         public double DownloadProgress
         {
             get
@@ -132,6 +135,7 @@ namespace PodCatch.ViewModels
         }
 
         private IState<Episode, EpisodeEvent> m_State;
+
         public IState<Episode, EpisodeEvent> State
         {
             get
@@ -151,7 +155,8 @@ namespace PodCatch.ViewModels
         // index for alternate coloring in UI
         public int Index { get; set; }
 
-        public EpisodeViewModel(Episode episode, IServiceContext serviceContext) : base (episode, serviceContext)
+        public EpisodeViewModel(Episode episode, IServiceContext serviceContext)
+            : base(episode, serviceContext)
         {
             episode.PropertyChanged += OnEpisodeChanged;
         }

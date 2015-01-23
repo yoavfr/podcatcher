@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Podcatch.Common.StateMachine
@@ -26,7 +23,5 @@ namespace Podcatch.Common.StateMachine
         /// <param name="anEvent">the event that is posted to the state machine. priority is 0</param>
         /// <returns>IAsyncResult - can be used to wait on the event to be processed, and to collect and errors that occured with EndPostEvent </returns>
         Task<IState<O, E>> PostEvent(E anEvent);
-
-
     }
 }

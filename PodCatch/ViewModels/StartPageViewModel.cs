@@ -1,7 +1,6 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
@@ -198,12 +197,11 @@ namespace PodCatch.ViewModels
             }
 
             string searchTerm = dlg.TextBox.Text;
-            
+
             UIThread.RunInBackground(() =>
                 {
                     Data.Search(searchTerm);
                 });
-            
         }
     }
 }

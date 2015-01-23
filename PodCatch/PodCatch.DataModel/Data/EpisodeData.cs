@@ -11,12 +11,11 @@ namespace PodCatch.DataModel.Data
 
         [DataMember]
         public string Title { get; set; }
-        
+
         [DataMember]
         public string Description { get; set; }
 
         [DataMember]
         public long PublishDateTicks { get; set; }
-
     }
 }

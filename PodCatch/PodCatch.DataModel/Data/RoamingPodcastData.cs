@@ -8,7 +8,7 @@ namespace PodCatch.DataModel.Data
     {
         [DataMember]
         public string Uri { get; set; }
-        
+
         [DataMember]
         public string Title { get; set; }
 

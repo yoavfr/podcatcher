@@ -3,20 +3,15 @@ using PodCatch.Common.Collections;
 using PodCatch.DataModel.Data;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Core;
 using Windows.Data.Xml.Dom;
-using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
-using Windows.UI.Core;
 using Windows.Web.Http;
 using Windows.Web.Syndication;
 
@@ -29,13 +24,14 @@ namespace PodCatch.DataModel
         private string m_Image;
         private IDownloadService m_DownloadService;
 
-        public Podcast(IServiceContext serviceContext) : base(serviceContext)
+        public Podcast(IServiceContext serviceContext)
+            : base(serviceContext)
         {
             m_DownloadService = serviceContext.GetService<IDownloadService>();
             Episodes = new ObservableConcurrentCollection<Episode>();
         }
 
-        public static Podcast FromData (IServiceContext serviceContext, PodcastData data)
+        public static Podcast FromData(IServiceContext serviceContext, PodcastData data)
         {
             Podcast podcast = new Podcast(serviceContext);
             podcast.Title = data.Title;
@@ -43,7 +39,7 @@ namespace PodCatch.DataModel
             podcast.Image = data.Image;
             podcast.LastRefreshTimeTicks = data.LastRefreshTimeTicks;
             podcast.Episodes = new ObservableConcurrentCollection<Episode>();
-            foreach(EpisodeData episodeData in data.Episodes)
+            foreach (EpisodeData episodeData in data.Episodes)
             {
                 Episode episode = Episode.FromData(serviceContext, podcast.FileName, episodeData);
                 podcast.Episodes.Add(episode);
@@ -51,7 +47,7 @@ namespace PodCatch.DataModel
             return podcast;
         }
 
-        public static Podcast FromRoamingData (IServiceContext serviceContext, RoamingPodcastData data)
+        public static Podcast FromRoamingData(IServiceContext serviceContext, RoamingPodcastData data)
         {
             Podcast podcast = new Podcast(serviceContext);
             podcast.Title = data.Title;
@@ -65,7 +61,7 @@ namespace PodCatch.DataModel
             return podcast;
         }
 
-        public PodcastData ToData ()
+        public PodcastData ToData()
         {
             PodcastData data = new PodcastData()
             {
@@ -94,7 +90,7 @@ namespace PodCatch.DataModel
             data.RoamingEpisodesData = episodes;
             foreach (Episode episode in Episodes)
             {
-                // Store as little as possible in roaming settings. 
+                // Store as little as possible in roaming settings.
                 // If there is no Position to record or this has not been played, we can rely on the default values upon deserialization
                 if (episode.Position > TimeSpan.FromTicks(0) || episode.Played)
                 {
@@ -105,7 +101,7 @@ namespace PodCatch.DataModel
         }
 
         public string PodcastUri { get; set; }
-        
+
         /// <summary>
         /// All the episodes of this podcast
         /// </summary>
@@ -113,7 +109,7 @@ namespace PodCatch.DataModel
 
         public void AddEpisode(Episode episode)
         {
-            episode.PropertyChanged += OnEpisodePropertyChanged; 
+            episode.PropertyChanged += OnEpisodePropertyChanged;
             Episodes.Add(episode);
         }
 
@@ -149,8 +145,8 @@ namespace PodCatch.DataModel
         public string Title
         {
             get { return m_Title; }
-            set 
-            { 
+            set
+            {
                 if (m_Title != value)
                 {
                     m_Title = value;
@@ -162,7 +158,7 @@ namespace PodCatch.DataModel
         public string Description
         {
             get { return m_Description; }
-            set 
+            set
             {
                 if (m_Description != value)
                 {
@@ -197,7 +193,6 @@ namespace PodCatch.DataModel
                 try
                 {
                     file = await localFolder.GetFileAsync(CacheFileName);
-
                 }
                 catch (FileNotFoundException)
                 {
@@ -215,7 +210,6 @@ namespace PodCatch.DataModel
                     }
                 }
                 await RefreshFromRss(true);
-                        
             }
             catch (Exception e)
             {
@@ -267,8 +261,6 @@ namespace PodCatch.DataModel
             LastRefreshTimeTicks = DateTime.UtcNow.Ticks;
         }
 
-
-
         private void ReadRssEpisodes(SyndicationFeed syndicationFeed)
         {
             foreach (SyndicationItem item in syndicationFeed.Items)
@@ -319,7 +311,7 @@ namespace PodCatch.DataModel
                     StorageFile localImageFile = await downloader.Download();
                     Tracer.TraceInformation("Podcast.LoadImage(): Finished downloading {0} -> {1}", validUri, localImageFile.Path);
                     Image = localImageFile.Path;
-                    
+
                     ulong newFileSize = await GetCachedFileSize(localImagePath);
                     if (newFileSize != oldFileSize)
                     {
@@ -349,12 +341,11 @@ namespace PodCatch.DataModel
             }
             catch (Exception)
             {
-
             }
             return fileSize;
         }
 
-        private Task UpdateFields (Podcast fromCache)
+        private Task UpdateFields(Podcast fromCache)
         {
             Title = fromCache.Title;
             if (fromCache.Description != null)
@@ -392,7 +383,6 @@ namespace PodCatch.DataModel
                 return found.First();
             }
 
-
             // new episode from RSS
             Episode newEpisode = new Episode(ServiceContext, FileName, uri);
             AddEpisode(newEpisode);
@@ -411,7 +401,7 @@ namespace PodCatch.DataModel
         public async Task Store()
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            StorageFile jsonFile = await localFolder.CreateFileAsync(CacheFileName+".tmp", CreationCollisionOption.ReplaceExisting);
+            StorageFile jsonFile = await localFolder.CreateFileAsync(CacheFileName + ".tmp", CreationCollisionOption.ReplaceExisting);
             DataContractJsonSerializer serialzer = new DataContractJsonSerializer(typeof(PodcastData));
             using (Stream stream = await jsonFile.OpenStreamForWriteAsync())
             {

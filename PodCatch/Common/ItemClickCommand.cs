@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -11,11 +6,11 @@ namespace PodCatch.Common
 {
     public class ItemClickCommand
     {
-        public static readonly DependencyProperty CommandProperty = 
+        public static readonly DependencyProperty CommandProperty =
             DependencyProperty.RegisterAttached(
             "Command",
             typeof(ICommand),
-            typeof(ItemClickCommand), 
+            typeof(ItemClickCommand),
             new PropertyMetadata(null, OnCommandPropertyChanged));
 
         public static void SetCommand(DependencyObject d, ICommand value)
@@ -43,7 +38,6 @@ namespace PodCatch.Common
 
             if (command != null && command.CanExecute(e.ClickedItem))
                 command.Execute(e.ClickedItem);
-        } 
-
+        }
     }
 }

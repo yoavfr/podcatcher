@@ -6,6 +6,7 @@ namespace PodCatch.DataModel
     public interface IDownloader
     {
         ulong GetTotalBytes();
+
         ulong GetBytesDownloaded();
 
         Task<StorageFile> Download();

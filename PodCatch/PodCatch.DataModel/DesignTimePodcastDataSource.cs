@@ -1,22 +1,20 @@
 ﻿using PodCatch.Common;
 using PodCatch.Common.Collections;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PodCatch.DataModel
 {
     public class DesignTimePodcastDataSource : ServiceConsumer, IPodcastDataSource
     {
-        ObservableCollection<PodcastGroup> m_Groups = new ObservableCollection<PodcastGroup>();
+        private ObservableCollection<PodcastGroup> m_Groups = new ObservableCollection<PodcastGroup>();
 
-        public DesignTimePodcastDataSource(IServiceContext serviceContext) : base (serviceContext)
+        public DesignTimePodcastDataSource(IServiceContext serviceContext)
+            : base(serviceContext)
         {
-
         }
+
         public Task Load(bool force)
         {
             Podcast podcast = new Podcast(ServiceContext)

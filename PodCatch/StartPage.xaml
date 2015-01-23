@@ -13,10 +13,10 @@
 
     <Page.Resources>
         <x:String x:Key="ChevronGlyph">&#xE26B;</x:String>
-        <common:LocalizationConverter x:Key="LocalizationConverter"/>
-        <common:PodcastUnplayedCounterVisibilityConverter x:Key="PodcastUnplayedCounterVisibilityConverter"/>
-        <common:NumUnplayedEpisodesMarginConverter x:Key="NumUnplayedEpisodesMarginConverter"/>
-        <common:NumUnplayedEpisodesConverter x:Key="NumUnplayedEpisodesConverter"/>
+        <common:LocalizationConverter x:Key="LocalizationConverter" />
+        <common:PodcastUnplayedCounterVisibilityConverter x:Key="PodcastUnplayedCounterVisibilityConverter" />
+        <common:NumUnplayedEpisodesMarginConverter x:Key="NumUnplayedEpisodesMarginConverter" />
+        <common:NumUnplayedEpisodesConverter x:Key="NumUnplayedEpisodesConverter" />
         <!--
             Collection of grouped items displayed by this page, bound to a subset
             of the complete item list because items in groups cannot be virtualized
@@ -25,7 +25,7 @@
             x:Name="groupedItemsViewSource"
             Source="{Binding Groups}"
             IsSourceGrouped="true"
-            ItemsPath="Podcasts"/>
+            ItemsPath="Podcasts" />
     </Page.Resources>
     <Page.BottomAppBar>
         <AppBar Padding="10,0,10,0">
@@ -47,12 +47,12 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Name="contentGrid">
         <Grid.ChildrenTransitions>
             <TransitionCollection>
-                <EntranceThemeTransition/>
+                <EntranceThemeTransition />
             </TransitionCollection>
         </Grid.ChildrenTransitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="140"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="140" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <!-- Horizontal scrolling grid -->
         <GridView
@@ -70,16 +70,16 @@
                 <DataTemplate>
                     <Grid HorizontalAlignment="Left" Width="250" Height="250" RightTapped="PodcastRightTapped" Holding="HoldingPodcast">
                         <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
-                            <Image Source="{Binding Image}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"/>
+                            <Image Source="{Binding Image}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}" />
                         </Border>
                         <!-- Podcasts -->
                         <Canvas Margin="210,10" Visibility="{Binding NumUnplayedEpisodes, Converter={StaticResource PodcastUnplayedCounterVisibilityConverter}}">
-                            <Ellipse Fill="Red" Height="30" Width="30"/>
+                            <Ellipse Fill="Red" Height="30" Width="30" />
                             <TextBlock Text="{Binding NumUnplayedEpisodes,Converter={StaticResource NumUnplayedEpisodesConverter}}" Margin="{Binding NumUnplayedEpisodes, Converter={StaticResource NumUnplayedEpisodesMarginConverter}}" Foreground="White" FontWeight="Bold" />
                         </Canvas>
 
                         <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
-                            <TextBlock Text="{Binding Title}" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="60" Margin="15,0,15,0"/>
+                            <TextBlock Text="{Binding Title}" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="60" Margin="15,0,15,0" />
                             <!--TextBlock Text="{Binding Uri}" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Margin="15,0,0,10" HorizontalAlignment="Left" Width="220"/-->
                         </StackPanel>
                     </Grid>
@@ -87,7 +87,7 @@
             </GridView.ItemTemplate>
             <GridView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <ItemsWrapGrid GroupPadding="0,0,70,0"/>
+                    <ItemsWrapGrid GroupPadding="0,0,70,0" />
                 </ItemsPanelTemplate>
             </GridView.ItemsPanel>
             <GridView.GroupStyle>
@@ -99,14 +99,14 @@
                                     <Button Foreground="{ThemeResource ApplicationHeaderForegroundThemeBrush}"
                                         AutomationProperties.Name="Group Title"
                                         Click="Header_Click"
-                                        Style="{StaticResource TextBlockButtonStyle}" >
+                                        Style="{StaticResource TextBlockButtonStyle}">
                                         <StackPanel Orientation="Horizontal">
                                             <!-- Group Title-->
                                             <TextBlock Text="{Binding TitleText, Converter={StaticResource LocalizationConverter}}" Margin="0,-11,10,10" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="NoWrap" />
                                             <TextBlock Text="{StaticResource ChevronGlyph}" FontFamily="Segoe UI Symbol" Margin="0,-11,0,10" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="NoWrap" />
                                         </StackPanel>
                                     </Button>
-                                    <!--TextBlock Text="It's lonely in here... " Margin="0,20,0,0" Visibility="{Binding Source={StaticResource groupedItemsViewSource}.Count, Converter={ StaticResource VisibleOnEmptyCollectionConverter}}"/>
+                                    <!--TextBlock Text="It's lonely in here... " Margin="0,20,0,0" Visibility="{Binding Source={StaticResource groupedItemsViewSource}.Count, Converter={ StaticResource VisibleOnEmptyCollectionConverter}}" />
                                     <TextBlock Text="You might want to open the app bar and search for podcasts"/-->
                                 </StackPanel>
                             </Grid>
@@ -119,17 +119,17 @@
         <!-- Back button and page title -->
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="120"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Button x:Name="backButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
                         Style="{StaticResource NavigationBackButtonNormalStyle}"
                         VerticalAlignment="Top"
                         AutomationProperties.Name="Back"
                         AutomationProperties.AutomationId="BackButton"
-                        AutomationProperties.ItemType="Navigation Button"/>
-            <TextBlock x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
-                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
+                        AutomationProperties.ItemType="Navigation Button" />
+            <TextBlock x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1"
+                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40" />
         </Grid>
     </Grid>
 </Page>

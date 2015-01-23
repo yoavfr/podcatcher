@@ -1,20 +1,15 @@
-﻿using PodCatch.Common;
-using PodCatch.DataModel;
+﻿using PodCatch.DataModel;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
-using Windows.UI.Notifications;
 
 namespace PodCatch.BackgroundTasks
 {
     public sealed class BackgroundTask : IBackgroundTask
     {
-        CancellationTokenSource m_cancellationTokenSouce = new CancellationTokenSource();
+        private CancellationTokenSource m_cancellationTokenSouce = new CancellationTokenSource();
+
         public async void Run(IBackgroundTaskInstance taskInstance)
         {
             BackgroundTaskDeferral deferral = taskInstance.GetDeferral();
@@ -65,11 +60,11 @@ namespace PodCatch.BackgroundTasks
             TileNotification notification = new TileNotification(tileContent);
             var updater = TileUpdateManager.CreateTileUpdaterForApplication();
             updater.Update(notification);
-            
+
             Task.WaitAll(pendingDownloads.ToArray(), m_cancellationTokenSouce.Token);*/
         }
 
-        void OnTaskInstanceCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
+        private void OnTaskInstanceCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
         {
             m_cancellationTokenSouce.Cancel();
         }

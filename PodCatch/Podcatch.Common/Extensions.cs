@@ -3,8 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PodCatch.Common
 {
@@ -74,7 +72,7 @@ namespace PodCatch.Common
 
         public static void AddAll<T>(this ConcurrentBag<T> bag, IEnumerable<T> elements)
         {
-            foreach(T element in elements)
+            foreach (T element in elements)
             {
                 bag.Add(element);
             }

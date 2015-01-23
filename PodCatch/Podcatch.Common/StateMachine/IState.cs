@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Podcatch.Common.StateMachine
@@ -25,7 +22,7 @@ namespace Podcatch.Common.StateMachine
         Task OnExit(O owner, IState<O, E> toState, IEventProcessor<O, E> stateMachine);
 
         /// <summary>
-        /// Called with events that should be handled by the state. OnEvent will normally contain some kind of switch case to handle the different kinds of events that 
+        /// Called with events that should be handled by the state. OnEvent will normally contain some kind of switch case to handle the different kinds of events that
         /// may be handled, then call the appropriate methods on it's owner, and return the state to transition to, or Null if no transition takes place
         /// </summary>
         /// <param name="owner">The owner of the state. i.e. if this state is defined within the context of a Car object - Car is the owner of the state</param>

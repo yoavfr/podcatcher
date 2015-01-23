@@ -1,25 +1,21 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Collections;
 
 namespace Podcatch.Common.StateMachine
 {
     /// <summary>
-    /// Abstract flyweight State factory. The Factory contains a single instance of each participating state. 
+    /// Abstract flyweight State factory. The Factory contains a single instance of each participating state.
     /// This allows many objects to share the same state factory and state objects without incurring proportional memory overhead.
     /// States of the factory must therefore be stateless themselves - i.e. define behavior only
-    /// 
+    ///
     /// A typical implementation will call the constructor with the state machine specific set of states
     /// </summary>
     public abstract class AbstractStateFactory<O, E> : IStateFactory<O, E>
     {
-        Dictionary<Type, AbstractState<O, E>> m_StateByType = new Dictionary<Type, AbstractState<O, E>>();
-
+        private Dictionary<Type, AbstractState<O, E>> m_StateByType = new Dictionary<Type, AbstractState<O, E>>();
 
         private AbstractStateFactory()
         {
-
         }
 
         /// <summary>

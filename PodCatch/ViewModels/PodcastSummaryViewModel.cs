@@ -1,18 +1,15 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
-using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PodCatch.ViewModels
 {
     public class PodcastSummaryViewModel : BaseViewModel<Podcast>
     {
         private string m_Image;
+
         public string Image
         {
             get { return m_Image; }
@@ -27,6 +24,7 @@ namespace PodCatch.ViewModels
         }
 
         private string m_Description;
+
         public string Description
         {
             get { return m_Description; }
@@ -41,6 +39,7 @@ namespace PodCatch.ViewModels
         }
 
         private string m_Title;
+
         public string Title
         {
             get { return m_Title; }
@@ -55,6 +54,7 @@ namespace PodCatch.ViewModels
         }
 
         private int m_NumUnplayedEpisodes;
+
         public int NumUnplayedEpisodes
         {
             get
@@ -70,12 +70,14 @@ namespace PodCatch.ViewModels
                 }
             }
         }
-        public PodcastSummaryViewModel(Podcast podcast, IServiceContext serviceContext) : base (podcast, serviceContext)
+
+        public PodcastSummaryViewModel(Podcast podcast, IServiceContext serviceContext)
+            : base(podcast, serviceContext)
         {
             podcast.Episodes.CollectionChanged += OnEpisodesChanged;
         }
 
-        void OnEpisodesChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnEpisodesChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             UpdateUnplayedEpisodes();
         }

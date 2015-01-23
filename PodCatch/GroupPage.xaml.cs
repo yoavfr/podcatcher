@@ -1,19 +1,11 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Popups;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 // The Group Detail Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234229
@@ -30,10 +22,10 @@ namespace PodCatch
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
         private IServiceContext m_ServiceContext;
-        private IPodcastDataSource m_PodcastDataSource; 
+        private IPodcastDataSource m_PodcastDataSource;
 
         /// <summary>
-        /// NavigationHelper is used on each page to aid in navigation and 
+        /// NavigationHelper is used on each page to aid in navigation and
         /// process lifetime management
         /// </summary>
         public NavigationHelper NavigationHelper
@@ -48,7 +40,6 @@ namespace PodCatch
         {
             get { return this.defaultViewModel; }
         }
-
 
         public GroupPage()
         {
@@ -82,7 +73,7 @@ namespace PodCatch
         /// </summary>
         /// <param name="sender">The GridView displaying the item clicked.</param>
         /// <param name="e">Event data that describes the item clicked.</param>
-        void ItemView_ItemClick(object sender, ItemClickEventArgs e)
+        private void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
@@ -94,11 +85,11 @@ namespace PodCatch
 
         /// The methods provided in this section are simply used to allow
         /// NavigationHelper to respond to the page's navigation methods.
-        /// 
-        /// Page specific logic should be placed in event handlers for the  
+        ///
+        /// Page specific logic should be placed in event handlers for the
         /// <see cref="GridCS.Common.NavigationHelper.LoadState"/>
         /// and <see cref="GridCS.Common.NavigationHelper.SaveState"/>.
-        /// The navigation parameter is available in the LoadState method 
+        /// The navigation parameter is available in the LoadState method
         /// in addition to page state preserved during an earlier session.
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -111,7 +102,7 @@ namespace PodCatch
             navigationHelper.OnNavigatedFrom(e);
         }
 
-        #endregion
+        #endregion NavigationHelper registration
 
         private async void PodcastRightTapped(object sender, RightTappedRoutedEventArgs e)
         {
@@ -158,6 +149,7 @@ namespace PodCatch
                         await m_PodcastDataSource.RemoveFromFavorites(selectedPodcast);
                         NavigationHelper.GoBack();
                         break;
+
                     case 3: // Add to favorites
                         await m_PodcastDataSource.AddToFavorites(selectedPodcast);
                         break;

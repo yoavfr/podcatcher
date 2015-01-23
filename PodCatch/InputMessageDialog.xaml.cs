@@ -11,6 +11,7 @@ namespace PodCatch
     {
         private string m_TextMessage;
         private TaskCompletionSource<bool> m_TaskCompletionSource;
+
         public InputMessageDialog(string label)
         {
             Label = label;

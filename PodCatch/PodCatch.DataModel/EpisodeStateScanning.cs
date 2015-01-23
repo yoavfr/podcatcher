@@ -1,8 +1,4 @@
 ﻿using Podcatch.Common.StateMachine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PodCatch.DataModel
@@ -13,7 +9,6 @@ namespace PodCatch.DataModel
         {
             owner.NotifyPropertyChanged(() => owner.State);
             return Task.FromResult<object>(null);
-
         }
 
         public override Task OnExit(Episode owner, IState<Episode, EpisodeEvent> toState, IEventProcessor<Episode, EpisodeEvent> stateMachine)

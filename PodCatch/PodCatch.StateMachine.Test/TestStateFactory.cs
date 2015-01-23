@@ -1,23 +1,18 @@
 ﻿using Podcatch.Common.StateMachine;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PodCatch.StateMachine.Test
 {
-    class TestStateFactory : AbstractStateFactory<UnitTest1, TestEvent> 
+    internal class TestStateFactory : AbstractStateFactory<UnitTest1, TestEvent>
     {
         public TestStateFactory()
             : base(new AbstractState<UnitTest1, TestEvent>[] { new StateA(), new StateB() })
         {
-
         }
     }
 
-    class StateA : AbstractState<UnitTest1, TestEvent>
+    internal class StateA : AbstractState<UnitTest1, TestEvent>
     {
         public override async Task OnEntry(UnitTest1 owner, IState<UnitTest1, TestEvent> fromState, IEventProcessor<UnitTest1, TestEvent> stateMachine)
         {
@@ -36,7 +31,7 @@ namespace PodCatch.StateMachine.Test
         }
     }
 
-    class StateB : AbstractState<UnitTest1, TestEvent>
+    internal class StateB : AbstractState<UnitTest1, TestEvent>
     {
         public override async Task OnEntry(UnitTest1 owner, IState<UnitTest1, TestEvent> fromState, IEventProcessor<UnitTest1, TestEvent> stateMachine)
         {
@@ -55,7 +50,7 @@ namespace PodCatch.StateMachine.Test
         }
     }
 
-    enum TestEvent
+    internal enum TestEvent
     {
         A, B
     }

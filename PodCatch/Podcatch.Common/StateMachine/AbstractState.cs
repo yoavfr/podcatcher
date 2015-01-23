@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Podcatch.Common.StateMachine
@@ -22,7 +19,9 @@ namespace Podcatch.Common.StateMachine
         }
 
         public abstract Task OnEntry(O owner, IState<O, E> fromState, IEventProcessor<O, E> stateMachine);
+
         public abstract Task OnExit(O owner, IState<O, E> toState, IEventProcessor<O, E> stateMachine);
+
         public abstract Task<IState<O, E>> OnEvent(O owner, E anEvent, IEventProcessor<O, E> stateMachine);
     }
 }

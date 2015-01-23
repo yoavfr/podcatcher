@@ -1,9 +1,5 @@
 ﻿using Podcatch.Common.StateMachine;
-using System;
-using System.IO;
 using System.Threading.Tasks;
-using Windows.Storage;
-using Windows.Storage.FileProperties;
 
 namespace PodCatch.DataModel
 {
@@ -24,7 +20,6 @@ namespace PodCatch.DataModel
         {
             switch (anEvent)
             {
-               
                 case EpisodeEvent.Download:
                     {
                         return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloading>();

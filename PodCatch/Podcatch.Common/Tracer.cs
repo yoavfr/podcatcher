@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text;
 using System.Threading;
 
@@ -17,8 +16,11 @@ namespace PodCatch.Common
     public abstract class ITracer
     {
         public abstract TracingLevel TracingLevel { get; }
+
         public abstract void TraceError(string format, params object[] args);
+
         public abstract void TraceWarning(string format, params object[] args);
+
         public abstract void TraceInformation(string format, params object[] args);
 
         [Conditional("DEBUG")]
@@ -33,6 +35,7 @@ namespace PodCatch.Common
     internal class PrefixTracer : ITracer
     {
         private ITracer m_Tracer;
+
         public StringBuilder PrePrefix { get; private set; }
 
         /// <summary>
@@ -86,7 +89,7 @@ namespace PodCatch.Common
             }
             if (!string.IsNullOrEmpty(prefixFixed) && prefixDynamic != null)
             {
-                // Prefer dynamic context as it is more specific. But if there is no commonality in two 
+                // Prefer dynamic context as it is more specific. But if there is no commonality in two
                 // prefixes, may concatenate.
                 if (IsOverlap(prefixFixed, prefixDynamic))
                 {

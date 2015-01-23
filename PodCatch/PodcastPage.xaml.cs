@@ -1,17 +1,9 @@
 ﻿using PodCatch.Common;
-using PodCatch.DataModel;
 using PodCatch.ViewModels;
-using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
-using Windows.Networking.BackgroundTransfer;
-using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 // The Item Detail Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234232
@@ -24,11 +16,11 @@ namespace PodCatch
     public sealed partial class PodcastPage : Page
     {
         private NavigationHelper navigationHelper;
-        PodcastPageViewModel m_ViewModel;
+        private PodcastPageViewModel m_ViewModel;
         private IServiceContext m_ServiceContext;
 
         /// <summary>
-        /// NavigationHelper is used on each page to aid in navigation and 
+        /// NavigationHelper is used on each page to aid in navigation and
         /// process lifetime management
         /// </summary>
         public NavigationHelper NavigationHelper
@@ -41,13 +33,13 @@ namespace PodCatch
         /// </summary>
         public PodcastPageViewModel DefaultViewModel
         {
-            get 
-            { 
+            get
+            {
                 if (m_ViewModel == null)
                 {
                     m_ViewModel = new PodcastPageViewModel(this, m_ServiceContext);
                 }
-                return m_ViewModel; 
+                return m_ViewModel;
             }
         }
 
@@ -59,18 +51,16 @@ namespace PodCatch
             this.navigationHelper.LoadState += m_ViewModel.OnLoadState;
         }
 
-
         #region NavigationHelper registration
 
         /// The methods provided in this section are simply used to allow
         /// NavigationHelper to respond to the page's navigation methods.
-        /// 
-        /// Page specific logic should be placed in event handlers for the  
+        ///
+        /// Page specific logic should be placed in event handlers for the
         /// <see cref="GridCS.Common.NavigationHelper.LoadState"/>
         /// and <see cref="GridCS.Common.NavigationHelper.SaveState"/>.
-        /// The navigation parameter is available in the LoadState method 
+        /// The navigation parameter is available in the LoadState method
         /// in addition to page state preserved during an earlier session.
-
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
@@ -82,7 +72,7 @@ namespace PodCatch
             navigationHelper.OnNavigatedFrom(e);
         }
 
-        #endregion
+        #endregion NavigationHelper registration
 
         private void RemoveFromFavoritesButtonClicked(object sender, RoutedEventArgs e)
         {
@@ -90,6 +80,7 @@ namespace PodCatch
             m_ViewModel.RemoveFromFavorites();
             NavigationHelper.GoBack();
         }
+
         private async void AddToFavoritesAppBarButtonClicked(object sender, RoutedEventArgs e)
         {
             BottomAppBar.IsOpen = false;
@@ -97,7 +88,7 @@ namespace PodCatch
             NavigationHelper.GoBack();
         }
 
-        private void PlayButton_Clicked (object sender, RoutedEventArgs e)
+        private void PlayButton_Clicked(object sender, RoutedEventArgs e)
         {
             AppBarButton playButton = (AppBarButton)sender;
             EpisodeViewModel episode = (EpisodeViewModel)playButton.DataContext;
@@ -125,7 +116,6 @@ namespace PodCatch
             EpisodeViewModel episode = (EpisodeViewModel)slider.DataContext;
             long sliderValue = (long)slider.Value;
             m_ViewModel.ExecuteReleaseSliderCommand(episode, sliderValue);
-
         }
 
         private void ShowMoreButtonClicked(object sender, RoutedEventArgs e)

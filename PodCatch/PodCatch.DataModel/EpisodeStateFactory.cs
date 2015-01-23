@@ -1,15 +1,11 @@
 ﻿using Podcatch.Common.StateMachine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PodCatch.DataModel
 {
-    class EpisodeStateFactory : AbstractStateFactory<Episode, EpisodeEvent>
+    internal class EpisodeStateFactory : AbstractStateFactory<Episode, EpisodeEvent>
     {
         private static EpisodeStateFactory s_Instance = new EpisodeStateFactory();
+
         public static EpisodeStateFactory Instance
         {
             get
@@ -17,7 +13,9 @@ namespace PodCatch.DataModel
                 return s_Instance;
             }
         }
-        private  EpisodeStateFactory() : base (new AbstractState<Episode, EpisodeEvent>[] 
+
+        private EpisodeStateFactory()
+            : base(new AbstractState<Episode, EpisodeEvent>[]
         {
             new EpisodeStateUnknown(),
             new EpisodeStatePendingDownload(),

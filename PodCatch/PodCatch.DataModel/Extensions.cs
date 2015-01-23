@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 
 namespace PodCatch.DataModel
 {
-
     public static class Extensions
     {
         public static int IndexOfOccurence(this string s, string match, int occurence)
@@ -70,7 +69,7 @@ namespace PodCatch.DataModel
             int hash2 = hash1;
             int i = 0;
             char c;
-            while (i<str.Length)
+            while (i < str.Length)
             {
                 c = str[i];
                 hash1 = ((hash1 << 5) + hash1) ^ c;

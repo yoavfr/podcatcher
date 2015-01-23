@@ -5,7 +5,6 @@ using PodCatch.DataModel.Search;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Json;
@@ -18,9 +17,11 @@ namespace PodCatch.DataModel
     {
         private bool m_Loaded;
         private ISearch m_Search;
+
         private ObservableCollection<PodcastGroup> Groups { get; set; }
 
-        public PodcastDataSource(IServiceContext serviceContext) : base (serviceContext)
+        public PodcastDataSource(IServiceContext serviceContext)
+            : base(serviceContext)
         {
             Groups = new ObservableCollection<PodcastGroup>();
             m_Search = serviceContext.GetService<ISearch>();
@@ -109,7 +110,7 @@ namespace PodCatch.DataModel
             }
             catch (Exception e)
             {
-                Tracer.TraceInformation("Couldn't find favorites file in roaming folder. {0}",e);
+                Tracer.TraceInformation("Couldn't find favorites file in roaming folder. {0}", e);
                 return new Collection<PodcastGroup>();
             }
         }
@@ -202,7 +203,6 @@ namespace PodCatch.DataModel
                 }
             }
 
-
             PodcastGroup searchGroup = GetGroup(Constants.SearchGroupId);
             if (searchGroup == null)
             {
@@ -265,7 +265,7 @@ namespace PodCatch.DataModel
 
         private async Task RemoveUntouchedFiles(StorageFolder folder)
         {
-            foreach(IStorageItem item in await folder.GetItemsAsync())
+            foreach (IStorageItem item in await folder.GetItemsAsync())
             {
                 // suspension manager session state file
                 if (item.Name == "_sessionState.xml")
@@ -282,7 +282,6 @@ namespace PodCatch.DataModel
                     await item.DeleteAsync();
                 }
             }
-            
         }
     }
 }

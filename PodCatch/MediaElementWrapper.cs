@@ -1,7 +1,6 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Storage;

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.ApplicationModel.Resources;
+﻿using Windows.ApplicationModel.Resources;
 
 namespace PodCatch.Resources
 {
@@ -15,7 +8,7 @@ namespace PodCatch.Resources
 
         public static string FavoritesTitle
         {
-            get 
+            get
             {
                 return s_Loader.GetString("FavoritesTitle");
             }

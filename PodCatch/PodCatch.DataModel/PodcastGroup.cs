@@ -2,7 +2,6 @@
 using PodCatch.Common.Collections;
 using PodCatch.DataModel.Data;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 
 namespace PodCatch.DataModel
@@ -10,14 +9,20 @@ namespace PodCatch.DataModel
     [DataContract]
     public class PodcastGroup : ServiceConsumer
     {
-        public PodcastGroup(IServiceContext serviceContext) : base (serviceContext)
+        public PodcastGroup(IServiceContext serviceContext)
+            : base(serviceContext)
         {
             Podcasts = new ObservableConcurrentCollection<Podcast>();
         }
+
         public ObservableConcurrentCollection<Podcast> Podcasts { get; set; }
+
         public string Id { get; set; }
+
         public string TitleText { get; set; }
+
         public string SubtitleText { get; set; }
+
         public string DescriptionText { get; set; }
 
         public static PodcastGroup FromData(IServiceContext serviceContext, PodcastGroupData data)

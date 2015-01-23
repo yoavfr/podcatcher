@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace PodCatch.DataModel
 {
     public class TouchedFiles
     {
         private static TouchedFiles s_Instance = new TouchedFiles();
+
         public static TouchedFiles Instance
         {
             get
@@ -19,9 +16,9 @@ namespace PodCatch.DataModel
 
         private HashSet<string> m_Files = new HashSet<string>();
 
-        public void Add (string fileName)
+        public void Add(string fileName)
         {
-            lock(m_Files)
+            lock (m_Files)
             {
                 m_Files.Add(fileName);
             }
@@ -29,7 +26,7 @@ namespace PodCatch.DataModel
 
         public void Clear()
         {
-            lock(m_Files)
+            lock (m_Files)
             {
                 m_Files.Clear();
             }

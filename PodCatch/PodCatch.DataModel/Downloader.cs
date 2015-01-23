@@ -1,5 +1,4 @@
-﻿using PodCatch.Common;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -58,7 +57,7 @@ namespace PodCatch.DataModel
                     string result = await response.Content.ReadAsStringAsync();
                     throw new Exception(result);
                 }
-                        
+
                 if (response.Content.Headers.ContentLength != null)
                 {
                     m_TotalBytes = response.Content.Headers.ContentLength.Value;

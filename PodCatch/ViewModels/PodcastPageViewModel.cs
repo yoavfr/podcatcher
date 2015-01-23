@@ -1,5 +1,4 @@
 ﻿using PodCatch.Common;
-using PodCatch.Common.Collections;
 using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
@@ -141,7 +140,7 @@ namespace PodCatch.ViewModels
         {
             List<Episode> sortedEpisodes = Podcast.Episodes.ToList<Episode>();
             sortedEpisodes.Sort((a, b) => { return a.PublishDate > b.PublishDate ? -1 : 1; });
-            lock(m_AllEpisodes)
+            lock (m_AllEpisodes)
             {
                 if (m_AllEpisodes.SequenceEqual(sortedEpisodes))
                 {

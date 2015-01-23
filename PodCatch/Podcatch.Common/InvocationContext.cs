@@ -7,7 +7,9 @@ namespace PodCatch.Common
     internal class InvocationContext : SynchronizationContext, IDisposable
     {
         public string Prefix { get; private set; }
+
         public StringBuilder PrePrefix { get; private set; }
+
         private readonly SynchronizationContext m_OriginalSynchronizationContext;
 
         public InvocationContext(string prefix, StringBuilder prePrefix)

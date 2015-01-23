@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Podcatch.Common.StateMachine;
-using System.Threading.Tasks;
 using PodCatch.Common;
+using System.Threading.Tasks;
 
 namespace PodCatch.StateMachine.Test
 {
