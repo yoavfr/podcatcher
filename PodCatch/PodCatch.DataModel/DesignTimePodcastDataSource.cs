@@ -1,5 +1,6 @@
 ﻿using PodCatch.Common;
 using PodCatch.Common.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -64,7 +65,13 @@ namespace PodCatch.DataModel
             return true;
         }
 
-        public Task Search(string searchTerm)
+        public Task<IEnumerable<Podcast>> Search(string searchTerm)
+        {
+            IEnumerable<Podcast> dummy = new List<Podcast>();
+            return Task.FromResult(dummy);
+        }
+
+        public Task UpdateSearchResults(IEnumerable<Podcast> podcasts)
         {
             return VoidTask.Completed;
         }

@@ -166,12 +166,12 @@ namespace PodCatch.DataModel
             }
         }
 
-        public async Task Search(string searchTerm)
+        public async Task<IEnumerable<Podcast>> Search(string searchTerm)
         {
             // this is the search term
             if (string.IsNullOrEmpty(searchTerm))
             {
-                return;
+                return null;
             }
 
             IEnumerable<Podcast> matches;
@@ -203,6 +203,11 @@ namespace PodCatch.DataModel
                 }
             }
 
+            return filtered;
+        }
+
+        public async Task UpdateSearchResults(IEnumerable<Podcast> podcasts)
+        {
             PodcastGroup searchGroup = GetGroup(Constants.SearchGroupId);
             if (searchGroup == null)
             {
@@ -210,7 +215,7 @@ namespace PodCatch.DataModel
             }
             // TODO: this needs to happen on UIThread
             searchGroup.Podcasts.Clear();
-            searchGroup.Podcasts.AddAll(filtered);
+            searchGroup.Podcasts.AddAll(podcasts);
             foreach (Podcast podcast in searchGroup.Podcasts)
             {
                 try
@@ -219,7 +224,7 @@ namespace PodCatch.DataModel
                 }
                 catch (Exception e)
                 {
-                    Tracer.TraceInformation("PodcastDataSource.Search() - failed to refresh {0}: {1}", podcast.Title, e);
+                    Tracer.TraceInformation("PodcastDataSource.UpdateSearchResults() - failed to refresh {0}: {1}", podcast.Title, e);
                 }
             }
         }

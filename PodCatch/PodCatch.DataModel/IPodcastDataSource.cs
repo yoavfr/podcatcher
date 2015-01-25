@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace PodCatch.DataModel
@@ -19,7 +20,9 @@ namespace PodCatch.DataModel
 
         bool IsPodcastInFavorites(Podcast podcast);
 
-        Task Search(string searchTerm);
+        Task<IEnumerable<Podcast>> Search(string searchTerm);
+
+        Task UpdateSearchResults(IEnumerable<Podcast> podcasts);
 
         Podcast GetPodcast(string podcastId);
 

@@ -1,6 +1,7 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
@@ -197,10 +198,15 @@ namespace PodCatch.ViewModels
             }
 
             string searchTerm = dlg.TextBox.Text;
+            IEnumerable<Podcast> searchResults;
 
-            UIThread.RunInBackground(() =>
+            searchResults = await UIThread.RunInBackground<IEnumerable<Podcast>>(async () =>
                 {
-                    Data.Search(searchTerm);
+                     return await Data.Search(searchTerm);
+                });
+            await UIThread.Dispatch(async () =>
+                {
+                    await Data.UpdateSearchResults(searchResults);
                 });
         }
     }
