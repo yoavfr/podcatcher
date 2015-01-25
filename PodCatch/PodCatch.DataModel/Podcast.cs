@@ -24,11 +24,13 @@ namespace PodCatch.DataModel
         private string m_Image;
         private IDownloadService m_DownloadService;
 
+        private static Func<Episode, object> s_EpisodeOrdering = (e => -e.PublishDate.Ticks);
+
         public Podcast(IServiceContext serviceContext)
             : base(serviceContext)
         {
             m_DownloadService = serviceContext.GetService<IDownloadService>();
-            Episodes = new ObservableConcurrentCollection<Episode>();
+            Episodes = new ConcurrentObservableCollection<Episode>(s_EpisodeOrdering);
         }
 
         public static Podcast FromData(IServiceContext serviceContext, PodcastData data)
@@ -38,12 +40,13 @@ namespace PodCatch.DataModel
             podcast.Description = data.Description;
             podcast.Image = data.Image;
             podcast.LastRefreshTimeTicks = data.LastRefreshTimeTicks;
-            podcast.Episodes = new ObservableConcurrentCollection<Episode>();
+            podcast.Episodes = new ConcurrentObservableCollection<Episode>(s_EpisodeOrdering, true);
             foreach (EpisodeData episodeData in data.Episodes)
             {
                 Episode episode = Episode.FromData(serviceContext, podcast.FileName, episodeData);
                 podcast.Episodes.Add(episode);
             }
+            podcast.Episodes.HoldNotifications = false;
             return podcast;
         }
 
@@ -52,12 +55,13 @@ namespace PodCatch.DataModel
             Podcast podcast = new Podcast(serviceContext);
             podcast.Title = data.Title;
             podcast.PodcastUri = data.Uri;
-            ObservableConcurrentCollection<Episode> episodes = new ObservableConcurrentCollection<Episode>();
+            ConcurrentObservableCollection<Episode> episodes = new ConcurrentObservableCollection<Episode>(s_EpisodeOrdering, true);
             podcast.Episodes = episodes;
             foreach (RoamingEpisodeData episodeData in data.RoamingEpisodesData)
             {
                 episodes.Add(Episode.FromRoamingData(serviceContext, podcast.FileName, episodeData));
             }
+            podcast.Episodes.HoldNotifications = false;
             return podcast;
         }
 
@@ -105,7 +109,7 @@ namespace PodCatch.DataModel
         /// <summary>
         /// All the episodes of this podcast
         /// </summary>
-        public ObservableConcurrentCollection<Episode> Episodes { get; set; }
+        public ConcurrentObservableCollection<Episode> Episodes { get; private set; }
 
         public void AddEpisode(Episode episode)
         {
@@ -254,7 +258,9 @@ namespace PodCatch.DataModel
                     await LoadImage(Image);
                 }
 
+                Episodes.HoldNotifications = true;
                 ReadRssEpisodes(syndicationFeed);
+                Episodes.HoldNotifications = false;
             }
 
             // keep record of last update time

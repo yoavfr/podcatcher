@@ -1,4 +1,5 @@
 ﻿using PodCatch.Common;
+using PodCatch.Common.Collections;
 using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
@@ -76,7 +77,7 @@ namespace PodCatch.ViewModels
             }
         }
 
-        private Collection<Episode> m_AllEpisodes = new ObservableCollection<Episode>();
+        private ConcurrentObservableCollection<Episode> m_AllEpisodes = new ConcurrentObservableCollection<Episode>(episode => -episode.PublishDate.Ticks);
 
         /// <summary>
         /// Episodes that are visible == true. Ideally we would do the filtering in a binding converter, but this is difficult in WinRT's ICollectionView
@@ -138,16 +139,14 @@ namespace PodCatch.ViewModels
 
         private void UpdateAllEpisodes()
         {
-            List<Episode> sortedEpisodes = Podcast.Episodes.ToList<Episode>();
-            sortedEpisodes.Sort((a, b) => { return a.PublishDate > b.PublishDate ? -1 : 1; });
             lock (m_AllEpisodes)
             {
-                if (m_AllEpisodes.SequenceEqual(sortedEpisodes))
+                if (m_AllEpisodes.SequenceEqual(Podcast.Episodes))
                 {
                     return;
                 }
                 m_AllEpisodes.Clear();
-                m_AllEpisodes.AddAll(sortedEpisodes);
+                m_AllEpisodes.AddAll(Podcast.Episodes);
             }
             UpdateVisibleEpisodes();
         }

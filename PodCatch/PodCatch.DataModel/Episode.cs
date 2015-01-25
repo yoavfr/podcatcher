@@ -252,7 +252,7 @@ namespace PodCatch.DataModel
         public async Task Download()
         {
             await UpdateDownloadStatus();
-            PostEvent(EpisodeEvent.Download);
+            await PostEvent(EpisodeEvent.Download);
         }
 
         public Task UpdateDownloadStatus()

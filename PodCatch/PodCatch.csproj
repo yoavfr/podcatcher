@@ -131,7 +131,6 @@
     <Compile Include="Common\InverseBooleanConverter.cs" />
     <Compile Include="Common\UIThread.cs" />
     <Compile Include="Common\VisualTreeHelperExt.cs" />
-    <Compile Include="BackgroundTask.cs" />
     <Compile Include="InputMessageDialog.xaml.cs">
       <DependentUpon>InputMessageDialog.xaml</DependentUpon>
     </Compile>
@@ -152,6 +151,7 @@
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Common\ObservableDictionary.cs" />
     <Compile Include="Common\BaseViewModel.cs" />
+    <Compile Include="ThreadAwareDebugTracer.cs" />
     <Compile Include="ViewModels\EpisodeViewModel.cs" />
     <Compile Include="ViewModels\PodcastGroupViewModel.cs" />
     <Compile Include="ViewModels\PodcastPageViewModel.cs" />

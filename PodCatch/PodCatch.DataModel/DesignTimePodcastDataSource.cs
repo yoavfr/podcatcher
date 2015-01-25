@@ -24,7 +24,7 @@ namespace PodCatch.DataModel
             };
             PodcastGroup group = new PodcastGroup(ServiceContext)
             {
-                Podcasts = new ObservableConcurrentCollection<Podcast>() { podcast },
+                Podcasts = new ConcurrentObservableCollection<Podcast>() { podcast },
                 Id = "Favorites",
                 TitleText = "Favorites"
             };

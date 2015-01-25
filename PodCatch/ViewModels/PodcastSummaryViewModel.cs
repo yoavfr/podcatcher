@@ -97,17 +97,14 @@ namespace PodCatch.ViewModels
 
         public void DownloadEpisodes()
         {
-            List<Episode> sortedEpisodes = Data.Episodes.ToList<Episode>();
-            sortedEpisodes.Sort((a, b) => { return a.PublishDate > b.PublishDate ? -1 : 1; });
-
             int i = 0;
-            foreach (Episode episode in sortedEpisodes)
+            foreach (Episode episode in Data.Episodes)
             {
                 if (i++ > 3)
                 {
                     break;
                 }
-                episode.Download();
+                UIThread.RunInBackground(() => episode.Download());
             }
         }
     }

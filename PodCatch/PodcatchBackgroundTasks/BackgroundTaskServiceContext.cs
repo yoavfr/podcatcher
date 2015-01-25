@@ -1,5 +1,6 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
+using PodCatch.DataModel.Search;
 
 namespace PodCatch.BackgroundTasks
 {
@@ -16,6 +17,7 @@ namespace PodCatch.BackgroundTasks
                     ServiceContext serviceContext = new ServiceContext(new DebugTracer());
                     serviceContext.PublishService<PodcastDataSource>();
                     serviceContext.PublishService<DownloadService>();
+                    serviceContext.PublishService<ITunesSearch>();
                     s_Instance = serviceContext;
                 }
                 return s_Instance;

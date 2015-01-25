@@ -12,10 +12,10 @@ namespace PodCatch.DataModel
         public PodcastGroup(IServiceContext serviceContext)
             : base(serviceContext)
         {
-            Podcasts = new ObservableConcurrentCollection<Podcast>();
+            Podcasts = new ConcurrentObservableCollection<Podcast>();
         }
 
-        public ObservableConcurrentCollection<Podcast> Podcasts { get; set; }
+        public ConcurrentObservableCollection<Podcast> Podcasts { get; set; }
 
         public string Id { get; set; }
 
@@ -31,11 +31,12 @@ namespace PodCatch.DataModel
             {
                 Id = data.Id
             };
-            group.Podcasts = new ObservableConcurrentCollection<Podcast>();
+            group.Podcasts = new ConcurrentObservableCollection<Podcast>(null, true);
             foreach (RoamingPodcastData podcastData in data.RoamingPodcastsData)
             {
                 group.Podcasts.Add(Podcast.FromRoamingData(serviceContext, podcastData));
             }
+            group.Podcasts.HoldNotifications = false;
             return group;
         }
 

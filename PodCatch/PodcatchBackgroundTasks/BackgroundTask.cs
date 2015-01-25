@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 
 namespace PodCatch.BackgroundTasks
@@ -17,7 +18,7 @@ namespace PodCatch.BackgroundTasks
             {
                 taskInstance.Canceled += OnTaskInstanceCanceled;
 
-                DoHouseCleaning();
+                await DoHouseCleaning();
             }
             catch (Exception e)
             {
@@ -29,7 +30,7 @@ namespace PodCatch.BackgroundTasks
             }
         }
 
-        public async void DoHouseCleaning()
+        private async Task DoHouseCleaning()
         {
             try
             {

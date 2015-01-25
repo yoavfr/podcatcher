@@ -208,7 +208,7 @@ namespace PodCatch.DataModel
             {
                 searchGroup = AddSearchResultsGroup();
             }
-
+            // TODO: this needs to happen on UIThread
             searchGroup.Podcasts.Clear();
             searchGroup.Podcasts.AddAll(filtered);
             foreach (Podcast podcast in searchGroup.Podcasts)
@@ -219,7 +219,7 @@ namespace PodCatch.DataModel
                 }
                 catch (Exception e)
                 {
-                    Tracer.TraceInformation("PodcastDataSource.ShowSearchResults() - failed to refresh {0}: {1}", podcast.Title, e);
+                    Tracer.TraceInformation("PodcastDataSource.Search() - failed to refresh {0}: {1}", podcast.Title, e);
                 }
             }
         }
@@ -259,6 +259,25 @@ namespace PodCatch.DataModel
         public async Task DoHouseKeeping()
         {
             await Load(true);
+            foreach (PodcastGroup group in Groups)
+            {
+                foreach (Podcast podcast in group.Podcasts)
+                {
+                    if (IsPodcastInFavorites(podcast))
+                    {
+                        int i = 0;
+                        foreach (Episode episode in podcast.Episodes)
+                        {
+                            if (i++ > 3)
+                            {
+                                break;
+                            }
+                            await episode.Download();
+                        }
+                    }
+                }
+            }
+
             await RemoveUntouchedFiles(ApplicationData.Current.LocalFolder);
             await RemoveUntouchedFiles(await Windows.Storage.KnownFolders.MusicLibrary.GetFolderAsync(Constants.ApplicationName));
         }

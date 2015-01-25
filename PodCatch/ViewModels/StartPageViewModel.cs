@@ -55,7 +55,7 @@ namespace PodCatch.ViewModels
             {
                 BackgroundAccessStatus status = await BackgroundExecutionManager.RequestAccessAsync();
                 IBackgroundTaskRegistration backgroundTaskRegistration = builder.Register();
-                backgroundTaskRegistration.Completed += ((s, a) => Data.Load(true));
+                backgroundTaskRegistration.Completed += ((s, a) => UIThread.RunInBackground(() => Data.Load(true)));
             }
             catch (Exception ex)
             {
@@ -172,7 +172,7 @@ namespace PodCatch.ViewModels
 
                     case 3: // Add to favorites
                         // Don't wait for this - It will leave the m_ShowingPopUp open
-                        t = Data.AddToFavorites(podcast.Data);
+                        await UIThread.RunInBackground(() => Data.AddToFavorites(podcast.Data));
                         podcast.DownloadEpisodes();
                         break;
                 }

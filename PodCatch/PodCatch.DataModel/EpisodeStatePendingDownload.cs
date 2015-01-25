@@ -1,5 +1,11 @@
 ﻿using Podcatch.Common.StateMachine;
+using PodCatch.Common;
+using System.IO;
 using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.Storage.FileProperties;
+using System;
+using System.Diagnostics;
 
 namespace PodCatch.DataModel
 {
@@ -23,6 +29,29 @@ namespace PodCatch.DataModel
                 case EpisodeEvent.Download:
                     {
                         return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloading>();
+                    }
+
+                case EpisodeEvent.UpdateDownloadStatus:
+                    {
+                        try
+                        {
+                            StorageFile file = await owner.GetStorageFile();
+                            if (file == null)
+                            {
+                                return null;
+                            }
+                            MusicProperties musicProperties = await file.Properties.GetMusicPropertiesAsync();
+
+                            owner.Duration = musicProperties.Duration;
+                            TouchedFiles.Instance.Add(file.Path);
+                            TouchedFiles.Instance.Add(Path.GetDirectoryName(file.Path));
+                            return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloaded>();
+                        }
+                        catch (FileNotFoundException e )
+                        {
+                            Debug.WriteLine("EpisodeStatePendingDownload.OnEvent() - ", e);
+                            return null;
+                        }
                     }
             }
 
