@@ -382,7 +382,7 @@ namespace PodCatch.DataModel
 
         private Episode GetEpisodeByUri(Uri uri)
         {
-            IEnumerable<Episode> found = Episodes.Where((episode) => episode.Uri.Equals(uri));
+            IEnumerable<Episode> found = Episodes.Where((episode) => GetNormalizedEpisodeUri(episode.Uri).Equals(GetNormalizedEpisodeUri(uri)));
 
             if (found.Count() > 0)
             {
@@ -396,6 +396,10 @@ namespace PodCatch.DataModel
             return newEpisode;
         }
 
+        private string GetNormalizedEpisodeUri(Uri uri)
+        {
+            return  uri.Host + uri.AbsolutePath;
+        }
         private string CacheFileName
         {
             get

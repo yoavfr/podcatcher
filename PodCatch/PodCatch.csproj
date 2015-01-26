@@ -131,17 +131,17 @@
     <Compile Include="Common\InverseBooleanConverter.cs" />
     <Compile Include="Common\UIThread.cs" />
     <Compile Include="Common\VisualTreeHelperExt.cs" />
-    <Compile Include="InputMessageDialog.xaml.cs">
+    <Compile Include="Views\InputMessageDialog.xaml.cs">
       <DependentUpon>InputMessageDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Resources\Strings.cs" />
-    <Compile Include="StartPage.xaml.cs">
+    <Compile Include="Views\StartPage.xaml.cs">
       <DependentUpon>StartPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GroupPage.xaml.cs">
+    <Compile Include="Views\GroupPage.xaml.cs">
       <DependentUpon>GroupPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PodcastPage.xaml.cs">
+    <Compile Include="Views\PodcastPage.xaml.cs">
       <DependentUpon>PodcastPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="MediaElementWrapper.cs" />
@@ -191,19 +191,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="InputMessageDialog.xaml">
+    <Page Include="Views\InputMessageDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="StartPage.xaml">
+    <Page Include="Views\StartPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="GroupPage.xaml">
+    <Page Include="Views\GroupPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="PodcastPage.xaml">
+    <Page Include="Views\PodcastPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
