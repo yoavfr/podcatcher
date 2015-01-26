@@ -1,4 +1,5 @@
 ﻿using Podcatch.Common.StateMachine;
+using PodCatch.Common;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -10,6 +11,11 @@ namespace PodCatch.DataModel
 {
     public class EpisodeStateDownloading : AbstractState<Episode, EpisodeEvent>
     {
+        public EpisodeStateDownloading(IServiceContext serviceContext)
+            : base(serviceContext)
+        {
+        }
+
         public override async Task OnEntry(Episode owner, IState<Episode, EpisodeEvent> fromState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
             owner.NotifyPropertyChanged(() => owner.State);
@@ -41,7 +47,7 @@ namespace PodCatch.DataModel
             }
             catch (Exception e)
             {
-                Debug.WriteLine("EpisodeStateDownloading.OnEntry(): error downloading {0}. {1}", owner.Uri, e);
+                Tracer.TraceWarning("EpisodeStateDownloading.OnEntry(): error downloading {0}. {1}", owner.Uri, e);
             }
             Task task = stateMachine.PostEvent(EpisodeEvent.DownloadFail);
         }
@@ -56,10 +62,10 @@ namespace PodCatch.DataModel
             switch (anEvent)
             {
                 case EpisodeEvent.DownloadSuccess:
-                    return Task.FromResult<IState<Episode, EpisodeEvent>>(EpisodeStateFactory.Instance.GetState<EpisodeStateDownloaded>());
+                    return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateDownloaded>());
 
                 case EpisodeEvent.DownloadFail:
-                    return Task.FromResult<IState<Episode, EpisodeEvent>>(EpisodeStateFactory.Instance.GetState<EpisodeStatePendingDownload>());
+                    return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStatePendingDownload>());
             }
             return Task.FromResult<IState<Episode, EpisodeEvent>>(null);
         }

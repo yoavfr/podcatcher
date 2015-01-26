@@ -33,7 +33,7 @@ namespace PodCatch.DataModel
             PodcastFileName = podcastFileName;
             m_DownloadService = serviceContext.GetService<IDownloadService>();
             m_StateMachine = new SimpleStateMachine<Episode, EpisodeEvent>(serviceContext, this, 0);
-            m_StateMachine.InitState(EpisodeStateFactory.Instance.GetState<EpisodeStateUnknown>(), true);
+            m_StateMachine.InitState(EpisodeStateFactory.GetInstance(serviceContext).GetState<EpisodeStateUnknown>(), true);
             m_StateMachine.StartPumpEvents();
         }
 

@@ -16,7 +16,7 @@ namespace PodCatch.StateMachine.Test
         {
             ServiceContext serviceContext = new ServiceContext(new DebugTracer());
             SimpleStateMachine<UnitTest1, TestEvent> stateMachine = new SimpleStateMachine<UnitTest1, TestEvent>(serviceContext, this, 5);
-            TestStateFactory stateFactory = new TestStateFactory();
+            TestStateFactory stateFactory = new TestStateFactory(serviceContext);
             stateMachine.InitState(stateFactory.GetState<StateA>(), true);
             stateMachine.StartPumpEvents();
             stateMachine.PostEvent(TestEvent.A, 0);

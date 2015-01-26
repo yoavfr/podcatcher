@@ -1,16 +1,21 @@
 ﻿using Podcatch.Common.StateMachine;
 using PodCatch.Common;
+using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
-using System;
-using System.Diagnostics;
 
 namespace PodCatch.DataModel
 {
     public class EpisodeStatePendingDownload : AbstractState<Episode, EpisodeEvent>
     {
+        public EpisodeStatePendingDownload(IServiceContext serviceContext)
+            : base(serviceContext)
+        {
+        }
+
         public override Task OnEntry(Episode owner, IState<Episode, EpisodeEvent> fromState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
             owner.NotifyPropertyChanged(() => owner.State);
@@ -28,7 +33,7 @@ namespace PodCatch.DataModel
             {
                 case EpisodeEvent.Download:
                     {
-                        return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloading>();
+                        return GetState<EpisodeStateDownloading>();
                     }
 
                 case EpisodeEvent.UpdateDownloadStatus:
@@ -45,11 +50,11 @@ namespace PodCatch.DataModel
                             owner.Duration = musicProperties.Duration;
                             TouchedFiles.Instance.Add(file.Path);
                             TouchedFiles.Instance.Add(Path.GetDirectoryName(file.Path));
-                            return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloaded>();
+                            return GetState<EpisodeStateDownloaded>();
                         }
-                        catch (FileNotFoundException e )
+                        catch (FileNotFoundException e)
                         {
-                            Debug.WriteLine("EpisodeStatePendingDownload.OnEvent() - ", e);
+                            Tracer.TraceWarning("EpisodeStatePendingDownload.OnEvent() - ", e);
                             return null;
                         }
                     }

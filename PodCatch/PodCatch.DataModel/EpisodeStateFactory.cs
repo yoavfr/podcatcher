@@ -1,28 +1,30 @@
 ﻿using Podcatch.Common.StateMachine;
+using PodCatch.Common;
 
 namespace PodCatch.DataModel
 {
     internal class EpisodeStateFactory : AbstractStateFactory<Episode, EpisodeEvent>
     {
-        private static EpisodeStateFactory s_Instance = new EpisodeStateFactory();
+        private static EpisodeStateFactory s_Instance = null;
 
-        public static EpisodeStateFactory Instance
+        public static EpisodeStateFactory GetInstance(IServiceContext serviceContext)
         {
-            get
+            if (s_Instance == null)
             {
-                return s_Instance;
+                s_Instance = new EpisodeStateFactory(serviceContext);
             }
+            return s_Instance;
         }
 
-        private EpisodeStateFactory()
+        private EpisodeStateFactory(IServiceContext serviceContext)
             : base(new AbstractState<Episode, EpisodeEvent>[]
         {
-            new EpisodeStateUnknown(),
-            new EpisodeStatePendingDownload(),
-            new EpisodeStateDownloading(),
-            new EpisodeStateDownloaded(),
-            new EpisodeStatePlaying(),
-            new EpisodeStateScanning(),
+            new EpisodeStateUnknown(serviceContext),
+            new EpisodeStatePendingDownload(serviceContext),
+            new EpisodeStateDownloading(serviceContext),
+            new EpisodeStateDownloaded(serviceContext),
+            new EpisodeStatePlaying(serviceContext),
+            new EpisodeStateScanning(serviceContext),
         })
         { }
     }

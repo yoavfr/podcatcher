@@ -1,4 +1,5 @@
 ﻿using Podcatch.Common.StateMachine;
+using PodCatch.Common;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -9,6 +10,11 @@ namespace PodCatch.DataModel
 {
     public class EpisodeStateUnknown : AbstractState<Episode, EpisodeEvent>
     {
+        public EpisodeStateUnknown(IServiceContext serviceContext)
+            : base(serviceContext)
+        {
+        }
+
         public override Task OnEntry(Episode owner, IState<Episode, EpisodeEvent> fromState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
             owner.NotifyPropertyChanged(() => owner.State);
@@ -31,18 +37,18 @@ namespace PodCatch.DataModel
                             StorageFile file = await owner.GetStorageFile();
                             if (file == null)
                             {
-                                return EpisodeStateFactory.Instance.GetState<EpisodeStatePendingDownload>();
+                                return GetState<EpisodeStatePendingDownload>();
                             }
                             MusicProperties musicProperties = await file.Properties.GetMusicPropertiesAsync();
 
                             owner.Duration = musicProperties.Duration;
                             TouchedFiles.Instance.Add(file.Path);
                             TouchedFiles.Instance.Add(Path.GetDirectoryName(file.Path));
-                            return EpisodeStateFactory.Instance.GetState<EpisodeStateDownloaded>();
+                            return GetState<EpisodeStateDownloaded>();
                         }
                         catch (FileNotFoundException)
                         {
-                            return EpisodeStateFactory.Instance.GetState<EpisodeStatePendingDownload>();
+                            return GetState<EpisodeStatePendingDownload>();
                         }
                     }
             }

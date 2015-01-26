@@ -1,10 +1,16 @@
 ﻿using Podcatch.Common.StateMachine;
+using PodCatch.Common;
 using System.Threading.Tasks;
 
 namespace PodCatch.DataModel
 {
     public class EpisodeStatePlaying : AbstractState<Episode, EpisodeEvent>
     {
+        public EpisodeStatePlaying(IServiceContext serviceContext)
+            : base(serviceContext)
+        {
+        }
+
         public override Task OnEntry(Episode owner, IState<Episode, EpisodeEvent> fromState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
             owner.NotifyPropertyChanged(() => owner.State);
@@ -23,11 +29,11 @@ namespace PodCatch.DataModel
                 case EpisodeEvent.Pause:
                 case EpisodeEvent.DonePlaying:
                     {
-                        return Task.FromResult<IState<Episode, EpisodeEvent>>(EpisodeStateFactory.Instance.GetState<EpisodeStateDownloaded>());
+                        return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateDownloaded>());
                     }
                 case EpisodeEvent.Scan:
                     {
-                        return Task.FromResult<IState<Episode, EpisodeEvent>>(EpisodeStateFactory.Instance.GetState<EpisodeStateScanning>());
+                        return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateScanning>());
                     }
             }
             return Task.FromResult<IState<Episode, EpisodeEvent>>(null);
