@@ -1,9 +1,7 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
+using PodCatch.ViewModels;
 using System;
-using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.UI.Popups;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
@@ -18,9 +16,8 @@ namespace PodCatch
     /// </summary>
     public sealed partial class GroupPage : Page
     {
-        private bool m_ShowingPopUp;
         private NavigationHelper navigationHelper;
-        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        private GroupPageViewModel m_ViewModel;
         private IServiceContext m_ServiceContext;
         private IPodcastDataSource m_PodcastDataSource;
 
@@ -36,16 +33,23 @@ namespace PodCatch
         /// <summary>
         /// This can be changed to a strongly typed view model.
         /// </summary>
-        public ObservableDictionary DefaultViewModel
+        public GroupPageViewModel DefaultViewModel
         {
-            get { return this.defaultViewModel; }
+            get
+            {
+                if (m_ViewModel == null)
+                {
+                    m_ViewModel = new GroupPageViewModel(null, m_ServiceContext);
+                }
+                return m_ViewModel;
+            }
         }
 
         public GroupPage()
         {
-            this.InitializeComponent();
             m_ServiceContext = ApplicationServiceContext.Instance;
             m_PodcastDataSource = m_ServiceContext.GetService<IPodcastDataSource>();
+            this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
         }
@@ -64,8 +68,7 @@ namespace PodCatch
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             PodcastGroup group = m_PodcastDataSource.GetGroup((String)e.NavigationParameter);
-            this.DefaultViewModel["Group"] = group;
-            this.DefaultViewModel["Podcasts"] = group.Podcasts;
+            DefaultViewModel.OnLoadState(group, m_PodcastDataSource);
         }
 
         /// <summary>
@@ -77,7 +80,7 @@ namespace PodCatch
         {
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
-            string podcastId = ((Podcast)e.ClickedItem).Id;
+            string podcastId = ((PodcastSummaryViewModel)e.ClickedItem).Id;
             this.Frame.Navigate(typeof(PodcastPage), podcastId);
         }
 
@@ -106,59 +109,18 @@ namespace PodCatch
 
         private async void PodcastRightTapped(object sender, RightTappedRoutedEventArgs e)
         {
-            await ShowPodcastPopUpMenue(sender, e.GetPosition(this));
+            e.Handled = true;
+            Grid grid = (Grid)sender;
+            PodcastSummaryViewModel selectedPodcast = (PodcastSummaryViewModel)grid.DataContext;
+            await m_ViewModel.OnPodcastTapped(selectedPodcast, e.GetPosition(this));
         }
 
         private async void HoldingPodcast(object sender, HoldingRoutedEventArgs e)
         {
-            await ShowPodcastPopUpMenue(sender, e.GetPosition(this));
-        }
-
-        private async Task ShowPodcastPopUpMenue(object sender, Point position)
-        {
-            if (m_ShowingPopUp == true)
-            {
-                return;
-            }
-            m_ShowingPopUp = true;
-            try
-            {
-                Grid grid = (Grid)sender;
-                Podcast selectedPodcast = (Podcast)grid.DataContext;
-
-                PopupMenu popupMenu = new PopupMenu();
-                // this is useful for debugging
-                //popupMenu.Commands.Add(new UICommand(){Id=1, Label="Copy RSS feed URL to clipboard"});
-
-                if (m_PodcastDataSource.IsPodcastInFavorites(selectedPodcast))
-                {
-                    popupMenu.Commands.Add(new UICommand() { Id = 2, Label = "Remove from favorites" });
-                }
-                else
-                {
-                    popupMenu.Commands.Add(new UICommand() { Id = 3, Label = "Add to favorites" });
-                }
-                IUICommand selectedCommand = await popupMenu.ShowAsync(position);
-                if (selectedCommand == null)
-                {
-                    return;
-                }
-                switch ((int)selectedCommand.Id)
-                {
-                    case 2: // Remove from favorites
-                        await m_PodcastDataSource.RemoveFromFavorites(selectedPodcast);
-                        NavigationHelper.GoBack();
-                        break;
-
-                    case 3: // Add to favorites
-                        await m_PodcastDataSource.AddToFavorites(selectedPodcast);
-                        break;
-                }
-            }
-            finally
-            {
-                m_ShowingPopUp = false;
-            }
+            e.Handled = true;
+            Grid grid = (Grid)sender;
+            PodcastSummaryViewModel selectedPodcast = (PodcastSummaryViewModel)grid.DataContext;
+            await m_ViewModel.OnPodcastTapped(selectedPodcast, e.GetPosition(this));
         }
     }
 }

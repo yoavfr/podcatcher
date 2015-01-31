@@ -139,8 +139,6 @@ namespace PodCatch.ViewModels
             m_ShowingPopUp = true;
             try
             {
-                ;
-
                 PopupMenu popupMenu = new PopupMenu();
                 // this is useful for debugging
                 //popupMenu.Commands.Add(new UICommand(){Id=1, Label="Copy RSS feed URL to clipboard"});
@@ -202,7 +200,7 @@ namespace PodCatch.ViewModels
 
             searchResults = await UIThread.RunInBackground<IEnumerable<Podcast>>(async () =>
                 {
-                     return await Data.Search(searchTerm);
+                    return await Data.Search(searchTerm);
                 });
             await UIThread.Dispatch(async () =>
                 {

@@ -134,6 +134,14 @@ namespace PodCatch.Common.Collections
             RaiseCollectionChangedEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item));
         }
 
+        public void RemoveFirst(Func<T, bool> predicate)
+        {
+            m_InternalDictionary.RemoveFirst((KeyValuePair<T,T> keyValuePair)=>
+            {
+                return predicate(keyValuePair.Key);
+            });
+        }
+
         public void Clear()
         {
             List<T> removedItems = new List<T>(m_InternalDictionary.Keys);

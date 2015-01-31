@@ -15,9 +15,6 @@
         <!-- Collection of items displayed by this page -->
         <common:LocalizationConverter x:Key="LocalizationConverter" />
         <common:PodcastGroupImageConverter x:Key="PodcastGroupImageConverter" />
-        <CollectionViewSource
-            x:Name="itemsViewSource"
-            Source="{Binding Podcasts}" />
     </Page.Resources>
 
     <!--
@@ -46,7 +43,7 @@
             TabIndex="1"
             Grid.RowSpan="2"
             Padding="120,126,120,50"
-            ItemsSource="{Binding Source={StaticResource itemsViewSource}}"
+            ItemsSource="{Binding Podcasts}"
             SelectionMode="None"
             IsSwipeEnabled="false"
             IsItemClickEnabled="True"

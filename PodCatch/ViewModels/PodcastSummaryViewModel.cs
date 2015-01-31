@@ -1,6 +1,5 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 
@@ -68,6 +67,14 @@ namespace PodCatch.ViewModels
                     m_NumUnplayedEpisodes = value;
                     NotifyPropertyChanged(() => NumUnplayedEpisodes);
                 }
+            }
+        }
+
+        public string Id
+        {
+            get
+            {
+                return Data.Id;
             }
         }
 

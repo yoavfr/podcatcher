@@ -75,7 +75,7 @@ namespace PodCatch
         {
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
-            string podcastId = ((PodcastSummaryViewModel)e.ClickedItem).Data.Id;
+            string podcastId = ((PodcastSummaryViewModel)e.ClickedItem).Id;
             this.Frame.Navigate(typeof(PodcastPage), podcastId);
         }
 
