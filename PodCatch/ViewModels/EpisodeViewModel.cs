@@ -178,6 +178,27 @@ namespace PodCatch.ViewModels
             DownloadProgress = Data.DownloadProgress;
         }
 
+        public void TogglePlayState()
+        {
+            if (Data.State is EpisodeStatePendingDownload)
+            {
+                Data.Download();
+            }
+            else if (Data.State is EpisodeStateDownloaded)
+            {
+                if (Data.Played)
+                {
+                    Data.Position = TimeSpan.FromSeconds(0);
+                    Data.Played = false;
+                }
+                Task t = MediaElementWrapper.Instance.Play(Data);
+            }
+            else if (Data.State is EpisodeStatePlaying)
+            {
+                MediaElementWrapper.Instance.Pause(Data);
+            }
+        }
+
         public Task Download()
         {
             return Data.Download();

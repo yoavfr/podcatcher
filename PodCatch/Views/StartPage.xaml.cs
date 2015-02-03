@@ -42,6 +42,14 @@ namespace PodCatch
             }
         }
 
+        public EpisodeViewModel EpisodeViewModel
+        {
+            get
+            {
+                return m_ViewModel.NowPlaying;
+            }
+        }
+
         public StartPage()
         {
             m_ServiceContext = ApplicationServiceContext.Instance;
@@ -116,6 +124,21 @@ namespace PodCatch
             Grid grid = (Grid)sender;
             PodcastSummaryViewModel selectedPodcast = (PodcastSummaryViewModel)grid.DataContext;
             await m_ViewModel.OnPodcastTapped(selectedPodcast, e.GetPosition(this));
+        }
+
+        private void OnPlayClicked(object sender, RoutedEventArgs e)
+        {
+            m_ViewModel.NowPlaying.TogglePlayState();
+        }
+
+        private void OnSkipForward(object sender, RoutedEventArgs e)
+        {
+            m_ViewModel.OnSkipForward();
+        }
+
+        private void OnSkipBackward(object sender, RoutedEventArgs e)
+        {
+            m_ViewModel.OnSkipBackward();
         }
     }
 }

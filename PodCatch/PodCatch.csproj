@@ -114,6 +114,7 @@
     </Compile>
     <Compile Include="ApplicationServiceContext.cs" />
     <Compile Include="Common\AltBackgroundConverter.cs" />
+    <Compile Include="Common\BooleanVisibilityConverter.cs" />
     <Compile Include="Common\EpisodePlayedStyleConverter.cs" />
     <Compile Include="Common\ItemClickCommand.cs" />
     <Compile Include="Common\NumUnplayedEpisodesConverter.cs" />

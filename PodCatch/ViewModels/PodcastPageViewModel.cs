@@ -249,27 +249,6 @@ namespace PodCatch.ViewModels
             }
         }
 
-        public void TogglePlayState(EpisodeViewModel episodeViewModel)
-        {
-            Episode episode = episodeViewModel.Data;
-            if (episode.State is EpisodeStatePendingDownload)
-            {
-                episode.Download();
-            }
-            else if (episode.State is EpisodeStateDownloaded)
-            {
-                if (episode.Played)
-                {
-                    episode.Position = TimeSpan.FromSeconds(0);
-                    episode.Played = false;
-                }
-                Task t = MediaPlayer.Play(episode);
-            }
-            else if (episode.State is EpisodeStatePlaying)
-            {
-                MediaPlayer.Pause(episode);
-            }
-        }
 
         public RelayCommand RefreshCommand
         {

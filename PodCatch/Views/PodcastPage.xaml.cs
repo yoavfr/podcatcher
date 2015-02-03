@@ -92,7 +92,7 @@ namespace PodCatch
         {
             AppBarButton playButton = (AppBarButton)sender;
             EpisodeViewModel episode = (EpisodeViewModel)playButton.DataContext;
-            m_ViewModel.TogglePlayState(episode);
+            episode.TogglePlayState();
         }
 
         private void PlayEpisodeSlider_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
@@ -134,7 +134,7 @@ namespace PodCatch
         private void episodesListView_ItemClick(object sender, ItemClickEventArgs e)
         {
             EpisodeViewModel episode = (EpisodeViewModel)e.ClickedItem;
-            m_ViewModel.TogglePlayState(episode);
+            episode.TogglePlayState();
         }
 
         private void RefreshButtonClicked(object sender, RoutedEventArgs e)

@@ -17,14 +17,31 @@ namespace PodCatch
         private Episode m_NowPlaying;
         private TimeSpan m_Position;
         private DateTime m_LastSaveTime;
+        private MediaElement m_MediaElement;
 
-        private MediaElement MediaElement { get; set; }
+        private MediaElement MediaElement
+        {
+            get
+            {
+                if (m_MediaElement == null)
+                {
+                    DependencyObject rootGrid = VisualTreeHelper.GetChild(Window.Current.Content, 0);
+                    m_MediaElement = (MediaElement)VisualTreeHelper.GetChild(rootGrid, 0);
+                    m_MediaElement.AutoPlay = true;
+                    m_MediaElement.MediaOpened += MediaElement_MediaOpened;
+                    m_MediaElement.CurrentStateChanged += MediaElement_CurrentStateChanged;
+                }
+                return m_MediaElement;
+            }
+        }
 
         private SystemMediaTransportControls SystemMediaTransportControls { get; set; }
 
         public static CoreDispatcher Dispatcher { private get; set; }
 
         private IPodcastDataSource m_PodcastDataSource;
+
+        public Episode NowPlaying { get; private set; }
 
         public TimeSpan Position
         {
@@ -49,9 +66,9 @@ namespace PodCatch
 
         public async Task Play(Episode episode)
         {
-            if (m_NowPlaying != null && m_NowPlaying != episode)
+            if (NowPlaying != null && NowPlaying != episode)
             {
-                Pause(m_NowPlaying);
+                Pause(NowPlaying);
             }
 
             StorageFile storageFile = await episode.GetStorageFile();
@@ -64,7 +81,7 @@ namespace PodCatch
             var stream = await storageFile.OpenReadAsync();
             MediaElement.SetSource(stream, storageFile.ContentType);
             Position = episode.Position;
-            m_NowPlaying = episode;
+            NowPlaying = episode;
             Task t = episode.PostEvent(EpisodeEvent.Play);
             MediaElement.Play();
             MediaElement.MediaEnded += MediaElement_MediaEnded;
@@ -72,10 +89,10 @@ namespace PodCatch
 
         private async void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
         {
-            Episode episode = m_NowPlaying;
+            Episode episode = NowPlaying;
             if (episode != null)
             {
-                m_NowPlaying = null;
+                NowPlaying = null;
                 episode.Played = true;
                 Task t = episode.PostEvent(EpisodeEvent.DonePlaying);
                 await m_PodcastDataSource.Store();
@@ -96,22 +113,16 @@ namespace PodCatch
             {
                 if (s_Insatnce == null)
                 {
-                    DependencyObject rootGrid = VisualTreeHelper.GetChild(Window.Current.Content, 0);
-                    MediaElement mediaElement = (MediaElement)VisualTreeHelper.GetChild(rootGrid, 0);
-                    mediaElement.AutoPlay = true;
-                    s_Insatnce = new MediaElementWrapper(ApplicationServiceContext.Instance, mediaElement);
+                    s_Insatnce = new MediaElementWrapper(ApplicationServiceContext.Instance);
                 }
                 return s_Insatnce;
             }
         }
 
-        private MediaElementWrapper(IServiceContext serviceContext, MediaElement mediaElement)
+        private MediaElementWrapper(IServiceContext serviceContext)
             : base(serviceContext)
         {
-            MediaElement = mediaElement;
             m_PodcastDataSource = serviceContext.GetService<IPodcastDataSource>();
-            MediaElement.MediaOpened += MediaElement_MediaOpened;
-            MediaElement.CurrentStateChanged += MediaElement_CurrentStateChanged;
 
             SystemMediaTransportControls = SystemMediaTransportControls.GetForCurrentView();
             SystemMediaTransportControls.ButtonPressed += SystemMediaTransportControls_ButtonPressed;
@@ -123,7 +134,7 @@ namespace PodCatch
             timer.Interval = TimeSpan.FromMilliseconds(500);
             timer.Tick += (sender, e) =>
             {
-                Episode episode = m_NowPlaying;
+                Episode episode = NowPlaying;
                 if (episode != null)
                 {
                     // don't update position when slider is being manipulated.
@@ -171,7 +182,7 @@ namespace PodCatch
         {
             try
             {
-                Episode episode = m_NowPlaying;
+                Episode episode = NowPlaying;
                 if (episode == null || Dispatcher == null)
                 {
                     return;
@@ -216,7 +227,7 @@ namespace PodCatch
         private void MediaElement_MediaOpened(object sender, RoutedEventArgs e)
         {
             ((MediaElement)sender).Position = m_Position;
-            Episode episode = m_NowPlaying;
+            Episode episode = NowPlaying;
             if (episode != null)
             {
                 SystemMediaTransportControlsDisplayUpdater updater = SystemMediaTransportControls.DisplayUpdater;
@@ -230,7 +241,7 @@ namespace PodCatch
 
         public bool IsEpisodePlaying(Episode episode)
         {
-            return m_NowPlaying == episode;
+            return NowPlaying == episode;
         }
 
         public void SkipForward(Episode episode)

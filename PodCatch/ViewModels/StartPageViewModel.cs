@@ -10,6 +10,7 @@ using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.UI.Popups;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace PodCatch.ViewModels
@@ -17,6 +18,8 @@ namespace PodCatch.ViewModels
     public class StartPageViewModel : BaseViewModel<IPodcastDataSource>
     {
         private ObservableCollection<PodcastGroupViewModel> m_Groups = new ObservableCollection<PodcastGroupViewModel>();
+        private EpisodeViewModel m_NowPlaying;
+        private bool m_ShowNowPlaying;
         private bool m_ShowingPopUp;
         private RelayCommand m_SearchForPodcastCommand;
         private StartPage m_View;
@@ -32,6 +35,38 @@ namespace PodCatch.ViewModels
             UIThread.RunInBackground(() => Data.Load(false));
 
             Task t = RegisterBackgroundTask();
+        }
+
+        public EpisodeViewModel NowPlaying
+        {
+            get
+            {
+                return m_NowPlaying;
+            }
+            set
+            {
+                if (m_NowPlaying != value)
+                {
+                    m_NowPlaying = value;
+                }
+                NotifyPropertyChanged(() => NowPlaying);
+            }
+        }
+
+        public bool ShowNowPlaying
+        {
+            get
+            {
+                return m_ShowNowPlaying;
+            }
+            set
+            {
+                if (m_ShowNowPlaying != value)
+                {
+                    m_ShowNowPlaying = value;
+                    NotifyPropertyChanged(() => ShowNowPlaying);
+                }
+            }
         }
 
         private void OnPodcastGroupsChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -72,6 +107,11 @@ namespace PodCatch.ViewModels
         protected override void UpdateFields()
         {
             UpdateFields(null);
+            if (MediaElementWrapper.Instance.NowPlaying != null)
+            {
+                NowPlaying = new EpisodeViewModel(MediaElementWrapper.Instance.NowPlaying, ServiceContext);
+            }
+            ShowNowPlaying = NowPlaying != null;
         }
 
         protected void UpdateFields(NotifyCollectionChangedEventArgs e)
@@ -206,6 +246,16 @@ namespace PodCatch.ViewModels
                 {
                     await Data.UpdateSearchResults(searchResults);
                 });
+        }
+
+        internal void OnSkipForward()
+        {
+            MediaElementWrapper.Instance.SkipForward(MediaElementWrapper.Instance.NowPlaying);
+        }
+
+        internal void OnSkipBackward()
+        {
+            MediaElementWrapper.Instance.SkipBackward(MediaElementWrapper.Instance.NowPlaying);
         }
     }
 }

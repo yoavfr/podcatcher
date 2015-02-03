@@ -17,6 +17,8 @@
         <common:PodcastUnplayedCounterVisibilityConverter x:Key="PodcastUnplayedCounterVisibilityConverter" />
         <common:NumUnplayedEpisodesMarginConverter x:Key="NumUnplayedEpisodesMarginConverter" />
         <common:NumUnplayedEpisodesConverter x:Key="NumUnplayedEpisodesConverter" />
+        <common:EpisodeStateIconConverter x:Key="EpisodeStateIconConverter" />
+        <common:BooleanVisibilityConverter x:Key="BooleanVisibilityConverter" />
         <!--
             Collection of grouped items displayed by this page, bound to a subset
             of the complete item list because items in groups cannot be virtualized
@@ -130,6 +132,14 @@
                         AutomationProperties.ItemType="Navigation Button" />
             <TextBlock x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1"
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40" />
+            <Grid Grid.Column="1" HorizontalAlignment="Right" Height="140" Margin="0,20,30,-59" VerticalAlignment="Top" Width="300" Visibility="{Binding ShowNowPlaying, Converter={StaticResource BooleanVisibilityConverter}}">
+                <Grid DataContext="{Binding NowPlaying}" Background="Black">
+                    <TextBlock HorizontalAlignment="Center" TextAlignment="Center" Height="59" Margin="10,71,10,0" TextWrapping="Wrap" Text="{Binding Title}" Style="{StaticResource SubheaderTextBlockStyle}" VerticalAlignment="Top" Width="280"/>
+                    <AppBarButton HorizontalAlignment="Center" Icon="{Binding State, Converter={StaticResource EpisodeStateIconConverter}}" VerticalAlignment="Top" Click="OnPlayClicked"/>
+                    <AppBarButton HorizontalAlignment="Right" Icon="Next" VerticalAlignment="Top" Click="OnSkipForward"/>
+                    <AppBarButton HorizontalAlignment="Left" Icon="Previous" VerticalAlignment="Top" RenderTransformOrigin="0.225,0.5" Click="OnSkipBackward"/>
+                </Grid>
+            </Grid>
         </Grid>
     </Grid>
 </Page>
