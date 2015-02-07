@@ -16,5 +16,8 @@ namespace PodCatch.DataModel.Data
 
         [DataMember]
         public long m_PositionTicks { get; set; }
+
+        [DataMember]
+        public string Title { get; set; }
     }
 }

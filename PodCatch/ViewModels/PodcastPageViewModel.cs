@@ -18,6 +18,7 @@ namespace PodCatch.ViewModels
         private RelayCommand m_ShowMoreCommand;
         private RelayCommand m_AllPlayedCommand;
         private RelayCommand m_AllUnplayedCommand;
+        private bool m_Loaded;
 
         private MediaElementWrapper MediaPlayer
         {
@@ -111,8 +112,6 @@ namespace PodCatch.ViewModels
         {
             Podcast = Data.GetPodcast((String)e.NavigationParameter);
             UpdateFields();
-            Podcast.Episodes.CollectionChanged += OnEpisodesChanged;
-            Podcast.PropertyChanged += OnPodcastChanged;
         }
 
         private void OnPodcastChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -130,6 +129,12 @@ namespace PodCatch.ViewModels
             if (Podcast == null)
             {
                 return;
+            }
+            if (!m_Loaded)
+            {
+                Podcast.Episodes.CollectionChanged += OnEpisodesChanged;
+                Podcast.PropertyChanged += OnPodcastChanged;
+                m_Loaded = true;
             }
             Title = Podcast.Title;
             Description = Podcast.Description;

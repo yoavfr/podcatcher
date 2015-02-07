@@ -232,7 +232,10 @@ namespace PodCatch
             {
                 SystemMediaTransportControlsDisplayUpdater updater = SystemMediaTransportControls.DisplayUpdater;
                 updater.Type = MediaPlaybackType.Music;
-                updater.MusicProperties.Title = episode.Title;
+                if (episode.Title != null)
+                {
+                    updater.MusicProperties.Title = episode.Title;
+                }
                 updater.Update();
                 SystemMediaTransportControls.IsNextEnabled = true;
                 SystemMediaTransportControls.IsPreviousEnabled = true;

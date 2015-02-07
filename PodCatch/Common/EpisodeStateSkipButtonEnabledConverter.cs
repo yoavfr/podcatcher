@@ -5,19 +5,19 @@ using Windows.UI.Xaml.Data;
 
 namespace PodCatch.Common
 {
-    public class EpisodeStateButtonEnabledConverter : IValueConverter
+    public class EpisodeStateSkipButtonEnabledConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             IState<Episode, EpisodeEvent> state = value as IState<Episode, EpisodeEvent>;
             if (state != null)
             {
-                if (state is EpisodeStateDownloading || state is EpisodeStateUnknown)
+                if (state is EpisodeStateDownloaded || state is EpisodeStatePlaying)
                 {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

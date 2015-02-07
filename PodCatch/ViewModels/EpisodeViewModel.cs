@@ -98,23 +98,6 @@ namespace PodCatch.ViewModels
             }
         }
 
-        private TimeSpan m_TimeLeft;
-        public TimeSpan TimeLeft
-        {
-            get
-            {
-                return m_TimeLeft;
-            }
-            set
-            {
-                if (m_TimeLeft != value)
-                {
-                    m_TimeLeft = value;
-                    NotifyPropertyChanged(() => TimeLeft);
-                }
-            }
-        }
-
         private TimeSpan m_Duration;
 
         public TimeSpan Duration
@@ -129,7 +112,16 @@ namespace PodCatch.ViewModels
                 {
                     m_Duration = value;
                     NotifyPropertyChanged(() => Duration);
+                    NotifyPropertyChanged(() => DurationIsKnown);
                 }
+            }
+        }
+
+        public Boolean DurationIsKnown
+        {
+            get
+            {
+                return m_Duration.Ticks > 0;
             }
         }
 
@@ -191,7 +183,6 @@ namespace PodCatch.ViewModels
             Played = Data.Played;
             Position = Data.Position;
             Duration = Data.Duration;
-            TimeLeft = Duration - Position;
             State = Data.State;
             DownloadProgress = Data.DownloadProgress;
         }

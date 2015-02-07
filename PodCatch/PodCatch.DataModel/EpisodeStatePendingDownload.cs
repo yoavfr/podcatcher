@@ -48,6 +48,10 @@ namespace PodCatch.DataModel
                             MusicProperties musicProperties = await file.Properties.GetMusicPropertiesAsync();
 
                             owner.Duration = musicProperties.Duration;
+                            if (owner.Title == null)
+                            {
+                                owner.Title = musicProperties.Title;
+                            }
                             TouchedFiles.Instance.Add(file.Path);
                             TouchedFiles.Instance.Add(Path.GetDirectoryName(file.Path));
                             return GetState<EpisodeStateDownloaded>();

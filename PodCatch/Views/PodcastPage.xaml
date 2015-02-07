@@ -25,7 +25,9 @@
         <common:TimeSpanConverter x:Key="TimeSpanConverter" />
         <common:TimespanToTicksConverter x:Key="TimespanToTicksConverter" />
         <common:EpisodeStateButtonEnabledConverter x:Key="EpisodeStateButtonEnabledConverter" />
+        <common:EpisodeStateSkipButtonEnabledConverter x:Key="EpisodeStateSkipButtonEnabledConverter" />
         <common:EpisodePlayedStyleConverter x:Key="EpisodePlayedStyleConverter" />
+        <common:BooleanVisibilityConverter x:Key="BooleanVisibilityConverter" />
     </Page.Resources>
 
     <!-- AppBar -->
@@ -104,17 +106,27 @@
                                                 <StackPanel Orientation="Horizontal">
                                                     <!-- Download/Play/Pause button -->
                                                     <Grid HorizontalAlignment="Left">
-                                                          <AppBarButton Margin="0,0,0,0" Icon="Previous" Click="OnSkipPreviousClicked"/>
+                                                          <AppBarButton Margin="0,0,0,0" 
+                                                                        Icon="Previous" 
+                                                                        Click="OnSkipPreviousClicked"
+                                                                        IsEnabled="{Binding State, Converter={StaticResource EpisodeStateSkipButtonEnabledConverter}}"
+                                                                        Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='AppBarButton'}"/>
                                                           <AppBarButton Margin="75,0,0,0"
                                                                   Icon="{Binding State, Converter={StaticResource EpisodeStateIconConverter}}"
                                                                   ToolTipService.ToolTip="{Binding State, Converter={StaticResource EpisodeStateToolTipConverter}}"
                                                                   IsEnabled="{Binding State, Converter={StaticResource EpisodeStateButtonEnabledConverter}}"
                                                                   Click="PlayButton_Clicked"
                                                                   Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='AppBarButton'}" />
-                                                        <AppBarButton Margin="150,0,0,0" Icon="Next" Click="OnSkipNextClicked"/>
+                                                        <AppBarButton Margin="150,0,0,0" 
+                                                                      Icon="Next" 
+                                                                      Click="OnSkipNextClicked"
+                                                                      IsEnabled="{Binding State, Converter={StaticResource EpisodeStateSkipButtonEnabledConverter}}"
+                                                                      Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='AppBarButton'}"/>
                                                     </Grid>
-                                                    <TextBlock Text="{Binding Position, Converter={StaticResource TimeSpanConverter}}" ToolTipService.ToolTip="Elapsed time" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}" />
-                                                    <TextBlock Text="{Binding TimeLeft, Converter={StaticResource TimeSpanConverter}}" ToolTipService.ToolTip="Elapsed time" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}" />
+                                                    <Grid>
+                                                        <TextBlock VerticalAlignment="Top" Text="{Binding Position, Converter={StaticResource TimeSpanConverter}}" ToolTipService.ToolTip="Elapsed time" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}" />
+                                                        <TextBlock Margin="0,15,0,0"  Visibility="{Binding DurationIsKnown, Converter={StaticResource BooleanVisibilityConverter}}" VerticalAlignment="Top" Text="{Binding Duration, Converter={StaticResource TimeSpanConverter}}" ToolTipService.ToolTip="Duration" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}" />
+                                                    </Grid>
                                                     <!-- Progress Bar -->
                                                 </StackPanel>
                                                 <ProgressBar Margin="0,10,0,0"

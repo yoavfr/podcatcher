@@ -60,6 +60,7 @@ namespace PodCatch.DataModel
                 episode.Position = TimeSpan.FromTicks(data.PositionTicks);
             }
             episode.Played = data.Played;
+            episode.Title = data.Title;
             return episode;
         }
 
@@ -80,7 +81,8 @@ namespace PodCatch.DataModel
             {
                 Uri = Uri.ToString(),
                 Played = Played,
-                PositionTicks = Position.Ticks
+                PositionTicks = Position.Ticks,
+                Title = Title
             };
         }
 

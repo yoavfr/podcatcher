@@ -96,6 +96,7 @@ namespace PodCatch.DataModel
             try
             {
                 roamingFavoritesFile = await ApplicationData.Current.RoamingFolder.GetFileAsync("podcatch.json");
+                Tracer.TraceInformation("Loading Favorites from {0}", roamingFavoritesFile.Path);
                 using (Stream stream = await roamingFavoritesFile.OpenStreamForReadAsync())
                 {
                     DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(IEnumerable<PodcastGroupData>));
