@@ -98,6 +98,23 @@ namespace PodCatch.ViewModels
             }
         }
 
+        private TimeSpan m_TimeLeft;
+        public TimeSpan TimeLeft
+        {
+            get
+            {
+                return m_TimeLeft;
+            }
+            set
+            {
+                if (m_TimeLeft != value)
+                {
+                    m_TimeLeft = value;
+                    NotifyPropertyChanged(() => TimeLeft);
+                }
+            }
+        }
+
         private TimeSpan m_Duration;
 
         public TimeSpan Duration
@@ -174,6 +191,7 @@ namespace PodCatch.ViewModels
             Played = Data.Played;
             Position = Data.Position;
             Duration = Data.Duration;
+            TimeLeft = Duration - Position;
             State = Data.State;
             DownloadProgress = Data.DownloadProgress;
         }
@@ -197,6 +215,16 @@ namespace PodCatch.ViewModels
             {
                 MediaElementWrapper.Instance.Pause(Data);
             }
+        }
+
+        public void SkipForward()
+        {
+            MediaElementWrapper.Instance.SkipForward(Data);
+        }
+
+        public void SkipBackward()
+        {
+            MediaElementWrapper.Instance.SkipBackward(Data);
         }
 
         public Task Download()

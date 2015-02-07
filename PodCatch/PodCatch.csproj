@@ -121,7 +121,7 @@
     <Compile Include="Common\NumUnplayedEpisodesMarginConverter.cs" />
     <Compile Include="Common\PodcastUnplayedCounterVisibilityConverter.cs" />
     <Compile Include="Common\PodcastGroupImageConverter.cs" />
-    <Compile Include="Common\EpisodePositionConverter.cs" />
+    <Compile Include="Common\TimeSpanConverter.cs" />
     <Compile Include="Common\EpisodeStateProgressVisiblityConverter.cs" />
     <Compile Include="Common\EpisodeStateButtonEnabledConverter.cs" />
     <Compile Include="Common\LocalizationConverter.cs" />

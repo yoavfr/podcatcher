@@ -22,7 +22,7 @@
         <common:EpisodeStateToolTipConverter x:Key="EpisodeStateToolTipConverter" />
         <common:EpisodeStateSliderVisiblityConverter x:Key="EpisodeStateSliderVisiblityConverter" />
         <common:EpisodeStateProgressVisiblityConverter x:Key="EpisodeStateProgressVisiblityConverter" />
-        <common:EpisodePositionConverter x:Key="EpisodePositionConverter" />
+        <common:TimeSpanConverter x:Key="TimeSpanConverter" />
         <common:TimespanToTicksConverter x:Key="TimespanToTicksConverter" />
         <common:EpisodeStateButtonEnabledConverter x:Key="EpisodeStateButtonEnabledConverter" />
         <common:EpisodePlayedStyleConverter x:Key="EpisodePlayedStyleConverter" />
@@ -103,13 +103,18 @@
                                             <StackPanel Orientation="Vertical">
                                                 <StackPanel Orientation="Horizontal">
                                                     <!-- Download/Play/Pause button -->
-                                                    <AppBarButton Margin="0,0,0,0"
+                                                    <Grid HorizontalAlignment="Left">
+                                                          <AppBarButton Margin="0,0,0,0" Icon="Previous" Click="OnSkipPreviousClicked"/>
+                                                          <AppBarButton Margin="75,0,0,0"
                                                                   Icon="{Binding State, Converter={StaticResource EpisodeStateIconConverter}}"
                                                                   ToolTipService.ToolTip="{Binding State, Converter={StaticResource EpisodeStateToolTipConverter}}"
                                                                   IsEnabled="{Binding State, Converter={StaticResource EpisodeStateButtonEnabledConverter}}"
                                                                   Click="PlayButton_Clicked"
                                                                   Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='AppBarButton'}" />
-                                                    <TextBlock Text="{Binding Position, Converter={StaticResource EpisodePositionConverter}}" ToolTipService.ToolTip="Elapsed time" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}" />
+                                                        <AppBarButton Margin="150,0,0,0" Icon="Next" Click="OnSkipNextClicked"/>
+                                                    </Grid>
+                                                    <TextBlock Text="{Binding Position, Converter={StaticResource TimeSpanConverter}}" ToolTipService.ToolTip="Elapsed time" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}" />
+                                                    <TextBlock Text="{Binding TimeLeft, Converter={StaticResource TimeSpanConverter}}" ToolTipService.ToolTip="Elapsed time" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}" />
                                                     <!-- Progress Bar -->
                                                 </StackPanel>
                                                 <ProgressBar Margin="0,10,0,0"
@@ -127,7 +132,7 @@
                                                         Height="25"
                                                         PointerCaptureLost="PlayEpisodeSlider_PointerCaptureLost"
                                                         ManipulationStarted="PlayEpisodeSlider_ManipulationStarted"
-                                                        ThumbToolTipValueConverter="{StaticResource EpisodePositionConverter}" />
+                                                        ThumbToolTipValueConverter="{StaticResource TimeSpanConverter}" />
                                             </StackPanel>
                                         </StackPanel>
                                     </Grid>

@@ -3,7 +3,7 @@ using Windows.UI.Xaml.Data;
 
 namespace PodCatch.Common
 {
-    public class EpisodePositionConverter : IValueConverter
+    public class TimeSpanConverter : IValueConverter
     {
         private const string c_TimeFormat = @"hh\:mm\:ss";
 

@@ -151,5 +151,19 @@ namespace PodCatch
         {
             BottomAppBar.IsOpen = false;
         }
+
+        private void OnSkipPreviousClicked(object sender, RoutedEventArgs e)
+        {
+            AppBarButton button = (AppBarButton)sender;
+            EpisodeViewModel episode = (EpisodeViewModel)button.DataContext;
+            episode.SkipBackward();
+        }
+
+        private void OnSkipNextClicked(object sender, RoutedEventArgs e)
+        {
+            AppBarButton button = (AppBarButton)sender;
+            EpisodeViewModel episode = (EpisodeViewModel)button.DataContext;
+            episode.SkipForward();
+        }
     }
 }
