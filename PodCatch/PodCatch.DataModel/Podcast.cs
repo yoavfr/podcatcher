@@ -214,6 +214,7 @@ namespace PodCatch.DataModel
                     }
                 }
                 await RefreshFromRss(true);
+                PruneEmptyEpisodes();
             }
             catch (Exception e)
             {
@@ -265,6 +266,23 @@ namespace PodCatch.DataModel
 
             // keep record of last update time
             LastRefreshTimeTicks = DateTime.UtcNow.Ticks;
+        }
+
+        private void PruneEmptyEpisodes()
+        {
+            List<Episode> toRemove = new List<Episode>();
+            foreach (Episode episode in Episodes)
+            {
+                if (episode.Title == null)
+                {
+                    toRemove.Add(episode);
+                }
+            }
+            
+            foreach (Episode episode in toRemove)
+            {
+                Episodes.Remove(episode);
+            }
         }
 
         private void ReadRssEpisodes(SyndicationFeed syndicationFeed)
