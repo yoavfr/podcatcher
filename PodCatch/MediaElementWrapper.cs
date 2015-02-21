@@ -11,9 +11,8 @@ using Windows.UI.Xaml.Media;
 
 namespace PodCatch
 {
-    public class MediaElementWrapper : ServiceConsumer
+    public class MediaElementWrapper : ServiceConsumer, IMediaPlayer
     {
-        private static MediaElementWrapper s_Insatnce;
         private Episode m_NowPlaying;
         private TimeSpan m_Position;
         private DateTime m_LastSaveTime;
@@ -105,18 +104,6 @@ namespace PodCatch
             MediaElement.Pause();
             episode.Position = Position;
             episode.PostEvent(EpisodeEvent.Pause);
-        }
-
-        public static MediaElementWrapper Instance
-        {
-            get
-            {
-                if (s_Insatnce == null)
-                {
-                    s_Insatnce = new MediaElementWrapper(ApplicationServiceContext.Instance);
-                }
-                return s_Insatnce;
-            }
         }
 
         private MediaElementWrapper(IServiceContext serviceContext)

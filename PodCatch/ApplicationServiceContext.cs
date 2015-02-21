@@ -25,6 +25,7 @@ namespace PodCatch
                     }
                     serviceContext.PublishService<DownloadService>();
                     serviceContext.PublishService<ITunesSearch>();
+                    serviceContext.PublishService<MediaElementWrapper>();
                     s_Instance = serviceContext;
                 }
                 return s_Instance;

@@ -9,6 +9,7 @@ namespace PodCatch.ViewModels
     public class EpisodeViewModel : BaseViewModel<Episode>
     {
         private string m_Title;
+        private IMediaPlayer m_MediaPlayer;
 
         public string Title
         {
@@ -167,6 +168,7 @@ namespace PodCatch.ViewModels
         public EpisodeViewModel(Episode episode, IServiceContext serviceContext)
             : base(episode, serviceContext)
         {
+            m_MediaPlayer = serviceContext.GetService<IMediaPlayer>();
             episode.PropertyChanged += OnEpisodeChanged;
         }
 
@@ -200,22 +202,22 @@ namespace PodCatch.ViewModels
                     Data.Position = TimeSpan.FromSeconds(0);
                     Data.Played = false;
                 }
-                Task t = MediaElementWrapper.Instance.Play(Data);
+                Task t = m_MediaPlayer.Play(Data);
             }
             else if (Data.State is EpisodeStatePlaying)
             {
-                MediaElementWrapper.Instance.Pause(Data);
+                m_MediaPlayer.Pause(Data);
             }
         }
 
         public void SkipForward()
         {
-            MediaElementWrapper.Instance.SkipForward(Data);
+            m_MediaPlayer.SkipForward(Data);
         }
 
         public void SkipBackward()
         {
-            MediaElementWrapper.Instance.SkipBackward(Data);
+            m_MediaPlayer.SkipBackward(Data);
         }
 
         public Task Download()
