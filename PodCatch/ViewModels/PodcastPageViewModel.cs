@@ -14,19 +14,13 @@ namespace PodCatch.ViewModels
     public class PodcastPageViewModel : BaseViewModel<IPodcastDataSource>
     {
         private PodcastPage m_View;
+        private IMediaPlayer m_MediaPlayer;
         private RelayCommand m_RefreshCommand;
         private RelayCommand m_ShowMoreCommand;
         private RelayCommand m_AllPlayedCommand;
         private RelayCommand m_AllUnplayedCommand;
         private bool m_Loaded;
 
-        private MediaElementWrapper MediaPlayer
-        {
-            get
-            {
-                return MediaElementWrapper.Instance;
-            }
-        }
 
         public Podcast Podcast { get; set; }
 
@@ -95,6 +89,7 @@ namespace PodCatch.ViewModels
             : base(serviceContext.GetService<IPodcastDataSource>(), serviceContext)
         {
             m_View = podcastPage;
+            m_MediaPlayer = serviceContext.GetService<IMediaPlayer>();
         }
 
         /// <summary>
@@ -348,16 +343,16 @@ namespace PodCatch.ViewModels
 
         public void ExecuteReleaseSliderCommand(EpisodeViewModel episode, long sliderValue)
         {
-            if (MediaPlayer.IsEpisodePlaying(episode.Data))
+            if (m_MediaPlayer.IsEpisodePlaying(episode.Data))
             {
-                episode.Data.Position = MediaPlayer.Position = TimeSpan.FromTicks(sliderValue);
+                episode.Data.Position = m_MediaPlayer.Position = TimeSpan.FromTicks(sliderValue);
                 episode.Data.PostEvent(EpisodeEvent.Play);
             }
         }
 
         public void ExecuteManipulateSliderCommand(EpisodeViewModel episode)
         {
-            if (MediaPlayer.IsEpisodePlaying(episode.Data))
+            if (m_MediaPlayer.IsEpisodePlaying(episode.Data))
             {
                 episode.Data.PostEvent(EpisodeEvent.Scan);
             }

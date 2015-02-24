@@ -23,11 +23,13 @@ namespace PodCatch.ViewModels
         private bool m_ShowingPopUp;
         private RelayCommand m_SearchForPodcastCommand;
         private StartPage m_View;
+        private IMediaPlayer m_MediaPlayer;
 
         public StartPageViewModel(StartPage startPage, IServiceContext serviceContext)
             : base(serviceContext.GetService<IPodcastDataSource>(), serviceContext)
         {
             m_View = startPage;
+            m_MediaPlayer = serviceContext.GetService<IMediaPlayer>();
             ObservableCollection<PodcastGroup> podcastGroups = Data.GetGroups();
             podcastGroups.CollectionChanged += OnPodcastGroupsChanged;
 
@@ -35,6 +37,7 @@ namespace PodCatch.ViewModels
             UIThread.RunInBackground(() => Data.Load(false));
 
             Task t = RegisterBackgroundTask();
+            UpdateFields();
         }
 
         public EpisodeViewModel NowPlaying
@@ -107,9 +110,9 @@ namespace PodCatch.ViewModels
         protected override void UpdateFields()
         {
             UpdateFields(null);
-            if (MediaElementWrapper.Instance.NowPlaying != null)
+            if (m_MediaPlayer != null && m_MediaPlayer.NowPlaying != null)
             {
-                NowPlaying = new EpisodeViewModel(MediaElementWrapper.Instance.NowPlaying, ServiceContext);
+                NowPlaying = new EpisodeViewModel(m_MediaPlayer.NowPlaying, ServiceContext);
             }
             ShowNowPlaying = NowPlaying != null;
         }
@@ -250,12 +253,12 @@ namespace PodCatch.ViewModels
 
         internal void OnSkipForward()
         {
-            MediaElementWrapper.Instance.SkipForward(MediaElementWrapper.Instance.NowPlaying);
+            m_MediaPlayer.SkipForward(m_MediaPlayer.NowPlaying);
         }
 
         internal void OnSkipBackward()
         {
-            MediaElementWrapper.Instance.SkipBackward(MediaElementWrapper.Instance.NowPlaying);
+            m_MediaPlayer.SkipBackward(m_MediaPlayer.NowPlaying);
         }
     }
 }
