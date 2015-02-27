@@ -69,6 +69,14 @@ namespace PodCatch.ViewModels
             }
         }
 
+        public PodcastGroupViewModel Favorites
+        {
+            get
+            {
+                return Groups.First((group) => group.Id == Constants.FavoritesGroupId);
+            }
+        }
+
         private void OnPodcastGroupsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             UpdateFields(e);

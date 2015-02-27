@@ -34,9 +34,6 @@ namespace PodCatch
             get { return this.navigationHelper; }
         }
 
-        /// <summary>
-        /// This can be changed to a strongly typed view model.
-        /// </summary>
         public StartPageViewModel DefaultViewModel
         {
             get

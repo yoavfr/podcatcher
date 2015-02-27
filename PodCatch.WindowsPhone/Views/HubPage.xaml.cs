@@ -1,4 +1,7 @@
-﻿using System;
+﻿using PodCatch.Common;
+using PodCatch.DataModel;
+using PodCatch.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,11 +25,29 @@ namespace PodCatch
     /// </summary>
     public sealed partial class HubPage : Page
     {
+        private StartPageViewModel m_ViewModel;
+        private IServiceContext m_ServiceContext;
+        private NavigationHelper navigationHelper;
         public HubPage()
         {
+            m_ServiceContext = PhoneServiceContext.Instance;
             this.InitializeComponent();
+            this.navigationHelper = new NavigationHelper(this);
+            this.navigationHelper.LoadState += OnLoadState;
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
+        }
+
+        public StartPageViewModel DefaultViewModel
+        {
+            get
+            {
+                if (m_ViewModel == null)
+                {
+                    m_ViewModel = new StartPageViewModel(m_ServiceContext);
+                }
+                return m_ViewModel;
+            }
         }
 
         /// <summary>
@@ -48,6 +69,12 @@ namespace PodCatch
         private void OnPodcastClicked(object sender, ItemClickEventArgs e)
         {
 
+        }
+
+        public void OnLoadState(object sender, LoadStateEventArgs e)
+        {
+            // MediaElementWrapper needs the dispatcher to conrtol the MediaElement on this thread
+            MediaElementWrapper.Dispatcher = Dispatcher;
         }
     }
 }

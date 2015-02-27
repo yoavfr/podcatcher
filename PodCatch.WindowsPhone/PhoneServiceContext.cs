@@ -1,5 +1,6 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
+using PodCatch.DataModel.Search;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,9 @@ namespace PodCatch
                 {
                     var serviceContext = new ServiceContext(new ThreadAwareDebugTracer());
                     serviceContext.PublishService<PodcastDataSource>();
+                    serviceContext.PublishService<DownloadService>();
+                    serviceContext.PublishService<ITunesSearch>();
+                    serviceContext.PublishService<MediaElementWrapper>();
                     s_Instance = serviceContext;
                 }
                 return s_Instance;
