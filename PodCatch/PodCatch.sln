@@ -15,29 +15,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.Common", "Podcatch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.Common.Test", "PodCatch.Common.Test\PodCatch.Common.Test.csproj", "{FFA9D50F-52F5-444B-8790-DFC72003ADBD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PodCatch", "PodCatch", "{697BDB15-343D-4023-BD1F-9176C20F3EA1}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "PodCatch.Shared", "..\PodCatch.Shared\PodCatch.Shared.shproj", "{6B9C2679-E726-477B-83F0-BFC9ADDD7E4D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.WindowsPhone", "..\PodCatch.WindowsPhone\PodCatch.WindowsPhone.csproj", "{BA43A89E-6488-49D2-B9B0-A24BB77E458F}"
+EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs13
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = PodCatch.csproj
-		SccLocalPath1 = .
-		SccProjectUniqueName2 = PodcatchBackgroundTasks\\PodCatch.BackgroundTasks.csproj
-		SccProjectName2 = PodcatchBackgroundTasks
-		SccLocalPath2 = PodcatchBackgroundTasks
-		SccProjectUniqueName3 = PodCatch.DataModel\\PodCatch.DataModel.csproj
-		SccProjectName3 = PodCatch.DataModel
-		SccLocalPath3 = PodCatch.DataModel
-		SccProjectUniqueName4 = PodCatch.StateMachine.Test\\PodCatch.StateMachine.Test.csproj
-		SccProjectName4 = PodCatch.StateMachine.Test
-		SccLocalPath4 = PodCatch.StateMachine.Test
-		SccProjectUniqueName5 = Podcatch.Common\\PodCatch.Common.csproj
-		SccProjectName5 = Podcatch.Common
-		SccLocalPath5 = Podcatch.Common
-		SccProjectUniqueName6 = PodCatch.Common.Test\\PodCatch.Common.Test.csproj
-		SccProjectName6 = PodCatch.Common.Test
-		SccLocalPath6 = PodCatch.Common.Test
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\PodCatch.Shared\PodCatch.Shared.projitems*{1800724c-f165-4dae-ab55-0d1b5a954ab8}*SharedItemsImports = 4
+		..\PodCatch.Shared\PodCatch.Shared.projitems*{6b9c2679-e726-477b-83f0-bfc9addd7e4d}*SharedItemsImports = 13
+		..\PodCatch.Shared\PodCatch.Shared.projitems*{ba43a89e-6488-49d2-b9b0-a24bb77e458f}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -190,8 +178,39 @@ Global
 		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|x86.ActiveCfg = Release|x86
 		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|x86.Build.0 = Release|x86
 		{FFA9D50F-52F5-444B-8790-DFC72003ADBD}.Release|x86.Deploy.0 = Release|x86
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Debug|ARM.ActiveCfg = Debug|ARM
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Debug|ARM.Build.0 = Debug|ARM
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Debug|ARM.Deploy.0 = Debug|ARM
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Debug|Mixed Platforms.Deploy.0 = Debug|x86
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Debug|x86.ActiveCfg = Debug|x86
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Debug|x86.Build.0 = Debug|x86
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Debug|x86.Deploy.0 = Debug|x86
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|ARM.ActiveCfg = Release|ARM
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|ARM.Build.0 = Release|ARM
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|ARM.Deploy.0 = Release|ARM
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|Mixed Platforms.Build.0 = Release|x86
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|Mixed Platforms.Deploy.0 = Release|x86
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|x64.ActiveCfg = Release|Any CPU
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|x86.ActiveCfg = Release|x86
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|x86.Build.0 = Release|x86
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1800724C-F165-4DAE-AB55-0D1B5A954AB8} = {697BDB15-343D-4023-BD1F-9176C20F3EA1}
+		{6B9C2679-E726-477B-83F0-BFC9ADDD7E4D} = {697BDB15-343D-4023-BD1F-9176C20F3EA1}
+		{BA43A89E-6488-49D2-B9B0-A24BB77E458F} = {697BDB15-343D-4023-BD1F-9176C20F3EA1}
 	EndGlobalSection
 EndGlobal

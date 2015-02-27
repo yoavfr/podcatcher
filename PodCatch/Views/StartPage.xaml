@@ -34,7 +34,7 @@
             <Grid>
                 <StackPanel Orientation="Horizontal">
                     <!--Search for podcast or URL-->
-                    <AppBarButton Label="Search for podcast" Icon="Find" Name="SearchForPodcastAppBarButton" Command="{Binding SearchForPodcastCommand}">
+                    <AppBarButton Label="Search for podcast" Icon="Find" Name="SearchForPodcastAppBarButton" Click="OnSearchForPodcast">
                     </AppBarButton>
                 </StackPanel>
             </Grid>
