@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -25,7 +26,7 @@ namespace PodCatch
     /// </summary>
     public sealed partial class HubPage : Page
     {
-        private StartPageViewModel m_ViewModel;
+        private HubPageViewModel m_ViewModel;
         private IServiceContext m_ServiceContext;
         private NavigationHelper navigationHelper;
         public HubPage()
@@ -38,13 +39,13 @@ namespace PodCatch
             this.NavigationCacheMode = NavigationCacheMode.Required;
         }
 
-        public StartPageViewModel DefaultViewModel
+        public HubPageViewModel DefaultViewModel
         {
             get
             {
                 if (m_ViewModel == null)
                 {
-                    m_ViewModel = new StartPageViewModel(m_ServiceContext);
+                    m_ViewModel = new HubPageViewModel(m_ServiceContext);
                 }
                 return m_ViewModel;
             }
@@ -75,6 +76,34 @@ namespace PodCatch
         {
             // MediaElementWrapper needs the dispatcher to conrtol the MediaElement on this thread
             MediaElementWrapper.Dispatcher = Dispatcher;
+        }
+
+        private void OnSearchBoxKeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                this.Focus(FocusState.Programmatic); // dismiss the keyboard
+                OnSearch(((TextBox)sender).Text);
+            }
+        }
+
+        private async void OnSearch(string searchTerm)
+        {
+            var searchResults = await UIThread.RunInBackground<IEnumerable<Podcast>>(async () =>
+            {
+                return await m_ViewModel.Data.Search(searchTerm);
+            });
+            UIThread.Dispatch(async () =>
+            {
+                await m_ViewModel.Data.UpdateSearchResults(searchResults);
+            });
+        }
+
+        private void OnSearchButtonClick(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+            var searchTerm = ((TextBox)button.Tag).Text;
+            OnSearch(searchTerm);
         }
     }
 }

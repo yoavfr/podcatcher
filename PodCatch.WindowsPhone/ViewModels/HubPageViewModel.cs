@@ -15,15 +15,13 @@ using Windows.UI.Xaml.Controls;
 
 namespace PodCatch.ViewModels
 {
-    public class StartPageViewModel : BaseViewModel<IPodcastDataSource>
+    public class HubPageViewModel : BaseViewModel<IPodcastDataSource>
     {
-        private ObservableCollection<PodcastGroupViewModel> m_Groups = new ObservableCollection<PodcastGroupViewModel>();
         private EpisodeViewModel m_NowPlaying;
         private bool m_ShowNowPlaying;
-        private RelayCommand m_SearchForPodcastCommand;
         private IMediaPlayer m_MediaPlayer;
 
-        public StartPageViewModel(IServiceContext serviceContext)
+        public HubPageViewModel(IServiceContext serviceContext)
             : base(serviceContext.GetService<IPodcastDataSource>(), serviceContext)
         {
             m_MediaPlayer = serviceContext.GetService<IMediaPlayer>();
@@ -69,11 +67,37 @@ namespace PodCatch.ViewModels
             }
         }
 
+        PodcastGroupViewModel m_Favorites;
         public PodcastGroupViewModel Favorites
         {
             get
             {
-                return Groups.First((group) => group.Id == Constants.FavoritesGroupId);
+                return m_Favorites;
+            }
+            set
+            {
+                if (m_Favorites != value)
+                {
+                    m_Favorites = value;
+                    NotifyPropertyChanged(() => Favorites);
+                }
+            }
+        }
+
+        public PodcastGroupViewModel m_SearchResults;
+        public PodcastGroupViewModel SearchResults
+        {
+            get
+            {
+                return m_SearchResults;
+            }
+            set
+            {
+                if (m_SearchResults != value)
+                {
+                    m_SearchResults = value;
+                    NotifyPropertyChanged(() => SearchResults);
+                }
             }
         }
 
@@ -107,11 +131,6 @@ namespace PodCatch.ViewModels
             }
         }
 
-        private PodcastGroupViewModel PodcastGroupViewModelConstructor(PodcastGroup podcastGroup)
-        {
-            return new PodcastGroupViewModel(podcastGroup, ServiceContext);
-        }
-
         protected override void UpdateFields()
         {
             UpdateFields(null);
@@ -126,27 +145,21 @@ namespace PodCatch.ViewModels
         {
             UIThread.Dispatch(() =>
                 {
-                    if (e == null)
+                    if (Favorites == null)
                     {
-                        m_Groups.Clear();
-                        m_Groups.AddAll(Data.GetGroups().Select(PodcastGroupViewModelConstructor));
-                    }
-                    else if (e.Action == NotifyCollectionChangedAction.Add)
-                    {
-                        foreach (PodcastGroup group in e.NewItems)
+                        var favoritesGroup = Data.GetGroups().FirstOrDefault((group) => group.Id == Constants.FavoritesGroupId);
+                        if (favoritesGroup != null)
                         {
-                            m_Groups.Add(new PodcastGroupViewModel(group, ServiceContext));
+                            Favorites = new PodcastGroupViewModel(favoritesGroup, ServiceContext);
                         }
                     }
-                });
-        }
 
-        public ObservableCollection<PodcastGroupViewModel> Groups
-        {
-            get
-            {
-                return m_Groups;
-            }
+                    var searchResults = Data.GetGroups().FirstOrDefault((group) => group.Id == Constants.SearchGroupId);
+                    if (searchResults != null)
+                    {
+                        SearchResults = new PodcastGroupViewModel(searchResults, ServiceContext);
+                    }
+                });
         }
 
         internal void OnSkipForward()

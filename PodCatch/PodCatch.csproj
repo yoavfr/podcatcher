@@ -133,6 +133,7 @@
     <Compile Include="Common\InverseBooleanConverter.cs" />
     <Compile Include="Common\VisualTreeHelperExt.cs" />
     <Compile Include="ViewModels\GroupPageViewModel.cs" />
+    <Compile Include="ViewModels\StartPageViewModel.cs" />
     <Compile Include="Views\InputMessageDialog.xaml.cs">
       <DependentUpon>InputMessageDialog.xaml</DependentUpon>
     </Compile>

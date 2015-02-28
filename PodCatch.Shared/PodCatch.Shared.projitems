@@ -19,6 +19,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MediaElementWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PodcastGroupViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PodcastSummaryViewModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\StartPageViewModel.cs" />
   </ItemGroup>
 </Project>
