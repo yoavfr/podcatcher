@@ -69,7 +69,8 @@ namespace PodCatch
 
         private void OnPodcastClicked(object sender, ItemClickEventArgs e)
         {
-
+            string podcastId = ((PodcastSummaryViewModel)e.ClickedItem).Id;
+            this.Frame.Navigate(typeof(PodcastPage), podcastId);
         }
 
         public void OnLoadState(object sender, LoadStateEventArgs e)

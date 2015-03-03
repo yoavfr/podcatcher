@@ -88,7 +88,7 @@
     </Page.Resources>
 
     <Grid x:Name="LayoutRoot">
-        <Hub x:Name="Hub" x:Uid="Hub" Header="PodCatch" Background="{ThemeResource HubBackgroundImageBrush}">
+        <Hub x:Name="Hub" x:Uid="Hub" Header="Podcatcher" Background="{ThemeResource HubBackgroundImageBrush}">
             <HubSection x:Uid="Favorites" Header="Favorites" Width="Auto"
                          DataContext="{Binding Favorites}" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
                 <DataTemplate>

@@ -15,7 +15,7 @@ namespace PodCatch
     /// </summary>
     public sealed partial class PodcastPage : Page
     {
-        private NavigationHelper navigationHelper;
+        private NavigationHelper m_NavigationHelper;
         private PodcastPageViewModel m_ViewModel;
         private IServiceContext m_ServiceContext;
 
@@ -25,7 +25,7 @@ namespace PodCatch
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return this.m_NavigationHelper; }
         }
 
         /// <summary>
@@ -47,8 +47,8 @@ namespace PodCatch
         {
             m_ServiceContext = ApplicationServiceContext.Instance;
             this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += m_ViewModel.OnLoadState;
+            this.m_NavigationHelper = new NavigationHelper(this);
+            this.m_NavigationHelper.LoadState += m_ViewModel.OnLoadState;
         }
 
         #region NavigationHelper registration
@@ -64,12 +64,12 @@ namespace PodCatch
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            m_NavigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            m_NavigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion NavigationHelper registration

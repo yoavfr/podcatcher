@@ -10,14 +10,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BaseViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MediaElementWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NavigationHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RelayCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SuspensionManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ThreadAwareDebugTracer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UIThread.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\EpisodeViewModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MediaElementWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PodcastGroupViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PodcastPageViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PodcastSummaryViewModel.cs" />
   </ItemGroup>
 </Project>
