@@ -44,7 +44,7 @@
             
             <!-- Grid-appropriate item template as seen in section 2 -->
             <DataTemplate x:Key="Standard200x180TileItemTemplate">
-                <Grid Margin="0,0,9.5,9.5" Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
+                <Grid Margin="0,0,9.5,9.5" Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Tapped="OnPodcastTapped" Holding="OnPodcastHolding" RightTapped="OnPodcastRightTapped">
                     <Image Source="{Binding Image}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}" Height="138.5" Width="138.5"/>
                     <TextBlock Text="{Binding Title}" VerticalAlignment="Bottom" Margin="9.5,0,0,6.5" Style="{ThemeResource BaseTextBlockStyle}"/>
                 </Grid>
@@ -99,8 +99,6 @@
                         AutomationProperties.Name="Items In Group"
                         ItemTemplate="{StaticResource Standard200x180TileItemTemplate}"
                         SelectionMode="None"
-                        IsItemClickEnabled="True"
-                        ItemClick="OnPodcastClicked"
                         ContinuumNavigationTransitionInfo.ExitElementContainer="True">
                         <GridView.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -121,8 +119,6 @@
                         AutomationProperties.Name="Items In Group"
                         ItemTemplate="{StaticResource Standard200x180TileItemTemplate}"
                         SelectionMode="None"
-                        IsItemClickEnabled="True"
-                        ItemClick="OnPodcastClicked"
                         ContinuumNavigationTransitionInfo.ExitElementContainer="True">
                         <GridView.ItemsPanel>
                             <ItemsPanelTemplate>

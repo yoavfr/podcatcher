@@ -13,7 +13,6 @@ namespace PodCatch.ViewModels
 {
     public class PodcastPageViewModel : BaseViewModel<IPodcastDataSource>
     {
-        private PodcastPage m_View;
         private IMediaPlayer m_MediaPlayer;
         private RelayCommand m_RefreshCommand;
         private RelayCommand m_ShowMoreCommand;
@@ -85,10 +84,9 @@ namespace PodCatch.ViewModels
             }
         }
 
-        public PodcastPageViewModel(PodcastPage podcastPage, IServiceContext serviceContext)
+        public PodcastPageViewModel(IServiceContext serviceContext)
             : base(serviceContext.GetService<IPodcastDataSource>(), serviceContext)
         {
-            m_View = podcastPage;
             m_MediaPlayer = serviceContext.GetService<IMediaPlayer>();
         }
 

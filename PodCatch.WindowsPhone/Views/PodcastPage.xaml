@@ -4,11 +4,16 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:PodCatch"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:common="using:PodCatch.Common"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.Resources>
+        <common:EpisodeStateIconConverter x:Key="EpisodeStateIconConverter" />
+        <common:EpisodeStateButtonEnabledConverter x:Key="EpisodeStateButtonEnabledConverter" />
+    </Page.Resources>
     <Grid x:Name="LayoutRoot">
 
         <Grid.ChildrenTransitions>
@@ -19,32 +24,28 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="98"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
         <StackPanel Grid.Column="0" Margin="19,0,0,0">
-            <TextBlock Text="MY APPLICATION" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
+            <TextBlock Text="Podcatcher" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
         </StackPanel>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Row="1">
             <!-- Title Panel -->
-            <StackPanel Grid.Column="1" Margin="19,0,0,0">
-                <TextBlock Text="page title" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
-            </StackPanel>
-
-            <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Margin="19,9.5,0,0" Grid.Column="0" HorizontalAlignment="Left">
+            <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Margin="19,9.5,0,0" HorizontalAlignment="Left">
                 <Image Source="{Binding Image}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}" Height="79" Width="79"/>
             </Border>
+            <StackPanel Margin="19,0,0,0">
+                <TextBlock Text="{Binding Title}" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+            </StackPanel>
+
             
-        </Grid>
+        </StackPanel>
 
         <!--TODO: Content should be placed within the following grid-->
-        <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,0">
+        <Grid Grid.Row="2" x:Name="ContentRoot" Margin="19,9.5,19,0">
                 <ListView 
                         AutomationProperties.AutomationId="ItemListViewSection4"
                         AutomationProperties.Name="Items In Group"
@@ -55,9 +56,12 @@
                         ContinuumNavigationTransitionInfo.ExitElementContainer="True">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Margin="0,0,0,19">
-                                <TextBlock Text="{Binding Title}" Style="{ThemeResource ListViewItemTextBlockStyle}"/>
-                                <TextBlock Text="{Binding Subtitle}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,19">
+                            <AppBarButton
+                                Icon="{Binding State, Converter={StaticResource EpisodeStateIconConverter}}" 
+                                          Click="OnEpisodePlay"
+                                IsEnabled="{Binding State, Converter={StaticResource EpisodeStateButtonEnabledConverter}}"/>
+                            <TextBlock Text="{Binding Title}" Margin="0,5,0,0" Style="{ThemeResource ListViewItemTextBlockStyle}"/>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>

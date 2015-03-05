@@ -37,7 +37,7 @@ namespace PodCatch
             {
                 if (m_ViewModel == null)
                 {
-                    m_ViewModel = new PodcastPageViewModel(this, m_ServiceContext);
+                    m_ViewModel = new PodcastPageViewModel(m_ServiceContext);
                 }
                 return m_ViewModel;
             }
@@ -50,8 +50,6 @@ namespace PodCatch
             this.m_NavigationHelper = new NavigationHelper(this);
             this.m_NavigationHelper.LoadState += m_ViewModel.OnLoadState;
         }
-
-        #region NavigationHelper registration
 
         /// The methods provided in this section are simply used to allow
         /// NavigationHelper to respond to the page's navigation methods.
@@ -71,8 +69,6 @@ namespace PodCatch
         {
             m_NavigationHelper.OnNavigatedFrom(e);
         }
-
-        #endregion NavigationHelper registration
 
         private void RemoveFromFavoritesButtonClicked(object sender, RoutedEventArgs e)
         {

@@ -9,16 +9,42 @@
     <Import_RootNamespace>PodCatch</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)BaseViewModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaElementWrapper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NavigationHelper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)RelayCommand.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)SuspensionManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ThreadAwareDebugTracer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)UIThread.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\AltBackgroundConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\BaseViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\BooleanVisibilityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\EpisodePlayedStyleConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\EpisodeStateButtonEnabledConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\EpisodeStateIconConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\EpisodeStateProgressVisiblityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\EpisodeStateSkipButtonEnabledConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\EpisodeStateToolTipConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\InverseBooleanConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\ItemClickCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\LocalizationConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaElementWrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\NavigationHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\NumUnplayedEpisodesConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\NumUnplayedEpisodesMarginConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\PlayEpisodeSliderVisiblityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\PodcastGroupImageConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\PodcastUnplayedCounterVisibilityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\RelayCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\SuspensionManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\ThreadAwareDebugTracer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\TimeSpanConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\TimespanToTicksConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\UIThread.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\VisualTreeHelperExt.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Resources\Strings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\EpisodeViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PodcastGroupViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PodcastPageViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PodcastSummaryViewModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Common\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Include="$(MSBuildThisFileDirectory)Resources\en-US\Resources.resw" />
   </ItemGroup>
 </Project>

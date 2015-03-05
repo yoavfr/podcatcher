@@ -37,6 +37,7 @@ namespace PodCatch
 
             this.m_NavigationHelper = new NavigationHelper(this);
             this.m_NavigationHelper.LoadState += this.NavigationHelper_LoadState;
+            m_NavigationHelper.LoadState += m_ViewModel.OnLoadState;
             this.m_NavigationHelper.SaveState += this.NavigationHelper_SaveState;
         }
 
@@ -54,7 +55,7 @@ namespace PodCatch
             {
                 if (m_ViewModel == null)
                 {
-                    m_ViewModel = new PodcastPageViewModel(this, m_ServiceContext);
+                    m_ViewModel = new PodcastPageViewModel(m_ServiceContext);
                 }
                 return m_ViewModel;
             }
@@ -116,5 +117,11 @@ namespace PodCatch
         }
 
         #endregion
+
+        private void OnEpisodePlay(object sender, RoutedEventArgs e)
+        {
+            EpisodeViewModel episode = (EpisodeViewModel)((AppBarButton)sender).DataContext;
+            episode.TogglePlayState();
+        }
     }
 }
