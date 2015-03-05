@@ -15,7 +15,7 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="PodCatch.App">
-      <m2:VisualElements DisplayName="Podcatcher" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="PodCatch" ForegroundText="light" BackgroundColor="#000000">
+      <m2:VisualElements DisplayName="Podcatcher" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="Podcast player for windows" ForegroundText="light" BackgroundColor="#000000">
         <m2:DefaultTile>
           <m2:ShowNameOnTiles>
             <m2:ShowOn Tile="square150x150Logo" />
