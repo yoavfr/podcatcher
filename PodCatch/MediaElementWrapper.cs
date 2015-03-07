@@ -1,5 +1,4 @@
-﻿using PodCatch.Common;
-using PodCatch.DataModel;
+﻿using PodCatch.DataModel;
 using System;
 using System.Threading.Tasks;
 using Windows.Media;
@@ -9,7 +8,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
-namespace PodCatch
+namespace PodCatch.Common
 {
     public class MediaElementWrapper : ServiceConsumer, IMediaPlayer
     {

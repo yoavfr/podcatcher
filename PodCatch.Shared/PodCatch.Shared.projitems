@@ -21,7 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Common\InverseBooleanConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\ItemClickCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\LocalizationConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaElementWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\NavigationHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\NumUnplayedEpisodesConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\NumUnplayedEpisodesMarginConverter.cs" />

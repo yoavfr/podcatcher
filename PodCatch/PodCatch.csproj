@@ -113,6 +113,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="ApplicationServiceContext.cs" />
+    <Compile Include="MediaElementWrapper.cs" />
     <Compile Include="ViewModels\GroupPageViewModel.cs" />
     <Compile Include="ViewModels\StartPageViewModel.cs" />
     <Compile Include="Views\InputMessageDialog.xaml.cs">

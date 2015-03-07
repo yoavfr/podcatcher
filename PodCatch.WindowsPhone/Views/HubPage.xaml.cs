@@ -53,26 +53,8 @@ namespace PodCatch
             }
         }
 
-        /// <summary>
-        /// Invoked when this page is about to be displayed in a Frame.
-        /// </summary>
-        /// <param name="e">Event data that describes how this page was reached.
-        /// This parameter is typically used to configure the page.</param>
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            // TODO: Prepare page for display here.
-
-            // TODO: If your application contains multiple pages, ensure that you are
-            // handling the hardware Back button by registering for the
-            // Windows.Phone.UI.Input.HardwareButtons.BackPressed event.
-            // If you are using the NavigationHelper provided by some templates,
-            // this event is handled for you.
-        }
-
         public void OnLoadState(object sender, LoadStateEventArgs e)
         {
-            // MediaElementWrapper needs the dispatcher to conrtol the MediaElement on this thread
-            MediaElementWrapper.Dispatcher = Dispatcher;
         }
 
         private void OnSearchBoxKeyDown(object sender, KeyRoutedEventArgs e)
@@ -129,8 +111,6 @@ namespace PodCatch
             try
             {
                 PopupMenu popupMenu = new PopupMenu();
-                // this is useful for debugging
-                //popupMenu.Commands.Add(new UICommand(){Id=1, Label="Copy RSS feed URL to clipboard"});
 
                 if (m_ViewModel.Data.IsPodcastInFavorites(podcast.Data))
                 {
@@ -169,7 +149,17 @@ namespace PodCatch
             e.Handled = true;
             Grid grid = (Grid)sender;
             PodcastSummaryViewModel selectedPodcast = (PodcastSummaryViewModel)grid.DataContext;
-            this.Frame.Navigate(typeof(PodcastPage), selectedPodcast.Id);
+            Frame.Navigate(typeof(PodcastPage), selectedPodcast.Id);
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            m_NavigationHelper.OnNavigatedFrom(e);
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            m_NavigationHelper.OnNavigatedTo(e);
         }
     }
 }

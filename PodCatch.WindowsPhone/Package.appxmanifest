@@ -29,7 +29,7 @@
             <m2:Task Type="location" />
           </BackgroundTasks>
         </Extension>
-        <Extension Category="windows.backgroundTasks" EntryPoint="PodCatch.WindowsPhone.App">
+        <Extension Category="windows.backgroundTasks" EntryPoint="PodCatch.WindowsPhone.BackgroundAudioTask.BackgroundAudioTask">
           <BackgroundTasks>
             <Task Type="audio" />
           </BackgroundTasks>

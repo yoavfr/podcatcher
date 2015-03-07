@@ -21,6 +21,8 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "PodCatch.Shared", "..\PodCa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.WindowsPhone", "..\PodCatch.WindowsPhone\PodCatch.WindowsPhone.csproj", "{BA43A89E-6488-49D2-B9B0-A24BB77E458F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodCatch.WindowsPhone.BackgroundAudioTask", "..\PodCatch.WindowsPhone.BackgroundAudioTask\PodCatch.WindowsPhone.BackgroundAudioTask.csproj", "{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\PodCatch.Shared\PodCatch.Shared.projitems*{1800724c-f165-4dae-ab55-0d1b5a954ab8}*SharedItemsImports = 4
@@ -204,6 +206,32 @@ Global
 		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|x86.ActiveCfg = Release|x86
 		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|x86.Build.0 = Release|x86
 		{BA43A89E-6488-49D2-B9B0-A24BB77E458F}.Release|x86.Deploy.0 = Release|x86
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Debug|ARM.ActiveCfg = Debug|ARM
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Debug|ARM.Build.0 = Debug|ARM
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Debug|ARM.Deploy.0 = Debug|ARM
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Debug|Mixed Platforms.Deploy.0 = Debug|x86
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Debug|x86.ActiveCfg = Debug|x86
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Debug|x86.Build.0 = Debug|x86
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Debug|x86.Deploy.0 = Debug|x86
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Release|ARM.ActiveCfg = Release|ARM
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Release|ARM.Build.0 = Release|ARM
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Release|ARM.Deploy.0 = Release|ARM
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Release|Mixed Platforms.Build.0 = Release|x86
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Release|Mixed Platforms.Deploy.0 = Release|x86
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Release|x64.ActiveCfg = Release|Any CPU
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Release|x86.ActiveCfg = Release|x86
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Release|x86.Build.0 = Release|x86
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -212,5 +240,6 @@ Global
 		{1800724C-F165-4DAE-AB55-0D1B5A954AB8} = {697BDB15-343D-4023-BD1F-9176C20F3EA1}
 		{6B9C2679-E726-477B-83F0-BFC9ADDD7E4D} = {697BDB15-343D-4023-BD1F-9176C20F3EA1}
 		{BA43A89E-6488-49D2-B9B0-A24BB77E458F} = {697BDB15-343D-4023-BD1F-9176C20F3EA1}
+		{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA} = {697BDB15-343D-4023-BD1F-9176C20F3EA1}
 	EndGlobalSection
 EndGlobal

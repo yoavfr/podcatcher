@@ -23,7 +23,7 @@ namespace PodCatch
                     serviceContext.PublishService<PodcastDataSource>();
                     serviceContext.PublishService<DownloadService>();
                     serviceContext.PublishService<ITunesSearch>();
-                    serviceContext.PublishService<MediaElementWrapper>();
+                    serviceContext.PublishService<ForegroundMediaPlayer>();
                     s_Instance = serviceContext;
                 }
                 return s_Instance;
