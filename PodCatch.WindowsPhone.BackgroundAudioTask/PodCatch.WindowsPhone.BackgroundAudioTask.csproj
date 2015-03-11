@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{BCFB6816-AB5E-49EF-BAC0-41816E0B81DA}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>winmdobj</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PodCatch.WindowsPhone.BackgroundAudioTask</RootNamespace>
     <AssemblyName>PodCatch.WindowsPhone.BackgroundAudioTask</AssemblyName>
@@ -60,7 +60,7 @@
     <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
@@ -78,16 +78,15 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
-    <ProjectReference Include="..\PodCatch.WindowsPhone\PodCatch.WindowsPhone.csproj">
-      <Project>{ba43a89e-6488-49d2-b9b0-a24bb77e458f}</Project>
-      <Name>PodCatch.WindowsPhone</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PodCatch\Podcatch.Common\PodCatch.Common.csproj">
       <Project>{41fff775-2a10-461e-9f74-968b13c18537}</Project>
       <Name>PodCatch.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\PodCatch.WindowsPhone\PhoneConstants.cs">
+      <Link>PhoneConstants.cs</Link>
+    </Compile>
     <Compile Include="BackgroundAudioTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -10,13 +10,20 @@ using Windows.Storage;
 using PodCatch.Common;
 using Windows.Foundation.Collections;
 using Windows.Foundation;
+using PodCatch.WindowsPhone.BackgroundAudioTask;
 
-namespace PodCatch
+namespace PodCatch.WindowsPhone
 {
-    public class ForegroundMediaPlayer : IMediaPlayer
+    public class ForegroundMediaPlayer : ServiceConsumer, IMediaPlayer
     {
         private AutoResetEvent SererInitialized = new AutoResetEvent(false);
         private bool isMyBackgroundTaskRunning = false;
+
+
+        public ForegroundMediaPlayer(IServiceContext serviceContext): base (serviceContext)
+        {
+            StartBackgroundAudioTask();
+        }
 
         private bool IsMyBackgroundTaskRunning
         {
@@ -120,27 +127,21 @@ namespace PodCatch
         /// <param name="args"></param>
         async void MediaPlayer_CurrentStateChanged(MediaPlayer sender, object args)
         {
-            /*switch (sender.CurrentState)
+            switch (sender.CurrentState)
             {
                 case MediaPlayerState.Playing:
-                    await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    if (NowPlaying != null)
                     {
-                        playButton.Content = "| |";     // Change to pause button
-                        prevButton.IsEnabled = true;
-                        nextButton.IsEnabled = true;
+                        NowPlaying.PostEvent(EpisodeEvent.Play);
                     }
-                        );
-
                     break;
                 case MediaPlayerState.Paused:
-                    await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    if (NowPlaying != null)
                     {
-                        playButton.Content = ">";     // Change to play button
+                        NowPlaying.PostEvent(EpisodeEvent.Pause);
                     }
-                    );
-
                     break;
-            }*/
+            }
         }
 
         /// <summary>
@@ -193,27 +194,19 @@ namespace PodCatch
 
         public async Task Play(Episode episode)
         {
-            /*
-            var file = await episode.GetStorageFile();
-            BackgroundMediaPlayer.Current.SetFileSource(file);*/
-            if (IsMyBackgroundTaskRunning)
+            if (!IsMyBackgroundTaskRunning)
             {
-                if (MediaPlayerState.Playing == BackgroundMediaPlayer.Current.CurrentState)
-                {
-                    BackgroundMediaPlayer.Current.Pause();
-                }
-                else if (MediaPlayerState.Paused == BackgroundMediaPlayer.Current.CurrentState)
-                {
-                    BackgroundMediaPlayer.Current.Play();
-                }
-                else if (MediaPlayerState.Closed == BackgroundMediaPlayer.Current.CurrentState)
-                {
-                    StartBackgroundAudioTask();
-                }
+                await StartBackgroundAudioTask();
             }
-            else
+
+            var file = await episode.GetStorageFile();
+            var episodePath = file.Path;
+            var message = new ValueSet();
+            message.Add(PhoneConstants.EpisodePath, episodePath);
+            BackgroundMediaPlayer.SendMessageToBackground(message);
+            if (NowPlaying != null && NowPlaying != episode)
             {
-                StartBackgroundAudioTask();
+                NowPlaying.PostEvent(EpisodeEvent.Pause);
             }
             NowPlaying = episode;
         }
@@ -233,26 +226,17 @@ namespace PodCatch
             BackgroundMediaPlayer.MessageReceivedFromBackground += BackgroundMediaPlayer_MessageReceivedFromBackground;
         }
 
-        private void StartBackgroundAudioTask()
+        private async Task StartBackgroundAudioTask()
         {
             AddMediaPlayerEventHandlers();
-            var backgroundtaskinitializationresult = UIThread.Dispatch(() =>
+            await UIThread.Dispatch(() =>
             {
                 bool result = SererInitialized.WaitOne(2000);
-                //Send message to initiate playback
-                if (result == true)
-                {
-                    var message = new ValueSet();
-                    message.Add(PhoneConstants.StartPlayback, "0");
-                    BackgroundMediaPlayer.SendMessageToBackground(message);
-                }
-                else
+                if (result != true)
                 {
                     throw new Exception("Background Audio Task didn't start in expected time");
                 }
-            }
-            );
-            backgroundtaskinitializationresult.AsAsyncAction().Completed = new AsyncActionCompletedHandler(BackgroundTaskInitializationCompleted);
+            });
         }
 
         private void BackgroundTaskInitializationCompleted(IAsyncAction action, AsyncStatus status)

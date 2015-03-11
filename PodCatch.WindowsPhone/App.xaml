@@ -1,8 +1,8 @@
 ﻿<Application
-    x:Class="PodCatch.App"
+    x:Class="PodCatch.WindowsPhone.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:PodCatch">
+    xmlns:local="using:PodCatch.WindowsPhone">
   
 
 </Application>

@@ -82,6 +82,10 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <ProjectReference Include="..\PodCatch.WindowsPhone.BackgroundAudioTask\PodCatch.WindowsPhone.BackgroundAudioTask.csproj">
+      <Project>{bcfb6816-ab5e-49ef-bac0-41816e0b81da}</Project>
+      <Name>PodCatch.WindowsPhone.BackgroundAudioTask</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PodCatch\Podcatch.Common\PodCatch.Common.csproj">
       <Project>{41fff775-2a10-461e-9f74-968b13c18537}</Project>
       <Name>PodCatch.Common</Name>

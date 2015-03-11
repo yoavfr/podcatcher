@@ -332,12 +332,19 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void BackgroundMediaPlayer_MessageReceivedFromForeground(object sender, MediaPlayerDataReceivedEventArgs e)
+        async void BackgroundMediaPlayer_MessageReceivedFromForeground(object sender, MediaPlayerDataReceivedEventArgs e)
         {
             foreach (string key in e.Data.Keys)
             {
-                switch (key.ToLower())
+                switch (key)
                 {
+                    case PhoneConstants.EpisodePath:
+                        string episodePath = (string)e.Data[key];
+                        var storageFile = await StorageFile.GetFileFromPathAsync(episodePath);
+                        BackgroundMediaPlayer.Current.SetFileSource(storageFile);
+                        BackgroundMediaPlayer.Current.Play();
+                        ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.EpisodePath, episodePath);
+                        break;
                     case PhoneConstants.AppSuspended:
                         Debug.WriteLine("App suspending"); // App is suspended, you can save your task state at this point
                         foregroundAppState = ForegroundAppStatus.Suspended;
@@ -346,10 +353,6 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                     case PhoneConstants.AppResumed:
                         Debug.WriteLine("App resuming"); // App is resumed, now subscribe to message channel
                         foregroundAppState = ForegroundAppStatus.Active;
-                        break;
-                    case PhoneConstants.StartPlayback: //Foreground App process has signalled that it is ready for playback
-                        Debug.WriteLine("Starting Playback");
-                        StartPlayback();
                         break;
                     case PhoneConstants.SkipNext: // User has chosen to skip track from app context.
                         Debug.WriteLine("Skipping to next");

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PodCatch
+namespace PodCatch.WindowsPhone
 {
-    public static class PhoneConstants
+    class PhoneConstants
     {
         public const string CurrentTrack = "trackname";
         public const string BackgroundTaskStarted = "BackgroundTaskStarted";
@@ -14,7 +14,6 @@ namespace PodCatch
         public const string BackgroundTaskCancelled = "BackgroundTaskCancelled";
         public const string AppSuspended = "appsuspend";
         public const string AppResumed = "appresumed";
-        public const string StartPlayback = "startplayback";
         public const string SkipNext = "skipnext";
         public const string Position = "position";
         public const string AppState = "appstate";
@@ -23,5 +22,6 @@ namespace PodCatch
         public const string Trackchanged = "songchanged";
         public const string ForegroundAppActive = "Active";
         public const string ForegroundAppSuspended = "Suspended";
+        public const string EpisodePath = "EpisodePath";
     }
 }
