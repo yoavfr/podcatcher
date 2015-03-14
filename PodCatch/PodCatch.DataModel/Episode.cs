@@ -294,6 +294,14 @@ namespace PodCatch.DataModel
             }
         }
 
+        public string Id
+        {
+            get
+            {
+                return FolderAndFileName;
+            }
+        }
+
         public string FileName
         {
             get

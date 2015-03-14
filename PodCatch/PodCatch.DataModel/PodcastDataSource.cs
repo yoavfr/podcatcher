@@ -70,12 +70,24 @@ namespace PodCatch.DataModel
 
         public Podcast GetPodcast(string podcastId)
         {
-            var matches = Groups.SelectMany(group => group.Podcasts).Where((podcast) => podcast.Id.Equals(podcastId));
-            if (matches.Count() > 0)
-            {
-                return matches.First();
-            }
-            return null;
+            var match = Groups.SelectMany(group => group.Podcasts)
+                .FirstOrDefault((podcast) => podcast.Id.Equals(podcastId));
+            return match;
+        }
+
+        public Episode GetEpisode(string episodeId)
+        {
+            var match = Groups.SelectMany(group => group.Podcasts)
+                .SelectMany(podcast => podcast.Episodes)
+                .FirstOrDefault(episode => episode.Id == episodeId);
+            return match;
+        }
+
+        public Podcast GetPodcastByEpisodeId(string episodeId)
+        {
+            var match = Groups.SelectMany(group => group.Podcasts)
+                .FirstOrDefault(podcast => podcast.Episodes.Any(episode => episode.Id == episodeId));
+            return match;
         }
 
         private void AddPodcast(string groupId, Podcast podcast)

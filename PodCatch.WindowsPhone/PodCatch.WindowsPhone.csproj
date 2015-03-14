@@ -102,6 +102,9 @@
     <Compile Include="ForegroundMediaPlayer.cs" />
     <Compile Include="PhoneConstants.cs" />
     <Compile Include="ViewModels\HubPageViewModel.cs" />
+    <Compile Include="Views\EpisodePage.xaml.cs">
+      <DependentUpon>EpisodePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\HubPage.xaml.cs">
       <DependentUpon>HubPage.xaml</DependentUpon>
     </Compile>
@@ -129,6 +132,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\EpisodePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\HubPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

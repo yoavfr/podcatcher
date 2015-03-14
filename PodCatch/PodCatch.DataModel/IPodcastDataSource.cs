@@ -26,6 +26,10 @@ namespace PodCatch.DataModel
 
         Podcast GetPodcast(string podcastId);
 
+        Episode GetEpisode(string episodeId);
+
+        Podcast GetPodcastByEpisodeId(string episodeId);
+
         Task DoHouseKeeping();
     }
 }

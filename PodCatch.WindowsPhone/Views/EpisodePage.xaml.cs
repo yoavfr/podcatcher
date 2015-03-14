@@ -24,19 +24,32 @@ namespace PodCatch.WindowsPhone
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class PodcastPage : Page
+    public sealed partial class EpisodePage : Page
     {
         private NavigationHelper m_NavigationHelper;
-        PodcastPageViewModel m_ViewModel;
-        IServiceContext m_ServiceContext;
+        private IServiceContext m_ServiceContext;
+        private EpisodeViewModel m_DefaultViewModel;
 
-        public PodcastPage()
+        public EpisodePage()
         {
             m_ServiceContext = PhoneServiceContext.Instance;
             this.InitializeComponent();
 
             this.m_NavigationHelper = new NavigationHelper(this);
-            m_NavigationHelper.LoadState += DefaultViewModel.OnLoadState;
+            this.m_NavigationHelper.LoadState += this.NavigationHelper_LoadState;
+            this.m_NavigationHelper.SaveState += this.NavigationHelper_SaveState;
+        }
+
+        public EpisodeViewModel DefaultViewModel
+        {
+            get
+            {
+                if (m_DefaultViewModel == null)
+                {
+                    m_DefaultViewModel = new EpisodeViewModel(m_ServiceContext);
+                }
+                return m_DefaultViewModel;
+            }
         }
 
         /// <summary>
@@ -47,23 +60,34 @@ namespace PodCatch.WindowsPhone
             get { return this.m_NavigationHelper; }
         }
 
-        public PodcastPageViewModel DefaultViewModel
+        /// <summary>
+        /// Populates the page with content passed during navigation.  Any saved state is also
+        /// provided when recreating a page from a prior session.
+        /// </summary>
+        /// <param name="sender">
+        /// The source of the event; typically <see cref="NavigationHelper"/>
+        /// </param>
+        /// <param name="e">Event data that provides both the navigation parameter passed to
+        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
+        /// a dictionary of state preserved by this page during an earlier
+        /// session.  The state will be null the first time a page is visited.</param>
+        private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            get
-            {
-                if (m_ViewModel == null)
-                {
-                    m_ViewModel = new PodcastPageViewModel(m_ServiceContext);
-                }
-                return m_ViewModel;
-            }
+            m_DefaultViewModel.Load((string)e.NavigationParameter);
         }
 
-        private void OnEpisodeClicked(object sender, ItemClickEventArgs e)
+        /// <summary>
+        /// Preserves state associated with this page in case the application is suspended or the
+        /// page is discarded from the navigation cache.  Values must conform to the serialization
+        /// requirements of <see cref="SuspensionManager.SessionState"/>.
+        /// </summary>
+        /// <param name="sender">The source of the event; typically <see cref="NavigationHelper"/></param>
+        /// <param name="e">Event data that provides an empty dictionary to be populated with
+        /// serializable state.</param>
+        private void NavigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            EpisodeViewModel episodeViewModel = (EpisodeViewModel)e.ClickedItem;
-            Frame.Navigate(typeof(EpisodePage), episodeViewModel.Id);
         }
+
         #region NavigationHelper registration
 
         /// <summary>
@@ -90,11 +114,5 @@ namespace PodCatch.WindowsPhone
         }
 
         #endregion
-
-        private void OnEpisodePlay(object sender, RoutedEventArgs e)
-        {
-            EpisodeViewModel episode = (EpisodeViewModel)((AppBarButton)sender).DataContext;
-            episode.TogglePlayState();
-        }
     }
 }

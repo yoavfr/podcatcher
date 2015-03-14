@@ -81,6 +81,16 @@ namespace PodCatch.DataModel
             return null;
         }
 
+        public Episode GetEpisode(string episodeId)
+        {
+            return null;
+        }
+
+        public Podcast GetPodcastByEpisodeId(string episodeId)
+        {
+            return null;
+        }
+
         public Task DoHouseKeeping()
         {
             return VoidTask.Completed;
