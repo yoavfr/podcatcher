@@ -8,10 +8,9 @@ namespace PodCatch.ViewModels
 {
     public class EpisodeViewModel : BaseViewModel<Episode>
     {
-        private IMediaPlayer m_MediaPlayer;
-        private Podcast m_Podcast;
-
         private string m_Title;
+        private IMediaPlayer m_MediaPlayer;
+
         public string Title
         {
             get
@@ -28,40 +27,6 @@ namespace PodCatch.ViewModels
             }
         }
 
-        private string m_PodcastTitle;
-
-        public string PodcastTitle
-        {
-            get
-            {
-                return m_PodcastTitle;
-            }
-            set
-            {
-                if (m_PodcastTitle != value)
-                {
-                    m_PodcastTitle = value;
-                    NotifyPropertyChanged(() => PodcastTitle);
-                }
-            }
-        }
-
-        public string m_PodcastImage;
-        public string PodcastImage
-        {
-            get
-            {
-                return m_PodcastImage;
-            }
-            set
-            {
-                if (m_PodcastImage != value)
-                {
-                    m_PodcastImage = value;
-                    NotifyPropertyChanged(() => PodcastImage);
-                }
-            }
-        }
         private string m_Description;
 
         public string Description
@@ -160,6 +125,7 @@ namespace PodCatch.ViewModels
                 return Data.Id;
             }
         }
+
         public Boolean DurationIsKnown
         {
             get
@@ -210,28 +176,13 @@ namespace PodCatch.ViewModels
         public EpisodeViewModel(Episode episode, IServiceContext serviceContext)
             : base(episode, serviceContext)
         {
-            Init();
+            m_MediaPlayer = serviceContext.GetService<IMediaPlayer>();
+            episode.PropertyChanged += OnEpisodeChanged;
         }
 
-        public EpisodeViewModel(IServiceContext serviceContext) 
-            : base (null, serviceContext)
+        private void OnEpisodeChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-        }
-
-        public void Load(string episodeId)
-        {
-            var episode = ServiceContext.GetService<IPodcastDataSource>().GetEpisode(episodeId);
-            Data = episode;
-            Init();
             UpdateFields();
-            Data.PropertyChanged += OnDataPropertyChanged;
-        }
-
-        private void Init()
-        {
-            m_Podcast = ServiceContext.GetService<IPodcastDataSource>().GetPodcastByEpisodeId(Data.Id);
-            m_Podcast.PropertyChanged += OnDataPropertyChanged;
-            m_MediaPlayer = ServiceContext.GetService<IMediaPlayer>();
         }
 
         protected override void UpdateFields()
@@ -244,11 +195,6 @@ namespace PodCatch.ViewModels
             Duration = Data.Duration;
             State = Data.State;
             DownloadProgress = Data.DownloadProgress;
-            if (m_Podcast != null)
-            {
-                PodcastTitle = m_Podcast.Title;
-                PodcastImage = m_Podcast.Image;
-            }
         }
 
         public void TogglePlayState()

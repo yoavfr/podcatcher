@@ -48,8 +48,8 @@ namespace PodCatch.DataModel
             catch (Exception e)
             {
                 Tracer.TraceWarning("EpisodeStateDownloading.OnEntry(): error downloading {0}. {1}", owner.Uri, e);
+                Task task = stateMachine.PostEvent(EpisodeEvent.DownloadFail);
             }
-            Task task = stateMachine.PostEvent(EpisodeEvent.DownloadFail);
         }
 
         public override Task OnExit(Episode owner, IState<Episode, EpisodeEvent> toState, IEventProcessor<Episode, EpisodeEvent> stateMachine)

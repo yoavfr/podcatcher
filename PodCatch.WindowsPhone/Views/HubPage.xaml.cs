@@ -128,13 +128,16 @@ namespace PodCatch.WindowsPhone
                 switch ((int)selectedCommand.Id)
                 {
                     case 1: // Remove from favorites
-                        Task t = m_ViewModel.Data.RemoveFromFavorites(podcast.Data);
+                        Task t = UIThread.RunInBackground(() => m_ViewModel.Data.RemoveFromFavorites(podcast.Data));
                         break;
 
                     case 2: // Add to favorites
                         // Don't wait for this - It will leave the m_ShowingPopUp open
-                        await UIThread.RunInBackground(() => m_ViewModel.Data.AddToFavorites(podcast.Data));
-                        podcast.DownloadEpisodes();
+                        t = UIThread.RunInBackground(async () => 
+                            {
+                                await m_ViewModel.Data.AddToFavorites(podcast.Data);
+                                podcast.DownloadEpisodes();
+                            });
                         break;
                 }
             }

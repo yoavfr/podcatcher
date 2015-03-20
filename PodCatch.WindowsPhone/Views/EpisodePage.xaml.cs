@@ -1,4 +1,5 @@
 ﻿using PodCatch.Common;
+using PodCatch.DataModel;
 using PodCatch.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace PodCatch.WindowsPhone
     {
         private NavigationHelper m_NavigationHelper;
         private IServiceContext m_ServiceContext;
-        private EpisodeViewModel m_DefaultViewModel;
+        private EpisodePageViewModel m_DefaultViewModel;
 
         public EpisodePage()
         {
@@ -40,13 +41,14 @@ namespace PodCatch.WindowsPhone
             this.m_NavigationHelper.SaveState += this.NavigationHelper_SaveState;
         }
 
-        public EpisodeViewModel DefaultViewModel
+        public EpisodePageViewModel DefaultViewModel
         {
             get
             {
                 if (m_DefaultViewModel == null)
                 {
-                    m_DefaultViewModel = new EpisodeViewModel(m_ServiceContext);
+                    var podcastDataSource = m_ServiceContext.GetService<IPodcastDataSource>();
+                    m_DefaultViewModel = new EpisodePageViewModel(podcastDataSource, m_ServiceContext);
                 }
                 return m_DefaultViewModel;
             }

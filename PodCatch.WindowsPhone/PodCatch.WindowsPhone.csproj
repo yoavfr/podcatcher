@@ -101,6 +101,7 @@
     </Compile>
     <Compile Include="ForegroundMediaPlayer.cs" />
     <Compile Include="PhoneConstants.cs" />
+    <Compile Include="ViewModels\EpisodePageViewModel.cs" />
     <Compile Include="ViewModels\HubPageViewModel.cs" />
     <Compile Include="Views\EpisodePage.xaml.cs">
       <DependentUpon>EpisodePage.xaml</DependentUpon>
