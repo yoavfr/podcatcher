@@ -9,6 +9,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Input;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -30,10 +31,11 @@ namespace PodCatch.WindowsPhone
         private HubPageViewModel m_ViewModel;
         private IServiceContext m_ServiceContext;
         private NavigationHelper m_NavigationHelper;
-        private bool m_ShowingPopUp;
+        private ITracer m_Tracer;
         public HubPage()
         {
             m_ServiceContext = PhoneServiceContext.Instance;
+            m_Tracer = m_ServiceContext.GetService<ITracer>();
             this.InitializeComponent();
             this.m_NavigationHelper = new NavigationHelper(this);
             this.m_NavigationHelper.LoadState += OnLoadState;
@@ -68,13 +70,14 @@ namespace PodCatch.WindowsPhone
 
         private async void OnSearch(string searchTerm)
         {
-            var searchResults = await UIThread.RunInBackground<IEnumerable<Podcast>>(async () =>
+            var searchResults = await ThreadManager.RunInBackground<IEnumerable<Podcast>>(async () =>
             {
                 return await m_ViewModel.Data.Search(searchTerm);
             });
-            UIThread.Dispatch(async () =>
+            m_ViewModel.Data.UpdateSearchResults(searchResults);
+            await ThreadManager.RunInBackground(async () =>
             {
-                await m_ViewModel.Data.UpdateSearchResults(searchResults);
+                await m_ViewModel.Data.RefreshSearchResults();
             });
         }
 
@@ -87,63 +90,50 @@ namespace PodCatch.WindowsPhone
 
         private async void OnPodcastHolding(object sender, HoldingRoutedEventArgs e)
         {
-            e.Handled = true;
             Grid grid = (Grid)sender;
-            PodcastSummaryViewModel selectedPodcast = (PodcastSummaryViewModel)grid.DataContext;
-            await OnPodcastHolding(selectedPodcast, e.GetPosition(this));
-        }
-
-        private async void OnPodcastRightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
+            if (e.HoldingState == HoldingState.Started)
+            {
+                PodcastSummaryViewModel selectedPodcast = (PodcastSummaryViewModel)grid.DataContext;
+                await OnPodcastHolding(selectedPodcast, e.GetPosition(this));
+            }
             e.Handled = true;
-            Grid grid = (Grid)sender;
-            PodcastSummaryViewModel selectedPodcast = (PodcastSummaryViewModel)grid.DataContext;
-            await OnPodcastHolding(selectedPodcast, e.GetPosition(this));
         }
 
         private async Task OnPodcastHolding(PodcastSummaryViewModel podcast, Point position)
         {
-            if (m_ShowingPopUp == true)
+            PopupMenu popupMenu = new PopupMenu();
+
+            if (m_ViewModel.Data.IsPodcastInFavorites(podcast.Data))
+            {
+                popupMenu.Commands.Add(new UICommand() { Id = 1, Label = "Remove from favorites" });
+            }
+            else
+            {
+                popupMenu.Commands.Add(new UICommand() { Id = 2, Label = "Add to favorites" });
+            }
+
+            m_Tracer.TraceInformation("OnPodcastHolding - before popup");
+            IUICommand selectedCommand = await popupMenu.ShowAsync(position);
+            m_Tracer.TraceInformation("OnPodcastHolding - after popup");
+
+            if (selectedCommand == null)
             {
                 return;
             }
-            m_ShowingPopUp = true;
-            try
+            switch ((int)selectedCommand.Id)
             {
-                PopupMenu popupMenu = new PopupMenu();
+                case 1: // Remove from favorites
+                    await ThreadManager.RunInBackground(() => m_ViewModel.Data.RemoveFromFavorites(podcast.Data));
+                    break;
 
-                if (m_ViewModel.Data.IsPodcastInFavorites(podcast.Data))
-                {
-                    popupMenu.Commands.Add(new UICommand() { Id = 1, Label = "Remove from favorites" });
-                }
-                else
-                {
-                    popupMenu.Commands.Add(new UICommand() { Id = 2, Label = "Add to favorites" });
-                }
-                IUICommand selectedCommand = await popupMenu.ShowAsync(position);
-                if (selectedCommand == null)
-                {
-                    return;
-                }
-                switch ((int)selectedCommand.Id)
-                {
-                    case 1: // Remove from favorites
-                        Task t = UIThread.RunInBackground(() => m_ViewModel.Data.RemoveFromFavorites(podcast.Data));
-                        break;
-
-                    case 2: // Add to favorites
-                        // Don't wait for this - It will leave the m_ShowingPopUp open
-                        t = UIThread.RunInBackground(async () => 
-                            {
-                                await m_ViewModel.Data.AddToFavorites(podcast.Data);
-                                podcast.DownloadEpisodes();
-                            });
-                        break;
-                }
-            }
-            finally
-            {
-                m_ShowingPopUp = false;
+                case 2: // Add to favorites
+                    // Don't wait for this - It will leave the m_ShowingPopUp open
+                    await ThreadManager.RunInBackground(async () => 
+                        {
+                            await m_ViewModel.Data.AddToFavorites(podcast.Data);
+                            podcast.DownloadEpisodes();
+                        });
+                    break;
             }
         }
 

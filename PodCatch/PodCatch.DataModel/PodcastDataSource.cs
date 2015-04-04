@@ -104,28 +104,35 @@ namespace PodCatch.DataModel
 
         private async Task<IEnumerable<PodcastGroup>> LoadFavorites()
         {
-            StorageFile roamingFavoritesFile;
+            IStorageFile roamingFavoritesFile;
+            List<PodcastGroup> favorites = new List<PodcastGroup>();
             try
             {
-                roamingFavoritesFile = await ApplicationData.Current.RoamingFolder.GetFileAsync("podcatch.json");
-                Tracer.TraceInformation("Loading Favorites from {0}", roamingFavoritesFile.Path);
-                using (Stream stream = await roamingFavoritesFile.OpenStreamForReadAsync())
+                roamingFavoritesFile = await ApplicationData.Current.RoamingFolder.TryGetFileAsync("podcatch.json");
+                if (roamingFavoritesFile == null)
                 {
-                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(IEnumerable<PodcastGroupData>));
-                    IEnumerable<PodcastGroupData> favoritesData = (IEnumerable<PodcastGroupData>)serializer.ReadObject(stream);
-                    List<PodcastGroup> favorites = new List<PodcastGroup>();
-                    foreach (PodcastGroupData groupData in favoritesData)
+                    Tracer.TraceInformation("No Favorites file found at {0}", ApplicationData.Current.RoamingFolder);
+                }
+                else
+                {
+                    Tracer.TraceInformation("Loading Favorites from {0}", roamingFavoritesFile.Path);
+                    using (Stream stream = await roamingFavoritesFile.OpenStreamForReadAsync())
                     {
-                        favorites.Add(PodcastGroup.FromData(ServiceContext, groupData));
+                        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(IEnumerable<PodcastGroupData>));
+                        IEnumerable<PodcastGroupData> favoritesData = (IEnumerable<PodcastGroupData>)serializer.ReadObject(stream);
+                        foreach (PodcastGroupData groupData in favoritesData)
+                        {
+                            favorites.Add(PodcastGroup.FromData(ServiceContext, groupData));
+                        }
                     }
-                    return favorites;
                 }
             }
             catch (Exception e)
             {
-                Tracer.TraceInformation("Couldn't find favorites file in roaming folder. {0}", e);
-                return new Collection<PodcastGroup>();
+                Tracer.TraceInformation("Failed reading favorites file in roaming folder. {0}", e);
             }
+
+            return favorites;
         }
 
         public async Task Load(bool force)
@@ -219,16 +226,22 @@ namespace PodCatch.DataModel
             return filtered;
         }
 
-        public async Task UpdateSearchResults(IEnumerable<Podcast> podcasts)
+        // separated from RefreshSearchResults because the this should typically run on the UI thread and the latter shouldn't
+        public void UpdateSearchResults(IEnumerable<Podcast> podcasts)
         {
             PodcastGroup searchGroup = GetGroup(Constants.SearchGroupId);
             if (searchGroup == null)
             {
                 searchGroup = AddSearchResultsGroup();
             }
-            // TODO: this needs to happen on UIThread
             searchGroup.Podcasts.Clear();
             searchGroup.Podcasts.AddAll(podcasts);
+        }
+
+        public async Task RefreshSearchResults()
+        {
+            PodcastGroup searchGroup = GetGroup(Constants.SearchGroupId);
+
             foreach (Podcast podcast in searchGroup.Podcasts)
             {
                 try
@@ -237,7 +250,7 @@ namespace PodCatch.DataModel
                 }
                 catch (Exception e)
                 {
-                    Tracer.TraceInformation("PodcastDataSource.UpdateSearchResults() - failed to refresh {0}: {1}", podcast.Title, e);
+                    Tracer.TraceInformation("PodcastDataSource.RefreshSearchResults() - failed to refresh {0}: {1}", podcast.Title, e);
                 }
             }
         }

@@ -29,7 +29,7 @@ namespace PodCatch.ViewModels
             podcastGroups.CollectionChanged += OnPodcastGroupsChanged;
 
             // load from cache
-            UIThread.RunInBackground(() => Data.Load(false));
+            ThreadManager.RunInBackground(() => Data.Load(false));
 
             Task t = RegisterBackgroundTask();
             UpdateFields();
@@ -123,7 +123,7 @@ namespace PodCatch.ViewModels
             {
                 BackgroundAccessStatus status = await BackgroundExecutionManager.RequestAccessAsync();
                 IBackgroundTaskRegistration backgroundTaskRegistration = builder.Register();
-                backgroundTaskRegistration.Completed += ((s, a) => UIThread.RunInBackground(() => Data.Load(true)));
+                backgroundTaskRegistration.Completed += ((s, a) => ThreadManager.RunInBackground(() => Data.Load(true)));
             }
             catch (Exception ex)
             {
@@ -143,7 +143,7 @@ namespace PodCatch.ViewModels
 
         protected void UpdateFields(NotifyCollectionChangedEventArgs e)
         {
-            UIThread.Dispatch(() =>
+            ThreadManager.DispatchOnUIthread(() =>
                 {
                     if (Favorites == null)
                     {

@@ -5,9 +5,9 @@ using Windows.UI.Core;
 
 namespace PodCatch.Common
 {
-    public class UIThread
+    public class ThreadManager
     {
-        public static Task Dispatch(Action action)
+        public static Task DispatchOnUIthread(Action action)
         {
             CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
 

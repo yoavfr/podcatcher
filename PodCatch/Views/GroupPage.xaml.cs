@@ -2,6 +2,7 @@
 using PodCatch.DataModel;
 using PodCatch.ViewModels;
 using System;
+using Windows.UI.Input;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
@@ -118,9 +119,12 @@ namespace PodCatch
         private async void HoldingPodcast(object sender, HoldingRoutedEventArgs e)
         {
             e.Handled = true;
-            Grid grid = (Grid)sender;
-            PodcastSummaryViewModel selectedPodcast = (PodcastSummaryViewModel)grid.DataContext;
-            await m_ViewModel.OnPodcastTapped(selectedPodcast, e.GetPosition(this));
+            if (e.HoldingState == HoldingState.Started)
+            {
+                Grid grid = (Grid)sender;
+                PodcastSummaryViewModel selectedPodcast = (PodcastSummaryViewModel)grid.DataContext;
+                await m_ViewModel.OnPodcastTapped(selectedPodcast, e.GetPosition(this));
+            }
         }
     }
 }

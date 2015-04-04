@@ -1,13 +1,17 @@
 ﻿using PodCatch.Common;
 using PodCatch.DataModel;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using Windows.Foundation;
+using Windows.System.Threading;
 
 namespace PodCatch.ViewModels
 {
     public class PodcastSummaryViewModel : BaseViewModel<Podcast>
     {
         private string m_Image;
+        private IList<IAsyncAction> m_DownloadThreads = new List<IAsyncAction>();
 
         public string Image
         {
@@ -111,7 +115,15 @@ namespace PodCatch.ViewModels
                 {
                     break;
                 }
-                UIThread.RunInBackground(() => episode.Download());
+                m_DownloadThreads.Add(ThreadPool.RunAsync(async (action) => await episode.Download()));
+            }
+        }
+
+        public void CancelPendingDownloads()
+        {
+            foreach(IAsyncAction action in m_DownloadThreads)
+            {
+                action.Cancel();
             }
         }
     }

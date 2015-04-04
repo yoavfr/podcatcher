@@ -24,13 +24,13 @@ namespace PodCatch.Common
                 {
                     ((INotifyPropertyChanged)data).PropertyChanged += OnDataPropertyChanged;
                 }
-                UIThread.Dispatch(() => UpdateFields());
+                ThreadManager.DispatchOnUIthread(() => UpdateFields());
             }
         }
 
         protected void OnDataPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            UIThread.Dispatch(() => UpdateFields());
+            ThreadManager.DispatchOnUIthread(() => UpdateFields());
         }
 
         protected abstract void UpdateFields();
@@ -45,7 +45,7 @@ namespace PodCatch.Common
             {
                 return;
             }
-            UIThread.Dispatch(() => handler(this, new PropertyChangedEventArgs(propertyName)));
+            ThreadManager.DispatchOnUIthread(() => handler(this, new PropertyChangedEventArgs(propertyName)));
         }
     }
 }

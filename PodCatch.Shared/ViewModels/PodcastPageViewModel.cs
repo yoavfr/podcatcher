@@ -151,7 +151,7 @@ namespace PodCatch.ViewModels
 
         private void UpdateVisibleEpisodes()
         {
-            UIThread.Dispatch(() =>
+            ThreadManager.DispatchOnUIthread(() =>
                 {
                     m_Episodes.Clear();
                     int i = 0;
@@ -227,12 +227,12 @@ namespace PodCatch.ViewModels
                 {
                     case 1:
                         episode.Data.Played = false;
-                        UIThread.RunInBackground(() => Data.Store());
+                        ThreadManager.RunInBackground(() => Data.Store());
                         break;
 
                     case 2:
                         episode.Data.Played = true;
-                        UIThread.RunInBackground(() => Data.Store());
+                        ThreadManager.RunInBackground(() => Data.Store());
 
                         break;
 
@@ -266,7 +266,7 @@ namespace PodCatch.ViewModels
             Podcast podcastDataItem = Podcast;
             try
             {
-                await UIThread.RunInBackground(async () => await podcastDataItem.RefreshFromRss(true));
+                await ThreadManager.RunInBackground(async () => await podcastDataItem.RefreshFromRss(true));
                 await podcastDataItem.Store();
             }
             catch (Exception ex)
@@ -315,7 +315,7 @@ namespace PodCatch.ViewModels
             {
                 episode.Played = true;
             }
-            UIThread.RunInBackground(() => Data.Store());
+            ThreadManager.RunInBackground(() => Data.Store());
         }
 
         public RelayCommand AllUnplayedCommand
@@ -336,7 +336,7 @@ namespace PodCatch.ViewModels
             {
                 episode.Played = false;
             }
-            UIThread.RunInBackground(() => Data.Store());
+            ThreadManager.RunInBackground(() => Data.Store());
         }
 
         public void ExecuteReleaseSliderCommand(EpisodeViewModel episode, long sliderValue)

@@ -22,7 +22,9 @@ namespace PodCatch.DataModel
 
         Task<IEnumerable<Podcast>> Search(string searchTerm);
 
-        Task UpdateSearchResults(IEnumerable<Podcast> podcasts);
+        void UpdateSearchResults(IEnumerable<Podcast> podcasts);
+
+        Task RefreshSearchResults();
 
         Podcast GetPodcast(string podcastId);
 

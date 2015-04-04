@@ -51,8 +51,7 @@ namespace PodCatch.ViewModels
 
         private void UpdatePodcasts(NotifyCollectionChangedEventArgs e)
         {
-            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
-            UIThread.Dispatch(() =>
+            ThreadManager.DispatchOnUIthread(() =>
                 {
                     if (e == null)
                     {

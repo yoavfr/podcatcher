@@ -60,6 +60,7 @@
     <Compile Include="StateMachine\IStateFactory.cs" />
     <Compile Include="StateMachine\IStateMachine.cs" />
     <Compile Include="StateMachine\SimpleStateMachine.cs" />
+    <Compile Include="StorageFolderExtensions.cs" />
     <Compile Include="Tracer.cs" />
     <Compile Include="VoidTask.cs" />
   </ItemGroup>

@@ -15,14 +15,7 @@ namespace PodCatch
                 if (s_Instance == null)
                 {
                     ServiceContext serviceContext = new ServiceContext(new ThreadAwareDebugTracer());
-                    if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
-                    {
-                        serviceContext.PublishService<DesignTimePodcastDataSource>();
-                    }
-                    else
-                    {
-                        serviceContext.PublishService<PodcastDataSource>();
-                    }
+                    serviceContext.PublishService<PodcastDataSource>();
                     serviceContext.PublishService<DownloadService>();
                     serviceContext.PublishService<ITunesSearch>();
                     serviceContext.PublishService<MediaElementWrapper>();

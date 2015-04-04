@@ -32,7 +32,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Common\ThreadAwareDebugTracer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\TimeSpanConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\TimespanToTicksConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Common\UIThread.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\ThreadManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\VisualTreeHelperExt.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resources\Strings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\EpisodeViewModel.cs" />

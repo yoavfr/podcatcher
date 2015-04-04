@@ -229,7 +229,7 @@ namespace PodCatch.WindowsPhone
         private async Task StartBackgroundAudioTask()
         {
             AddMediaPlayerEventHandlers();
-            await UIThread.Dispatch(() =>
+            await ThreadManager.DispatchOnUIthread(() =>
             {
                 bool result = SererInitialized.WaitOne(2000);
                 if (result != true)

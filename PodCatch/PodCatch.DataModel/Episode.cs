@@ -318,25 +318,10 @@ namespace PodCatch.DataModel
 
         public void NotifyPropertyChanged<TValue>(Expression<Func<TValue>> propertyId)
         {
-            string propertyName = ((MemberExpression)propertyId.Body).Member.Name;
-
             PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler == null || CoreApplication.Views.Count == 0)
+            if (handler != null)
             {
-                return;
-            }
-            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
-
-            if (dispatcher.HasThreadAccess)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-            else
-            {
-                IAsyncAction t = dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    handler(this, new PropertyChangedEventArgs(propertyName));
-                });
+                handler(this, new PropertyChangedEventArgs(((MemberExpression)propertyId.Body).Member.Name));
             }
         }
 

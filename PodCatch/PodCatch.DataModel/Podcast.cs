@@ -354,17 +354,11 @@ namespace PodCatch.DataModel
         private async Task<ulong> GetCachedFileSize(string path)
         {
             ulong fileSize = 0;
-            try
+            IStorageFile existingFile = await ApplicationData.Current.LocalFolder.TryGetFileAsync(path);
+            if (existingFile != null)
             {
-                StorageFile existingFile = await ApplicationData.Current.LocalFolder.GetFileAsync(path);
-                if (existingFile != null)
-                {
-                    BasicProperties fileProperties = await existingFile.GetBasicPropertiesAsync();
-                    fileSize = fileProperties.Size;
-                }
-            }
-            catch (Exception)
-            {
+                BasicProperties fileProperties = await existingFile.GetBasicPropertiesAsync();
+                fileSize = fileProperties.Size;
             }
             return fileSize;
         }

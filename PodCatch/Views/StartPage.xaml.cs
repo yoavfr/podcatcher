@@ -10,6 +10,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using System;
+using Windows.UI.Input;
 
 // The Grouped Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234231
 
@@ -141,10 +142,13 @@ namespace PodCatch
 
         private async void HoldingPodcast(object sender, HoldingRoutedEventArgs e)
         {
-            e.Handled = true;
             Grid grid = (Grid)sender;
-            PodcastSummaryViewModel selectedPodcast = (PodcastSummaryViewModel)grid.DataContext;
-            await OnPodcastTapped(selectedPodcast, e.GetPosition(this));
+            if(e.HoldingState == HoldingState.Started)
+            {
+                PodcastSummaryViewModel selectedPodcast = (PodcastSummaryViewModel)grid.DataContext;
+                await OnPodcastTapped(selectedPodcast, e.GetPosition(this));
+            }
+            e.Handled = true;
         }
 
         private void OnPlayClicked(object sender, RoutedEventArgs e)
@@ -178,13 +182,14 @@ namespace PodCatch
             string searchTerm = dlg.TextBox.Text;
             IEnumerable<Podcast> searchResults;
 
-            searchResults = await UIThread.RunInBackground<IEnumerable<Podcast>>(async () =>
+            searchResults = await ThreadManager.RunInBackground<IEnumerable<Podcast>>(async () =>
             {
                 return await m_ViewModel.Data.Search(searchTerm);
             });
-            await UIThread.Dispatch(async () =>
+            m_ViewModel.Data.UpdateSearchResults(searchResults);
+            await ThreadManager.RunInBackground(async () =>
             {
-                await m_ViewModel.Data.UpdateSearchResults(searchResults);
+                await m_ViewModel.Data.RefreshSearchResults();
             });
         }
 
@@ -229,7 +234,7 @@ namespace PodCatch
 
                     case 3: // Add to favorites
                         // Don't wait for this - It will leave the m_ShowingPopUp open
-                        await UIThread.RunInBackground(() => m_ViewModel.Data.AddToFavorites(podcast.Data));
+                        await ThreadManager.RunInBackground(() => m_ViewModel.Data.AddToFavorites(podcast.Data));
                         podcast.DownloadEpisodes();
                         break;
                 }

@@ -25,28 +25,27 @@
             </DataTemplate>
             
             <DataTemplate x:Key="HubSectionHeaderWithInputTemplate">
-                <StackPanel HorizontalAlignment="Stretch" Width="360">
-                    <Grid Margin="0,0,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Text="{Binding}"/>
-                        <TextBox x:Name="SearchBox" Grid.Row ="1" Grid.Column="0" Margin="0,8,5,0" HorizontalAlignment="Stretch" Width="Auto" KeyDown="OnSearchBoxKeyDown"/>
-                        <Button Tag="{Binding ElementName=SearchBox}" Content="Go" Margin="5,0,0,0" VerticalAlignment ="Top" Grid.Column="1" Grid.Row="1" Click="OnSearchButtonClick"/>
-                    </Grid>
-                </StackPanel>
+                <Grid>
+                    <StackPanel HorizontalAlignment="Stretch" x:Name="StackPanel">
+                        <Grid Margin="0,0,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="{Binding}"/>
+                            <TextBox x:Name="SearchBox" Grid.Row ="1" Margin="0,8,0,0" Width="363" HorizontalAlignment="Stretch" KeyDown="OnSearchBoxKeyDown"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
             </DataTemplate>
             
             <!-- Grid-appropriate item template as seen in section 2 -->
             <DataTemplate x:Key="Standard200x180TileItemTemplate">
-                <Grid Margin="0,0,9.5,9.5" Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Tapped="OnPodcastTapped" Holding="OnPodcastHolding" RightTapped="OnPodcastRightTapped">
-                    <Image Source="{Binding Image}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}" Height="138.5" Width="138.5"/>
-                    <TextBlock Text="{Binding Title}" VerticalAlignment="Bottom" Margin="9.5,0,0,6.5" Style="{ThemeResource BaseTextBlockStyle}"/>
+                <Grid Margin="0,0,9.5,9.5" Width = "138.5" Background="{ThemeResource ThumbPressedBackgroundThemeBrush}" Tapped="OnPodcastTapped" Holding="OnPodcastHolding">
+                    <Image Source="{Binding Image}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}" Height="138.5"/>
+                    <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
+                        <TextBlock Text="{Binding Title}" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" VerticalAlignment="Bottom"  Height="30" Margin="9.5,0,0,6.5" Style="{ThemeResource BaseTextBlockStyle}"/>
+                    </StackPanel>
                 </Grid>
             </DataTemplate>
 
@@ -110,7 +109,8 @@
             </HubSection>
 
             <HubSection x:Uid="Search" Header="Search" Width="Auto"
-                         DataContext="{Binding SearchResults}" HeaderTemplate="{ThemeResource HubSectionHeaderWithInputTemplate}">
+                        DataContext="{Binding SearchResults}" 
+                        HeaderTemplate="{ThemeResource HubSectionHeaderWithInputTemplate}">
                 <DataTemplate>
                     <GridView
                         Margin="0,0,0,0"
