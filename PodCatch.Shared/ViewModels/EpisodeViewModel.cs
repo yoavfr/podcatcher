@@ -95,7 +95,16 @@ namespace PodCatch.ViewModels
                 {
                     m_Position = value;
                     NotifyPropertyChanged(() => Position);
+                    NotifyPropertyChanged(() => PositionMinusDuration);
                 }
+            }
+        }
+
+        public TimeSpan PositionMinusDuration
+        {
+            get
+            {
+                return m_Position - m_Duration;
             }
         }
 
@@ -114,6 +123,7 @@ namespace PodCatch.ViewModels
                     m_Duration = value;
                     NotifyPropertyChanged(() => Duration);
                     NotifyPropertyChanged(() => DurationIsKnown);
+                    NotifyPropertyChanged(() => PositionMinusDuration);
                 }
             }
         }
