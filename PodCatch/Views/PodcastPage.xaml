@@ -141,10 +141,14 @@
                                                         PointerCaptureLost="PlayEpisodeSlider_PointerCaptureLost"
                                                         ManipulationStarted="PlayEpisodeSlider_ManipulationStarted"
                                                         ThumbToolTipValueConverter="{StaticResource TimeSpanConverter}" />
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock HorizontalAlignment="Left" Visibility="{Binding DurationIsKnown, Converter={StaticResource BooleanVisibilityConverter}}" Text="{Binding Position, Converter={StaticResource TimeSpanConverter}}" ToolTipService.ToolTip="Elapsed time" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}" />
-                                                    <TextBlock HorizontalAlignment="Right" Visibility="{Binding DurationIsKnown, Converter={StaticResource BooleanVisibilityConverter}}" Text="{Binding PositionMinusDuration, Converter={StaticResource TimeSpanConverter}}" ToolTipService.ToolTip="Remaining time" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}" />
-                                                </StackPanel>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" HorizontalAlignment="Left" Visibility="{Binding DurationIsKnown, Converter={StaticResource BooleanVisibilityConverter}}" Text="{Binding Position, Converter={StaticResource TimeSpanConverter}}" ToolTipService.ToolTip="Elapsed time" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}" />
+                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Right" Visibility="{Binding DurationIsKnown, Converter={StaticResource BooleanVisibilityConverter}}" Text="{Binding PositionMinusDuration, Converter={StaticResource TimeSpanConverter}}" ToolTipService.ToolTip="Remaining time" Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}" />
+                                                </Grid>
                                             </StackPanel>
                                         </StackPanel>
                                     </Grid>
