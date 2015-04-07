@@ -11,17 +11,47 @@ using PodCatch.Common;
 using Windows.Foundation.Collections;
 using Windows.Foundation;
 using PodCatch.WindowsPhone.BackgroundAudioTask;
+using Windows.UI.Xaml;
 
 namespace PodCatch.WindowsPhone
 {
     public class ForegroundMediaPlayer : ServiceConsumer, IMediaPlayer
     {
-        private AutoResetEvent SererInitialized = new AutoResetEvent(false);
-        private bool isMyBackgroundTaskRunning = false;
+        private AutoResetEvent m_ServerInitialized = new AutoResetEvent(false);
+        private bool m_IsBackgroundTaskRunning = false;
+        private IPodcastDataSource m_PodcastDataSource;
+        private DateTime m_LastSaveTime;
 
 
         public ForegroundMediaPlayer(IServiceContext serviceContext): base (serviceContext)
         {
+
+            m_PodcastDataSource = serviceContext.GetService<IPodcastDataSource>();
+            
+            // Periodically update position in playing episode and every 10 seconds save state too
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromMilliseconds(500);
+            timer.Tick += (sender, e) =>
+            {
+                Episode episode = NowPlaying;
+                if (episode != null)
+                {
+                    // don't update position when slider is being manipulated.
+                    if (!(episode.State is EpisodeStateScanning))
+                    {
+                        episode.Position = Position;
+                    }
+                    if (DateTime.UtcNow.AddSeconds(-10) > m_LastSaveTime)
+                    {
+                        // save location
+                        Task t = m_PodcastDataSource.Store();
+                        m_LastSaveTime = DateTime.UtcNow;
+                    }
+                }
+            };
+            timer.Start();
+
+            // start the background audio task
             StartBackgroundAudioTask();
         }
 
@@ -29,7 +59,7 @@ namespace PodCatch.WindowsPhone
         {
             get
             {
-                if (isMyBackgroundTaskRunning)
+                if (m_IsBackgroundTaskRunning)
                     return true;
 
                 object value = ApplicationData.Current.LocalSettings.ConsumeValue(PhoneConstants.BackgroundTaskState);
@@ -39,8 +69,8 @@ namespace PodCatch.WindowsPhone
                 }
                 else
                 {
-                    isMyBackgroundTaskRunning = ((String)value).Equals(PhoneConstants.BackgroundTaskRunning);
-                    return isMyBackgroundTaskRunning;
+                    m_IsBackgroundTaskRunning = ((String)value).Equals(PhoneConstants.BackgroundTaskRunning);
+                    return m_IsBackgroundTaskRunning;
                 }
             }
         }
@@ -54,8 +84,7 @@ namespace PodCatch.WindowsPhone
                 {
                     return (String)value;
                 }
-                else
-                    return String.Empty;
+                return String.Empty;
             }
         }
 
@@ -153,18 +182,10 @@ namespace PodCatch.WindowsPhone
             {
                 switch (key)
                 {
-                    case PhoneConstants.Trackchanged:
-                        //When foreground app is active change track based on background message
-                        /*await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                        {
-                            txtCurrentTrack.Text = (string)e.Data[key];
-                        }
-                        );*/
-                        break;
                     case PhoneConstants.BackgroundTaskStarted:
                         //Wait for Background Task to be initialized before starting playback
-                        //Debug.WriteLine("Background Task started");
-                        SererInitialized.Set();
+                        Tracer.TraceInformation("Background Media task started");
+                        m_ServerInitialized.Set();
                         break;
                 }
             }
@@ -203,6 +224,8 @@ namespace PodCatch.WindowsPhone
             var episodePath = file.Path;
             var message = new ValueSet();
             message.Add(PhoneConstants.EpisodePath, episodePath);
+            message.Add(PhoneConstants.Position, episode.Position.Ticks.ToString());
+            message.Add(PhoneConstants.Play, string.Empty);
             BackgroundMediaPlayer.SendMessageToBackground(message);
             if (NowPlaying != null && NowPlaying != episode)
             {
@@ -231,7 +254,7 @@ namespace PodCatch.WindowsPhone
             AddMediaPlayerEventHandlers();
             await ThreadManager.DispatchOnUIthread(() =>
             {
-                bool result = SererInitialized.WaitOne(2000);
+                bool result = m_ServerInitialized.WaitOne(2000);
                 if (result != true)
                 {
                     throw new Exception("Background Audio Task didn't start in expected time");

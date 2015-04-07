@@ -119,7 +119,7 @@ namespace PodCatch.WindowsPhone
 
         private void OnEpisodePlay(object sender, RoutedEventArgs e)
         {
-
+            m_DefaultViewModel.TogglePlayState();
         }
 
         private void OnSkipNextClicked(object sender, RoutedEventArgs e)

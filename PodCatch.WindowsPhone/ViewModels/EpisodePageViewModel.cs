@@ -14,6 +14,7 @@ namespace PodCatch.ViewModels
     {
         private Episode m_Episode;
         private Podcast m_Podcast;
+        private IMediaPlayer m_MediaPlayer;
         public EpisodePageViewModel(IPodcastDataSource podcastDataSource, IServiceContext serviceContext) : base (podcastDataSource, serviceContext)
         {
         }
@@ -22,6 +23,7 @@ namespace PodCatch.ViewModels
         {
             m_Episode = Data.GetEpisode(episodeId);
             m_Podcast = Data.GetPodcastByEpisodeId(episodeId);
+            m_MediaPlayer = ServiceContext.GetService<IMediaPlayer>();
             UpdateFields();
             m_Episode.PropertyChanged += OnDataChanged;
             m_Podcast.PropertyChanged += OnDataChanged;
@@ -136,6 +138,61 @@ namespace PodCatch.ViewModels
             }
         }
 
+        private TimeSpan m_EpisodeDuration;
+        public TimeSpan EpisodeDuration
+        {
+            get
+            {
+                return m_EpisodeDuration;
+            }
+            set
+            {
+                if (m_EpisodeDuration != value)
+                {
+                    m_EpisodeDuration = value;
+                    NotifyPropertyChanged(() => EpisodeDuration);
+                }
+            }
+        }
+
+        private TimeSpan m_EpisodePosition;
+        public TimeSpan EpisodePosition
+        {
+            get
+            {
+                return m_EpisodePosition;
+            }
+            set
+            {
+                if (m_EpisodePosition != value)
+                {
+                    m_EpisodePosition = value;
+                    NotifyPropertyChanged(() => EpisodePosition);
+                }
+            }
+        }
+
+        public void TogglePlayState()
+        {
+            if (m_Episode.State is EpisodeStatePendingDownload)
+            {
+                m_Episode.Download();
+            }
+            else if (m_Episode.State is EpisodeStateDownloaded)
+            {
+                if (m_Episode.Played)
+                {
+                    m_Episode.Position = TimeSpan.FromSeconds(0);
+                    m_Episode.Played = false;
+                }
+                Task t = m_MediaPlayer.Play(m_Episode);
+            }
+            else if (m_Episode.State is EpisodeStatePlaying)
+            {
+                m_MediaPlayer.Pause(m_Episode);
+            }
+        }
+
         protected override void UpdateFields()
         {
             if (m_Episode != null)
@@ -144,6 +201,8 @@ namespace PodCatch.ViewModels
                 PublishDate = m_Episode.PublishDate.ToString("D");
                 EpisodeDescription = m_Episode.FormattedDescription;
                 EpisodeState = m_Episode.State;
+                EpisodeDuration = m_Episode.Duration;
+                EpisodePosition = m_Episode.Position;
             }
             if (m_Podcast != null)
             {

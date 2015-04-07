@@ -46,19 +46,12 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
     public sealed class BackgroundAudioTask : IBackgroundTask
     {
 
-        #region Private fields, properties
-        private SystemMediaTransportControls systemmediatransportcontrol;
-        private BackgroundTaskDeferral deferral; // Used to keep task alive
-        private ForegroundAppStatus foregroundAppState = ForegroundAppStatus.Unknown;
-        private AutoResetEvent BackgroundTaskStarted = new AutoResetEvent(false);
-        private bool backgroundtaskrunning = false;
+        private SystemMediaTransportControls m_SystemMediaTransportControl;
+        private BackgroundTaskDeferral m_Deferral; // Used to keep task alive
+        private ForegroundAppStatus m_ForegroundAppState = ForegroundAppStatus.Unknown;
+        private AutoResetEvent m_BackgroundTaskStarted = new AutoResetEvent(false);
+        private bool m_Backgroundtaskrunning = false;
 
-        /// <summary>
-        /// Property to hold current playlist
-        /// </summary>
-        #endregion
-
-        #region IBackgroundTask and IBackgroundTaskInstance Interface Members and handlers
         /// <summary>
         /// The Run method is the entry point of a background task. 
         /// </summary>
@@ -69,14 +62,14 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
             // Initialize SMTC object to talk with UVC. 
             //Note that, this is intended to run after app is paused and 
             //hence all the logic must be written to run in background process
-            systemmediatransportcontrol = SystemMediaTransportControls.GetForCurrentView();
-            systemmediatransportcontrol.ButtonPressed += systemmediatransportcontrol_ButtonPressed;
-            systemmediatransportcontrol.PropertyChanged += systemmediatransportcontrol_PropertyChanged;
-            systemmediatransportcontrol.IsEnabled = true;
-            systemmediatransportcontrol.IsPauseEnabled = true;
-            systemmediatransportcontrol.IsPlayEnabled = true;
-            systemmediatransportcontrol.IsNextEnabled = true;
-            systemmediatransportcontrol.IsPreviousEnabled = true;
+            m_SystemMediaTransportControl = SystemMediaTransportControls.GetForCurrentView();
+            m_SystemMediaTransportControl.ButtonPressed += systemmediatransportcontrol_ButtonPressed;
+            m_SystemMediaTransportControl.PropertyChanged += systemmediatransportcontrol_PropertyChanged;
+            m_SystemMediaTransportControl.IsEnabled = true;
+            m_SystemMediaTransportControl.IsPauseEnabled = true;
+            m_SystemMediaTransportControl.IsPlayEnabled = true;
+            m_SystemMediaTransportControl.IsNextEnabled = true;
+            m_SystemMediaTransportControl.IsPreviousEnabled = true;
 
             // Associate a cancellation and completed handlers with the background task.
             taskInstance.Canceled += new BackgroundTaskCanceledEventHandler(OnCanceled);
@@ -84,9 +77,9 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
 
             var value = ApplicationData.Current.LocalSettings.ConsumeValue(PhoneConstants.AppState);
             if (value == null)
-                foregroundAppState = ForegroundAppStatus.Unknown;
+                m_ForegroundAppState = ForegroundAppStatus.Unknown;
             else
-                foregroundAppState = (ForegroundAppStatus)Enum.Parse(typeof(ForegroundAppStatus), value.ToString());
+                m_ForegroundAppState = (ForegroundAppStatus)Enum.Parse(typeof(ForegroundAppStatus), value.ToString());
 
             //Add handlers for MediaPlayer
             BackgroundMediaPlayer.Current.CurrentStateChanged += Current_CurrentStateChanged;
@@ -98,17 +91,17 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
             BackgroundMediaPlayer.MessageReceivedFromForeground += BackgroundMediaPlayer_MessageReceivedFromForeground;
 
             //Send information to foreground that background task has been started if app is active
-            if (foregroundAppState != ForegroundAppStatus.Suspended)
+            if (m_ForegroundAppState != ForegroundAppStatus.Suspended)
             {
                 ValueSet message = new ValueSet();
                 message.Add(PhoneConstants.BackgroundTaskStarted, "");
                 BackgroundMediaPlayer.SendMessageToForeground(message);
             }
-            BackgroundTaskStarted.Set();
-            backgroundtaskrunning = true;
+            m_BackgroundTaskStarted.Set();
+            m_Backgroundtaskrunning = true;
 
             ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.BackgroundTaskState, PhoneConstants.BackgroundTaskRunning);
-            deferral = taskInstance.GetDeferral();
+            m_Deferral = taskInstance.GetDeferral();
         }
 
         /// <summary>
@@ -117,7 +110,7 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
         void Taskcompleted(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
         {
             Debug.WriteLine("MyBackgroundAudioTask " + sender.TaskId + " Completed...");
-            deferral.Complete();
+            m_Deferral.Complete();
         }
 
         /// <summary>
@@ -136,11 +129,11 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                 //ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.CurrentTrack, Playlist.CurrentTrackName);
                 ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.Position, BackgroundMediaPlayer.Current.Position.ToString());
                 ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.BackgroundTaskState, PhoneConstants.BackgroundTaskCancelled);
-                ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.AppState, Enum.GetName(typeof(ForegroundAppStatus), foregroundAppState));
-                backgroundtaskrunning = false;
+                ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.AppState, Enum.GetName(typeof(ForegroundAppStatus), m_ForegroundAppState));
+                m_Backgroundtaskrunning = false;
                 //unsubscribe event handlers
-                systemmediatransportcontrol.ButtonPressed -= systemmediatransportcontrol_ButtonPressed;
-                systemmediatransportcontrol.PropertyChanged -= systemmediatransportcontrol_PropertyChanged;
+                m_SystemMediaTransportControl.ButtonPressed -= systemmediatransportcontrol_ButtonPressed;
+                m_SystemMediaTransportControl.PropertyChanged -= systemmediatransportcontrol_PropertyChanged;
                 //Playlist.TrackChanged -= playList_TrackChanged;
 
                 //clear objects task cancellation can happen uninterrupted
@@ -152,21 +145,19 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
             {
                 Debug.WriteLine(ex.ToString());
             }
-            deferral.Complete(); // signals task completion. 
+            m_Deferral.Complete(); // signals task completion. 
             Debug.WriteLine("MyBackgroundAudioTask Cancel complete...");
         }
-        #endregion
 
-        #region SysteMediaTransportControls related functions and handlers
         /// <summary>
         /// Update UVC using SystemMediaTransPortControl apis
         /// </summary>
         private void UpdateUVCOnNewTrack()
         {
-            systemmediatransportcontrol.PlaybackStatus = MediaPlaybackStatus.Playing;
-            systemmediatransportcontrol.DisplayUpdater.Type = MediaPlaybackType.Music;
+            m_SystemMediaTransportControl.PlaybackStatus = MediaPlaybackStatus.Playing;
+            m_SystemMediaTransportControl.DisplayUpdater.Type = MediaPlaybackType.Music;
             //systemmediatransportcontrol.DisplayUpdater.MusicProperties.Title = Playlist.CurrentTrackName;
-            systemmediatransportcontrol.DisplayUpdater.Update();
+            m_SystemMediaTransportControl.DisplayUpdater.Update();
         }
 
         /// <summary>
@@ -195,9 +186,9 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                     //app will get task cancellation and it cannot run code. 
                     //However, user can still play music by pressing play via UVC unless a new app comes in clears UVC.
                     //When this happens, the task gets re-initialized and that is asynchronous and hence the wait
-                    if (!backgroundtaskrunning)
+                    if (!m_Backgroundtaskrunning)
                     {
-                        bool result = BackgroundTaskStarted.WaitOne(2000);
+                        bool result = m_BackgroundTaskStarted.WaitOne(2000);
                         if (!result)
                             throw new Exception("Background Task didnt initialize in time");
                     }
@@ -225,11 +216,6 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
             }
         }
 
-
-
-        #endregion
-
-        #region Playlist management functions and handlers
         /// <summary>
         /// Start playlist and change UVC state
         /// </summary>
@@ -298,7 +284,7 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
         /// </summary>
         private void SkipToPrevious()
         {
-            systemmediatransportcontrol.PlaybackStatus = MediaPlaybackStatus.Changing;
+            m_SystemMediaTransportControl.PlaybackStatus = MediaPlaybackStatus.Changing;
             //Playlist.SkipToPrevious();
         }
 
@@ -307,22 +293,19 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
         /// </summary>
         private void SkipToNext()
         {
-            systemmediatransportcontrol.PlaybackStatus = MediaPlaybackStatus.Changing;
+            m_SystemMediaTransportControl.PlaybackStatus = MediaPlaybackStatus.Changing;
             //Playlist.SkipToNext();
         }
 
-        #endregion
-
-        #region Background Media Player Handlers
         void Current_CurrentStateChanged(MediaPlayer sender, object args)
         {
             if (sender.CurrentState == MediaPlayerState.Playing)
             {
-                systemmediatransportcontrol.PlaybackStatus = MediaPlaybackStatus.Playing;
+                m_SystemMediaTransportControl.PlaybackStatus = MediaPlaybackStatus.Playing;
             }
             else if (sender.CurrentState == MediaPlayerState.Paused)
             {
-                systemmediatransportcontrol.PlaybackStatus = MediaPlaybackStatus.Paused;
+                m_SystemMediaTransportControl.PlaybackStatus = MediaPlaybackStatus.Paused;
             }
         }
 
@@ -340,19 +323,25 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                 {
                     case PhoneConstants.EpisodePath:
                         string episodePath = (string)e.Data[key];
-                        var storageFile = await StorageFile.GetFileFromPathAsync(episodePath);
+                        var storageFile = await StorageFile.GetFileFromPathAsync(episodePath); 
                         BackgroundMediaPlayer.Current.SetFileSource(storageFile);
-                        BackgroundMediaPlayer.Current.Play();
                         ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.EpisodePath, episodePath);
+                        break;
+                    case PhoneConstants.Position:
+                        long positionTicks = long.Parse((string)e.Data[key]);
+                        BackgroundMediaPlayer.Current.Position = TimeSpan.FromTicks(positionTicks);
+                        break;
+                    case PhoneConstants.Play:
+                        BackgroundMediaPlayer.Current.Play();
                         break;
                     case PhoneConstants.AppSuspended:
                         Debug.WriteLine("App suspending"); // App is suspended, you can save your task state at this point
-                        foregroundAppState = ForegroundAppStatus.Suspended;
+                        m_ForegroundAppState = ForegroundAppStatus.Suspended;
                         //ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.CurrentTrack, Playlist.CurrentTrackName);
                         break;
                     case PhoneConstants.AppResumed:
                         Debug.WriteLine("App resuming"); // App is resumed, now subscribe to message channel
-                        foregroundAppState = ForegroundAppStatus.Active;
+                        m_ForegroundAppState = ForegroundAppStatus.Active;
                         break;
                     case PhoneConstants.SkipNext: // User has chosen to skip track from app context.
                         Debug.WriteLine("Skipping to next");
@@ -365,7 +354,6 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                 }
             }
         }
-        #endregion
 
     }
 }
