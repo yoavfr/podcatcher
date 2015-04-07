@@ -114,7 +114,7 @@ namespace PodCatch.DataModel
             }
             set
             {
-                if (m_Description != value && m_Description != null)
+                if (m_Description != value && value != null)
                 {
                     m_Description = value;
                     FormattedDescription = HtmlUtilities.ConvertToText(Description).Trim('\n', '\r', '\t', ' ');
@@ -123,6 +123,7 @@ namespace PodCatch.DataModel
                     {
                         FormattedShortDescription = FormattedDescription.Substring(0, lineLimit) + "\n...";
                     }
+                    NotifyPropertyChanged(() => Description);
                 }
             }
         }
@@ -158,7 +159,7 @@ namespace PodCatch.DataModel
                 if (value != m_FormattedDescription)
                 {
                     m_FormattedDescription = value;
-                    NotifyPropertyChanged(() => FormattedShortDescription);
+                    NotifyPropertyChanged(() => FormattedDescription);
                 }
             }
         }

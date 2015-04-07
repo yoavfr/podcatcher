@@ -1,4 +1,5 @@
-﻿using PodCatch.Common;
+﻿using Podcatch.Common.StateMachine;
+using PodCatch.Common;
 using PodCatch.DataModel;
 using System;
 using System.Collections.Generic;
@@ -101,12 +102,48 @@ namespace PodCatch.ViewModels
             }
         }
 
+        private string m_EpisodeDescription;
+        public string EpisodeDescription
+        {
+            get
+            {
+                return m_EpisodeDescription;
+            }
+            set
+            {
+                if (m_EpisodeDescription != value)
+                {
+                    m_EpisodeDescription = value;
+                    NotifyPropertyChanged(() => EpisodeDescription);
+                }
+            }
+        }
+
+        private IState<Episode, EpisodeEvent> m_EpisodeState;
+        public IState<Episode, EpisodeEvent> EpisodeState
+        {
+            get
+            {
+                return m_EpisodeState;
+            }
+            set
+            {
+                if (m_EpisodeState != value)
+                {
+                    m_EpisodeState = value;
+                    NotifyPropertyChanged(() => EpisodeState);
+                }
+            }
+        }
+
         protected override void UpdateFields()
         {
             if (m_Episode != null)
             {
                 EpisodeTitle = m_Episode.Title;
                 PublishDate = m_Episode.PublishDate.ToString("D");
+                EpisodeDescription = m_Episode.FormattedDescription;
+                EpisodeState = m_Episode.State;
             }
             if (m_Podcast != null)
             {

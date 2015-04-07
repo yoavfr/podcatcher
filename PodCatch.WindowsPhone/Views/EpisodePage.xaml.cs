@@ -116,5 +116,30 @@ namespace PodCatch.WindowsPhone
         }
 
         #endregion
+
+        private void OnEpisodePlay(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void OnSkipNextClicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void OnSkipPreviousClicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void PlayEpisodeSlider_PointerCaptureLost(object sender, PointerRoutedEventArgs e)
+        {
+
+        }
+
+        private void PlayEpisodeSlider_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+        {
+
+        }
     }
 }
