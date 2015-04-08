@@ -199,6 +199,24 @@ namespace PodCatch.ViewModels
             }
         }
 
+        private double m_DownloadProgress;
+
+        public double DownloadProgress
+        {
+            get
+            {
+                return m_DownloadProgress;
+            }
+            set
+            {
+                if (m_DownloadProgress != value)
+                {
+                    m_DownloadProgress = value;
+                    NotifyPropertyChanged(() => DownloadProgress);
+                }
+            }
+        }
+
         protected override void UpdateFields()
         {
             if (m_Episode != null)
@@ -209,6 +227,7 @@ namespace PodCatch.ViewModels
                 EpisodeState = m_Episode.State;
                 EpisodeDuration = m_Episode.Duration;
                 EpisodePosition = m_Episode.Position;
+                DownloadProgress = m_Episode.DownloadProgress;
             }
             if (m_Podcast != null)
             {
