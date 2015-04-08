@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:m3="http://schemas.microsoft.com/appx/2014/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
-  <Identity Name="4ab11103-86c7-4fc9-b588-a04dfcc88736" Publisher="CN=Yoav" Version="1.0.0.0" />
-  <mp:PhoneIdentity PhoneProductId="4ab11103-86c7-4fc9-b588-a04dfcc88736" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <Identity Name="4019YoavFrandzel.Podcatcher" Publisher="CN=C60356C3-A0C0-4E2A-946D-14B96E87C36C" Version="1.1.0.0" />
+  <mp:PhoneIdentity PhoneProductId="2fd85629-b68f-4a63-a28b-209201a9fb04" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>PodCatch.WindowsPhone</DisplayName>
-    <PublisherDisplayName>Yoav</PublisherDisplayName>
+    <DisplayName>Podcatcher</DisplayName>
+    <PublisherDisplayName>Yoav Frandzel</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Prerequisites>
@@ -16,7 +16,7 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="PodCatch.WindowsPhone.App">
-      <m3:VisualElements DisplayName="PodCatch.WindowsPhone" Square150x150Logo="Assets\Logo.png" Square44x44Logo="Assets\SmallLogo.png" Description="Podcast player for windows phone" ForegroundText="light" BackgroundColor="transparent">
+      <m3:VisualElements DisplayName="Podcatcher" Square150x150Logo="Assets\Logo.png" Square44x44Logo="Assets\SmallLogo.png" Description="Podcast player for windows phone" ForegroundText="light" BackgroundColor="transparent">
         <m3:DefaultTile Wide310x150Logo="Assets\WideLogo.png" Square71x71Logo="Assets\Square71x71Logo.png">
         </m3:DefaultTile>
         <m3:SplashScreen Image="Assets\SplashScreen.png" />
