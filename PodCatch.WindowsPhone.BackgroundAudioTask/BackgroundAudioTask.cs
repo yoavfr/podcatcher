@@ -51,6 +51,7 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
         private ForegroundAppStatus m_ForegroundAppState = ForegroundAppStatus.Unknown;
         private AutoResetEvent m_BackgroundTaskStarted = new AutoResetEvent(false);
         private bool m_Backgroundtaskrunning = false;
+        private TimeSpan m_StartPosition;
 
         /// <summary>
         /// The Run method is the entry point of a background task. 
@@ -83,6 +84,7 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
 
             //Add handlers for MediaPlayer
             BackgroundMediaPlayer.Current.CurrentStateChanged += Current_CurrentStateChanged;
+            BackgroundMediaPlayer.Current.MediaOpened += MediaPlayer_MediaOpened;
 
             //Add handlers for playlist trackchanged
             //Playlist.TrackChanged += playList_TrackChanged;
@@ -301,6 +303,13 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
         {
             if (sender.CurrentState == MediaPlayerState.Playing)
             {
+                if (m_StartPosition > TimeSpan.FromTicks(0))
+                {
+                    sender.Position = m_StartPosition;
+                    m_StartPosition = TimeSpan.FromTicks(0);
+                    sender.PlaybackMediaMarkers.Clear();
+                }
+                sender.Volume = 1;
                 m_SystemMediaTransportControl.PlaybackStatus = MediaPlaybackStatus.Playing;
             }
             else if (sender.CurrentState == MediaPlayerState.Paused)
@@ -309,6 +318,14 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
             }
         }
 
+        /// <summary>
+        /// Fired when MediaPlayer is ready to play the track
+        /// </summary>
+        void MediaPlayer_MediaOpened(MediaPlayer sender, object args)
+        {
+            // wait for media to be ready
+            sender.Play();
+        }
 
         /// <summary>
         /// Fires when a message is recieved from the foreground app
@@ -323,16 +340,19 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                 {
                     case PhoneConstants.EpisodePath:
                         string episodePath = (string)e.Data[key];
-                        var storageFile = await StorageFile.GetFileFromPathAsync(episodePath); 
+                        var storageFile = await StorageFile.GetFileFromPathAsync(episodePath);
+                        BackgroundMediaPlayer.Current.AutoPlay = false;
+                        // Set volume to 0 - this will be set back to 1 when the correct position is assumed
+                        BackgroundMediaPlayer.Current.Volume = 0;
                         BackgroundMediaPlayer.Current.SetFileSource(storageFile);
                         ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.EpisodePath, episodePath);
                         break;
                     case PhoneConstants.Position:
+                        // Set the start position, we set the position once the state changes to playing, 
+                        // it can be possible for a fraction of second, playback can start before we are 
+                        // able to seek to new start position
                         long positionTicks = long.Parse((string)e.Data[key]);
-                        BackgroundMediaPlayer.Current.Position = TimeSpan.FromTicks(positionTicks);
-                        break;
-                    case PhoneConstants.Play:
-                        BackgroundMediaPlayer.Current.Play();
+                        m_StartPosition = TimeSpan.FromTicks(positionTicks);
                         break;
                     case PhoneConstants.AppSuspended:
                         Debug.WriteLine("App suspending"); // App is suspended, you can save your task state at this point

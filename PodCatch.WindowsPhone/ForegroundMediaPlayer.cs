@@ -222,15 +222,24 @@ namespace PodCatch.WindowsPhone
 
             var file = await episode.GetStorageFile();
             var episodePath = file.Path;
-            var message = new ValueSet();
-            message.Add(PhoneConstants.EpisodePath, episodePath);
-            message.Add(PhoneConstants.Position, episode.Position.Ticks.ToString());
-            message.Add(PhoneConstants.Play, string.Empty);
-            BackgroundMediaPlayer.SendMessageToBackground(message);
+            
+            // set position
+            var positionMessage = new ValueSet();
+            positionMessage.Add(PhoneConstants.Position, episode.Position.Ticks.ToString());
+            BackgroundMediaPlayer.SendMessageToBackground(positionMessage);
+
+            // send episode path to background
+            var pathMessage = new ValueSet();
+            pathMessage.Add(PhoneConstants.EpisodePath, episodePath);
+            BackgroundMediaPlayer.SendMessageToBackground(pathMessage);
+            
+            // Switching to a new podcast - mark the previously played as paused
             if (NowPlaying != null && NowPlaying != episode)
             {
                 NowPlaying.PostEvent(EpisodeEvent.Pause);
             }
+
+            // Keep what we are playing now
             NowPlaying = episode;
         }
 
