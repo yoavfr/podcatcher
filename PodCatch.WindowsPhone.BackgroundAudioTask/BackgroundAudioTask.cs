@@ -209,11 +209,11 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                     break;
                 case SystemMediaTransportControlsButton.Next:
                     Debug.WriteLine("UVC next button pressed");
-                    SkipToNext();
+                    //SkipToNext();
                     break;
                 case SystemMediaTransportControlsButton.Previous:
                     Debug.WriteLine("UVC previous button pressed");
-                    SkipToPrevious();
+                    //SkipToPrevious();
                     break;
             }
         }
@@ -281,24 +281,6 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
             }
         }*/
 
-        /// <summary>
-        /// Skip track and update UVC via SMTC
-        /// </summary>
-        private void SkipToPrevious()
-        {
-            m_SystemMediaTransportControl.PlaybackStatus = MediaPlaybackStatus.Changing;
-            //Playlist.SkipToPrevious();
-        }
-
-        /// <summary>
-        /// Skip track and update UVC via SMTC
-        /// </summary>
-        private void SkipToNext()
-        {
-            m_SystemMediaTransportControl.PlaybackStatus = MediaPlaybackStatus.Changing;
-            //Playlist.SkipToNext();
-        }
-
         void Current_CurrentStateChanged(MediaPlayer sender, object args)
         {
             if (sender.CurrentState == MediaPlayerState.Playing)
@@ -341,10 +323,16 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                     case PhoneConstants.EpisodePath:
                         string episodePath = (string)e.Data[key];
                         var storageFile = await StorageFile.GetFileFromPathAsync(episodePath);
+                        var musicProperties = await storageFile.Properties.GetMusicPropertiesAsync();
                         BackgroundMediaPlayer.Current.AutoPlay = false;
                         // Set volume to 0 - this will be set back to 1 when the correct position is assumed
                         BackgroundMediaPlayer.Current.Volume = 0;
                         BackgroundMediaPlayer.Current.SetFileSource(storageFile);
+                        m_SystemMediaTransportControl.PlaybackStatus = MediaPlaybackStatus.Playing;
+                        m_SystemMediaTransportControl.DisplayUpdater.Type = MediaPlaybackType.Music;
+                        m_SystemMediaTransportControl.DisplayUpdater.MusicProperties.Title = musicProperties.Title;
+                        m_SystemMediaTransportControl.DisplayUpdater.Update();
+
                         ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.EpisodePath, episodePath);
                         break;
                     case PhoneConstants.Position:
@@ -366,14 +354,6 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                     case PhoneConstants.AppResumed:
                         Debug.WriteLine("App resuming"); // App is resumed, now subscribe to message channel
                         m_ForegroundAppState = ForegroundAppStatus.Active;
-                        break;
-                    case PhoneConstants.SkipNext: // User has chosen to skip track from app context.
-                        Debug.WriteLine("Skipping to next");
-                        SkipToNext();
-                        break;
-                    case PhoneConstants.SkipPrevious: // User has chosen to skip track from app context.
-                        Debug.WriteLine("Skipping to previous");
-                        SkipToPrevious();
                         break;
                 }
             }
