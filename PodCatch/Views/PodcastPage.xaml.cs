@@ -95,15 +95,7 @@ namespace PodCatch
         {
             Slider slider = (Slider)sender;
             EpisodeViewModel episode = (EpisodeViewModel)slider.DataContext;
-            m_ViewModel.ExecuteManipulateSliderCommand(episode);
-        }
-
-        private void PlayEpisodeSlider_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
-        {
-            Slider slider = (Slider)sender;
-            EpisodeViewModel episode = (EpisodeViewModel)slider.DataContext;
-            long sliderValue = (long)slider.Value;
-            m_ViewModel.ExecuteReleaseSliderCommand(episode, sliderValue);
+            m_ViewModel.ScanStart(episode);
         }
 
         private void PlayEpisodeSlider_PointerCaptureLost(object sender, PointerRoutedEventArgs e)
@@ -111,7 +103,7 @@ namespace PodCatch
             Slider slider = (Slider)sender;
             EpisodeViewModel episode = (EpisodeViewModel)slider.DataContext;
             long sliderValue = (long)slider.Value;
-            m_ViewModel.ExecuteReleaseSliderCommand(episode, sliderValue);
+            m_ViewModel.ScanDone(episode, sliderValue);
         }
 
         private void ShowMoreButtonClicked(object sender, RoutedEventArgs e)

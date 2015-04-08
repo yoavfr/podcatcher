@@ -295,10 +295,22 @@ namespace PodCatch.WindowsPhone
 
         public void SkipForward(Episode episode)
         {
+            long positionTicks = Position.Ticks;
+            long durationTicks = Duration.Ticks;
+            long increment = durationTicks / 20;
+            positionTicks = Math.Min(durationTicks, positionTicks + increment);
+            Position = TimeSpan.FromTicks(positionTicks);
+            episode.Position = Position;
         }
 
         public void SkipBackward(Episode episode)
         {
+            long positionTicks = Position.Ticks;
+            long durationTicks = Duration.Ticks;
+            long increment = durationTicks / 20;
+            positionTicks = Math.Max(0, positionTicks - increment);
+            Position = TimeSpan.FromTicks(positionTicks);
+            episode.Position = Position;
         }
     }
 }

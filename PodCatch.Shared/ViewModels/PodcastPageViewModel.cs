@@ -339,7 +339,7 @@ namespace PodCatch.ViewModels
             ThreadManager.RunInBackground(() => Data.Store());
         }
 
-        public void ExecuteReleaseSliderCommand(EpisodeViewModel episode, long sliderValue)
+        public void ScanDone(EpisodeViewModel episode, long sliderValue)
         {
             if (m_MediaPlayer.IsEpisodePlaying(episode.Data))
             {
@@ -348,7 +348,7 @@ namespace PodCatch.ViewModels
             }
         }
 
-        public void ExecuteManipulateSliderCommand(EpisodeViewModel episode)
+        public void ScanStart(EpisodeViewModel episode)
         {
             if (m_MediaPlayer.IsEpisodePlaying(episode.Data))
             {

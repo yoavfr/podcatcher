@@ -15,6 +15,8 @@ namespace PodCatch.ViewModels
         private Episode m_Episode;
         private Podcast m_Podcast;
         private IMediaPlayer m_MediaPlayer;
+        private bool m_Scanning;
+
         public EpisodePageViewModel(IPodcastDataSource podcastDataSource, IServiceContext serviceContext) : base (podcastDataSource, serviceContext)
         {
         }
@@ -167,7 +169,11 @@ namespace PodCatch.ViewModels
                 if (m_EpisodePosition != value)
                 {
                     m_EpisodePosition = value;
-                    NotifyPropertyChanged(() => EpisodePosition);
+                    // don't update position when scanning
+                    if (! m_Scanning)
+                    {
+                        NotifyPropertyChanged(() => EpisodePosition);
+                    }
                 }
             }
         }
@@ -208,6 +214,35 @@ namespace PodCatch.ViewModels
             {
                 Image = m_Podcast.Image;
                 PodcastTitle = m_Podcast.Title;
+            }
+        }
+
+        public void SkipForward()
+        {
+            m_MediaPlayer.SkipForward(m_Episode);
+        }
+
+        public void SkipBackward()
+        {
+            m_MediaPlayer.SkipBackward(m_Episode);
+        }
+
+        internal void ScanStart(EpisodePageViewModel episode)
+        {
+            m_Scanning = true;
+            if (m_MediaPlayer.IsEpisodePlaying(m_Episode))
+            {
+                m_Episode.PostEvent(EpisodeEvent.Scan);
+            }
+        }
+
+        internal void ScanDone(EpisodePageViewModel episode, long sliderValue)
+        {
+            m_Scanning = false;
+            if (m_MediaPlayer.IsEpisodePlaying(m_Episode))
+            {
+                m_Episode.Position = m_MediaPlayer.Position = TimeSpan.FromTicks(sliderValue);
+                m_Episode.PostEvent(EpisodeEvent.Play);
             }
         }
     }

@@ -237,7 +237,7 @@ namespace PodCatch.Common
         {
             long positionTicks = Position.Ticks;
             long durationTicks = Duration.Ticks;
-            long increment = durationTicks / 10;
+            long increment = durationTicks / 20;
             positionTicks = Math.Min(durationTicks, positionTicks + increment);
             Position = TimeSpan.FromTicks(positionTicks);
             episode.Position = Position;
@@ -247,7 +247,7 @@ namespace PodCatch.Common
         {
             long positionTicks = Position.Ticks;
             long durationTicks = Duration.Ticks;
-            long increment = durationTicks / 10;
+            long increment = durationTicks / 20;
             positionTicks = Math.Max(0, positionTicks - increment);
             Position = TimeSpan.FromTicks(positionTicks);
             episode.Position = Position;

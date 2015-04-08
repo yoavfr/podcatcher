@@ -124,22 +124,31 @@ namespace PodCatch.WindowsPhone
 
         private void OnSkipNextClicked(object sender, RoutedEventArgs e)
         {
-
+            var button = (AppBarButton)sender;
+            var episode = (EpisodePageViewModel)button.DataContext;
+            episode.SkipForward();
         }
 
         private void OnSkipPreviousClicked(object sender, RoutedEventArgs e)
         {
-
+            var button = (AppBarButton)sender;
+            var episode = (EpisodePageViewModel)button.DataContext;
+            episode.SkipBackward();
         }
 
         private void PlayEpisodeSlider_PointerCaptureLost(object sender, PointerRoutedEventArgs e)
         {
-
+            var slider = (Slider)sender;
+            var episode = (EpisodePageViewModel)slider.DataContext;
+            long sliderValue = (long)slider.Value;
+            m_DefaultViewModel.ScanDone(episode, sliderValue);
         }
 
         private void PlayEpisodeSlider_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
         {
-
+            var slider = (Slider)sender;
+            var episode = (EpisodePageViewModel)slider.DataContext;
+            m_DefaultViewModel.ScanStart(episode);
         }
     }
 }

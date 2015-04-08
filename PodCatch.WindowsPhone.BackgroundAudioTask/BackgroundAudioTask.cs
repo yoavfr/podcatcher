@@ -348,11 +348,15 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                         ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.EpisodePath, episodePath);
                         break;
                     case PhoneConstants.Position:
-                        // Set the start position, we set the position once the state changes to playing, 
-                        // it can be possible for a fraction of second, playback can start before we are 
-                        // able to seek to new start position
-                        long positionTicks = long.Parse((string)e.Data[key]);
-                        m_StartPosition = TimeSpan.FromTicks(positionTicks);
+                        TimeSpan position = TimeSpan.FromTicks(long.Parse((string)e.Data[key]));
+                        
+                        // Set the start position, If not currently playing anything we set the position 
+                        // once the state changes to playing, it can be possible for a fraction of second, 
+                        // playback can start before we are able to seek to new start position
+                        m_StartPosition = position;
+
+                        // if we are playing - setting the position will do the trick
+                        BackgroundMediaPlayer.Current.Position = position;
                         break;
                     case PhoneConstants.AppSuspended:
                         Debug.WriteLine("App suspending"); // App is suspended, you can save your task state at this point
