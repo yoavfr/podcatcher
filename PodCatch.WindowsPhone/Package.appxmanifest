@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:m3="http://schemas.microsoft.com/appx/2014/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
-  <Identity Name="4019YoavFrandzel.Podcatcher" Publisher="CN=C60356C3-A0C0-4E2A-946D-14B96E87C36C" Version="1.1.0.0" />
+  <Identity Name="4019YoavFrandzel.Podcatcher" Publisher="CN=C60356C3-A0C0-4E2A-946D-14B96E87C36C" Version="1.1.0.4" />
   <mp:PhoneIdentity PhoneProductId="2fd85629-b68f-4a63-a28b-209201a9fb04" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>Podcatcher</DisplayName>
