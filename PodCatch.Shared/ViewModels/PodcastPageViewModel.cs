@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.System.Threading;
 using Windows.UI.Popups;
 
 namespace PodCatch.ViewModels
@@ -18,6 +19,7 @@ namespace PodCatch.ViewModels
         private RelayCommand m_ShowMoreCommand;
         private RelayCommand m_AllPlayedCommand;
         private RelayCommand m_AllUnplayedCommand;
+        private IList<IAsyncAction> m_DownloadThreads = new List<IAsyncAction>();
         private bool m_Loaded;
 
 
@@ -353,6 +355,19 @@ namespace PodCatch.ViewModels
             if (m_MediaPlayer.IsEpisodePlaying(episode.Data))
             {
                 episode.Data.PostEvent(EpisodeEvent.Scan);
+            }
+        }
+
+        public void DownloadEpisodes()
+        {
+            int i = 0;
+            foreach (Episode episode in Podcast.Episodes)
+            {
+                if (i++ > 3)
+                {
+                    break;
+                }
+                m_DownloadThreads.Add(ThreadPool.RunAsync(async (action) => await episode.Download()));
             }
         }
     }

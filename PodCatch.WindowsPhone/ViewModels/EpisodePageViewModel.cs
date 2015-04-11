@@ -178,6 +178,42 @@ namespace PodCatch.ViewModels
             }
         }
 
+        private double m_DownloadProgress;
+
+        public double DownloadProgress
+        {
+            get
+            {
+                return m_DownloadProgress;
+            }
+            set
+            {
+                if (m_DownloadProgress != value)
+                {
+                    m_DownloadProgress = value;
+                    NotifyPropertyChanged(() => DownloadProgress);
+                }
+            }
+        }
+
+        private bool m_Played;
+
+        public bool Played
+        {
+            get
+            {
+                return m_Played;
+            }
+            set
+            {
+                if (m_Played != value)
+                {
+                    m_Played = value;
+                    NotifyPropertyChanged(() => Played);
+                }
+            }
+        }
+
         public void TogglePlayState()
         {
             if (m_Episode.State is EpisodeStatePendingDownload)
@@ -199,24 +235,6 @@ namespace PodCatch.ViewModels
             }
         }
 
-        private double m_DownloadProgress;
-
-        public double DownloadProgress
-        {
-            get
-            {
-                return m_DownloadProgress;
-            }
-            set
-            {
-                if (m_DownloadProgress != value)
-                {
-                    m_DownloadProgress = value;
-                    NotifyPropertyChanged(() => DownloadProgress);
-                }
-            }
-        }
-
         protected override void UpdateFields()
         {
             if (m_Episode != null)
@@ -228,6 +246,7 @@ namespace PodCatch.ViewModels
                 EpisodeDuration = m_Episode.Duration;
                 EpisodePosition = m_Episode.Position;
                 DownloadProgress = m_Episode.DownloadProgress;
+                Played = m_Episode.Played;
             }
             if (m_Podcast != null)
             {
