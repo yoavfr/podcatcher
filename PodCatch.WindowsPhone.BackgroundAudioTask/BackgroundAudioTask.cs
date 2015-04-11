@@ -52,6 +52,7 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
         private AutoResetEvent m_BackgroundTaskStarted = new AutoResetEvent(false);
         private bool m_Backgroundtaskrunning = false;
         private TimeSpan m_StartPosition;
+        private string m_EpisodeId;
 
         /// <summary>
         /// The Run method is the entry point of a background task. 
@@ -95,15 +96,20 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
             //Send information to foreground that background task has been started if app is active
             if (m_ForegroundAppState != ForegroundAppStatus.Suspended)
             {
-                ValueSet message = new ValueSet();
-                message.Add(PhoneConstants.BackgroundTaskStarted, "");
-                BackgroundMediaPlayer.SendMessageToForeground(message);
+                SendStartedMessageToForeground();
             }
             m_BackgroundTaskStarted.Set();
             m_Backgroundtaskrunning = true;
 
             ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.BackgroundTaskState, PhoneConstants.BackgroundTaskRunning);
             m_Deferral = taskInstance.GetDeferral();
+        }
+
+        private void SendStartedMessageToForeground()
+        {
+            ValueSet message = new ValueSet();
+            message.Add(PhoneConstants.BackgroundTaskStarted, m_EpisodeId);
+            BackgroundMediaPlayer.SendMessageToForeground(message);
         }
 
         /// <summary>
@@ -311,6 +317,10 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                     case PhoneConstants.AppResumed:
                         Debug.WriteLine("App resuming"); // App is resumed, now subscribe to message channel
                         m_ForegroundAppState = ForegroundAppStatus.Active;
+                        SendStartedMessageToForeground();
+                        break;
+                    case PhoneConstants.EpisodeId:
+                        m_EpisodeId = (string)e.Data[key];
                         break;
                 }
             }

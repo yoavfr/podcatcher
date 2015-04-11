@@ -55,6 +55,11 @@ namespace PodCatch.DataModel
                             return GetState<EpisodeStatePendingDownload>();
                         }
                     }
+                case EpisodeEvent.Play:
+                    {
+                        // this will happen after restarting when already playing in the background
+                        return GetState<EpisodeStatePlaying>();
+                    }
             }
             return null;
         }

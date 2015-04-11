@@ -105,6 +105,11 @@ namespace PodCatch.Common
             episode.PostEvent(EpisodeEvent.Pause);
         }
 
+        public void SyncCurrentlyPlayingEpisode()
+        {
+
+        }
+
         private MediaElementWrapper(IServiceContext serviceContext)
             : base(serviceContext)
         {

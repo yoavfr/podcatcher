@@ -21,6 +21,7 @@ namespace PodCatch.WindowsPhone
         private bool m_IsBackgroundTaskRunning = false;
         private IPodcastDataSource m_PodcastDataSource;
         private DateTime m_LastSaveTime;
+        private string m_CurrentEpisodeId;
 
 
         public ForegroundMediaPlayer(IServiceContext serviceContext): base (serviceContext)
@@ -53,6 +54,24 @@ namespace PodCatch.WindowsPhone
 
             // start the background audio task
             StartBackgroundAudioTask();
+
+        }
+
+        public void SyncCurrentlyPlayingEpisode()
+        {
+            if (m_CurrentEpisodeId != null)
+            {
+                var currentEpisode = m_PodcastDataSource.GetEpisode(m_CurrentEpisodeId);
+                if (currentEpisode != null)
+                {
+                    NowPlaying = currentEpisode;
+                    NowPlaying.Position = BackgroundMediaPlayer.Current.Position;
+                    if (BackgroundMediaPlayer.Current.CurrentState == MediaPlayerState.Playing)
+                    {
+                        NowPlaying.PostEvent(EpisodeEvent.Play);
+                    }
+                }
+            }
         }
 
         private bool IsMyBackgroundTaskRunning
@@ -72,19 +91,6 @@ namespace PodCatch.WindowsPhone
                     m_IsBackgroundTaskRunning = ((String)value).Equals(PhoneConstants.BackgroundTaskRunning);
                     return m_IsBackgroundTaskRunning;
                 }
-            }
-        }
-
-        private string CurrentTrack
-        {
-            get
-            {
-                object value = ApplicationData.Current.LocalSettings.ConsumeValue(PhoneConstants.CurrentTrack);
-                if (value != null)
-                {
-                    return (String)value;
-                }
-                return String.Empty;
             }
         }
 
@@ -113,23 +119,7 @@ namespace PodCatch.WindowsPhone
                 ValueSet messageDictionary = new ValueSet();
                 messageDictionary.Add(PhoneConstants.AppResumed, DateTime.Now.ToString());
                 BackgroundMediaPlayer.SendMessageToBackground(messageDictionary);
-
-                /*if (BackgroundMediaPlayer.Current.CurrentState == MediaPlayerState.Playing)
-                {
-                    playButton.Content = "| |";     // Change to pause button
-                }
-                else
-                {
-                    playButton.Content = ">";     // Change to play button
-                }
-                txtCurrentTrack.Text = CurrentTrack;*/
             }
-            else
-            {
-                /*playButton.Content = ">";     // Change to play button
-                txtCurrentTrack.Text = "";*/
-            }
-
         }
 
         /// <summary>
@@ -186,6 +176,7 @@ namespace PodCatch.WindowsPhone
                         //Wait for Background Task to be initialized before starting playback
                         Tracer.TraceInformation("Background Media task started");
                         m_ServerInitialized.Set();
+                        m_CurrentEpisodeId = (string)e.Data[key];
                         break;
                 }
             }
@@ -228,10 +219,11 @@ namespace PodCatch.WindowsPhone
             positionMessage.Add(PhoneConstants.Position, episode.Position.Ticks.ToString());
             BackgroundMediaPlayer.SendMessageToBackground(positionMessage);
 
-            // send episode path to background
-            var pathMessage = new ValueSet();
-            pathMessage.Add(PhoneConstants.EpisodePath, episodePath);
-            BackgroundMediaPlayer.SendMessageToBackground(pathMessage);
+            // send episode path to background + id of current episode so that when we resume we can reconstruct our state
+            var startMessage = new ValueSet();
+            startMessage.Add(PhoneConstants.EpisodePath, episodePath);
+            startMessage.Add(PhoneConstants.EpisodeId, episode.Id);
+            BackgroundMediaPlayer.SendMessageToBackground(startMessage);
             
             // Switching to a new podcast - mark the previously played as paused
             if (NowPlaying != null && NowPlaying != episode)
@@ -261,6 +253,11 @@ namespace PodCatch.WindowsPhone
         private async Task StartBackgroundAudioTask()
         {
             AddMediaPlayerEventHandlers();
+            
+            ValueSet message = new ValueSet();
+            message.Add(PhoneConstants.AppResumed, "");
+            BackgroundMediaPlayer.SendMessageToBackground(message);
+
             await ThreadManager.DispatchOnUIthread(() =>
             {
                 bool result = m_ServerInitialized.WaitOne(2000);

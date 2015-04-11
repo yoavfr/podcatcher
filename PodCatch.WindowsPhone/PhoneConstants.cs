@@ -9,6 +9,7 @@ namespace PodCatch.WindowsPhone
     class PhoneConstants
     {
         public const string CurrentTrack = "trackname";
+        public const string EpisodeId = "EpsiodeId";
         public const string BackgroundTaskStarted = "BackgroundTaskStarted";
         public const string BackgroundTaskRunning = "BackgroundTaskRunning";
         public const string BackgroundTaskCancelled = "BackgroundTaskCancelled";

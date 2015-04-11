@@ -29,7 +29,11 @@ namespace PodCatch.ViewModels
             podcastGroups.CollectionChanged += OnPodcastGroupsChanged;
 
             // load from cache
-            ThreadManager.RunInBackground(() => Data.Load(false));
+            ThreadManager.RunInBackground(async () => {
+                await Data.Load(false);
+                // Connect the currently playing episode from the media player after done loading all episodes
+                m_MediaPlayer.SyncCurrentlyPlayingEpisode();
+            });
 
             Task t = RegisterBackgroundTask();
             UpdateFields();
