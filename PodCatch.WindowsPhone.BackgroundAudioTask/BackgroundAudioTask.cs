@@ -194,7 +194,8 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                         if (!result)
                             throw new Exception("Background Task didnt initialize in time");
                     }
-                    StartPlayback();
+                    BackgroundMediaPlayer.Current.Play();
+                    //StartPlayback();
                     break;
                 case SystemMediaTransportControlsButton.Pause:
                     Debug.WriteLine("UVC pause button pressed");
@@ -215,50 +216,6 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                     Debug.WriteLine("UVC previous button pressed");
                     //SkipToPrevious();
                     break;
-            }
-        }
-
-        /// <summary>
-        /// Start playlist and change UVC state
-        /// </summary>
-
-        private void StartPlayback()
-        {
-            try
-            {
-                /*if (Playlist.CurrentTrackName == string.Empty)
-                {
-                    //If the task was cancelled we would have saved the current track and its position. We will try playback from there
-                    var currenttrackname = ApplicationSettingsHelper.ReadResetSettingsValue(Constants.CurrentTrack);
-                    var currenttrackposition = ApplicationSettingsHelper.ReadResetSettingsValue(Constants.Position);
-                    if (currenttrackname != null)
-                    {
-
-                        if (currenttrackposition == null)
-                        {
-                            // play from start if we dont have position
-                            Playlist.StartTrackAt((string)currenttrackname);
-                        }
-                        else
-                        {
-                            // play from exact position otherwise
-                            Playlist.StartTrackAt((string)currenttrackname, TimeSpan.Parse((string)currenttrackposition));
-                        }
-                    }
-                    else
-                    {
-                        //If we dont have anything, play from beginning of playlist.
-                        Playlist.PlayAllTracks(); //start playback
-                    }
-                }
-                else
-                {
-                    BackgroundMediaPlayer.Current.Play();
-                }*/
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
             }
         }
 
