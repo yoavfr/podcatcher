@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.System.Threading;
 
 namespace PodCatch.DataModel
 {
@@ -149,25 +150,26 @@ namespace PodCatch.DataModel
                 foreach (Podcast podcast in group.Podcasts)
                 {
                     AddPodcast(group.Id, podcast);
-                    loadTasks.Add(LoadPodcast(podcast));
+                    loadTasks.Add(LoadPodcast(podcast, force));
                 }
             }
             await Task.WhenAll(loadTasks.ToArray());
         }
 
-        private async Task<bool> LoadPodcast(Podcast podcast)
+        private Task LoadPodcast(Podcast podcast, bool force)
         {
-            try
-            {
-                await podcast.Load();
-                await podcast.Store();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Tracer.TraceInformation("Error loading {0}. {1}", podcast, e);
-                return false;
-            }
+            return ThreadPool.RunAsync(async (action) =>
+                {
+                    try
+                    {
+                        await podcast.Load(force);
+                        await podcast.Store();
+                    }
+                    catch (Exception e)
+                    {
+                        Tracer.TraceInformation("Error loading {0}. {1}", podcast, e);
+                    }
+                }).AsTask();
         }
 
         public async Task Store()
@@ -255,12 +257,12 @@ namespace PodCatch.DataModel
             }
         }
 
-        public async Task<bool> AddToFavorites(Podcast podcast)
+        public async Task AddToFavorites(Podcast podcast)
         {
             PodcastGroup favorites = GetGroup(Constants.FavoritesGroupId);
             if (favorites.Podcasts.Contains(podcast))
             {
-                return false;
+                return;
             }
 
             PodcastGroup search = GetGroup(Constants.SearchGroupId);
@@ -271,7 +273,7 @@ namespace PodCatch.DataModel
 
             favorites.Podcasts.Add(podcast);
             await Store();
-            return await LoadPodcast(podcast);
+            await LoadPodcast(podcast, true);
         }
 
         public Task RemoveFromFavorites(Podcast podcast)

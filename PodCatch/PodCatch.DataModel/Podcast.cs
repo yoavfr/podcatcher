@@ -187,7 +187,7 @@ namespace PodCatch.DataModel
 
         public long LastRefreshTimeTicks { get; set; }
 
-        public async Task Load()
+        public async Task Load(bool force)
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             Tracer.TraceInformation("Podcast.Load(): {0} from {1}", Title, localFolder.Path);
@@ -213,7 +213,7 @@ namespace PodCatch.DataModel
                         await UpdateFields(readPodcast);
                     }
                 }
-                await RefreshFromRss(true);
+                await RefreshFromRss(force);
                 PruneEmptyEpisodes();
             }
             catch (Exception e)

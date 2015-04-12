@@ -127,7 +127,6 @@ namespace PodCatch.WindowsPhone
                     break;
 
                 case 2: // Add to favorites
-                    // Don't wait for this - It will leave the m_ShowingPopUp open
                     await ThreadManager.RunInBackground(async () => 
                         {
                             await m_ViewModel.Data.AddToFavorites(podcast.Data);
