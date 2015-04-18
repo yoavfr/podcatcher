@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Foundation;
-using Windows.System.Threading;
 using Windows.UI.Popups;
 
 namespace PodCatch.ViewModels
@@ -19,9 +18,8 @@ namespace PodCatch.ViewModels
         private RelayCommand m_ShowMoreCommand;
         private RelayCommand m_AllPlayedCommand;
         private RelayCommand m_AllUnplayedCommand;
-        private IList<IAsyncAction> m_DownloadThreads = new List<IAsyncAction>();
+        private IList<Task> m_DownloadThreads = new List<Task>();
         private bool m_Loaded;
-
 
         public Podcast Podcast { get; set; }
 
@@ -249,7 +247,6 @@ namespace PodCatch.ViewModels
             }
         }
 
-
         public RelayCommand RefreshCommand
         {
             get
@@ -268,7 +265,7 @@ namespace PodCatch.ViewModels
             Podcast podcastDataItem = Podcast;
             try
             {
-                await ThreadManager.RunInBackground(async () => await podcastDataItem.RefreshFromRss(true));
+                await ThreadManager.RunInBackground(async () => await podcastDataItem.RefreshFromRss(true, true));
                 await podcastDataItem.Store();
             }
             catch (Exception ex)
@@ -367,7 +364,7 @@ namespace PodCatch.ViewModels
                 {
                     break;
                 }
-                m_DownloadThreads.Add(ThreadPool.RunAsync(async (action) => await episode.Download()));
+                m_DownloadThreads.Add(episode.Download());
             }
         }
     }

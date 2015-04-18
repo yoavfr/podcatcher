@@ -32,7 +32,7 @@ namespace PodCatch.ViewModels
             ThreadManager.RunInBackground(async () => {
                 await Data.Load(false);
                 // Connect the currently playing episode from the media player after done loading all episodes
-                m_MediaPlayer.SyncCurrentlyPlayingEpisode();
+                m_MediaPlayer.Connect();
             });
 
             Task t = RegisterBackgroundTask();

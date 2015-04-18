@@ -61,6 +61,7 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
         public void Run(IBackgroundTaskInstance taskInstance)
         {
             Debug.WriteLine("Background Audio Task " + taskInstance.Task.Name + " starting...");
+            m_Deferral = taskInstance.GetDeferral();
             // Initialize SMTC object to talk with UVC. 
             //Note that, this is intended to run after app is paused and 
             //hence all the logic must be written to run in background process
@@ -102,7 +103,6 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
             m_Backgroundtaskrunning = true;
 
             ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.BackgroundTaskState, PhoneConstants.BackgroundTaskRunning);
-            m_Deferral = taskInstance.GetDeferral();
         }
 
         private void SendStartedMessageToForeground()
@@ -130,7 +130,7 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
         private void OnCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
         {
             // You get some time here to save your state before process and resources are reclaimed
-            Debug.WriteLine("MyBackgroundAudioTask " + sender.Task.TaskId + " Cancel Requested...");
+            Debug.WriteLine("MyBackgroundAudioTask " + sender.Task.TaskId + " Cancel Requested... Reason: {0}", reason);
             try
             {
                 //save state
@@ -224,25 +224,6 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                     break;
             }
         }
-
-        /// <summary>
-        /// Fires when playlist changes to a new track
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        /*void playList_TrackChanged(MyPlaylist sender, object args)
-        {
-            UpdateUVCOnNewTrack();
-            ApplicationData.Current.LocalSettings.PutValue(Constants.CurrentTrack, sender.CurrentTrackName);
-
-            if (foregroundAppState == ForegroundAppStatus.Active)
-            {
-                //Message channel that can be used to send messages to foreground
-                ValueSet message = new ValueSet();
-                message.Add(Constants.Trackchanged, sender.CurrentTrackName);
-                BackgroundMediaPlayer.SendMessageToForeground(message);
-            }
-        }*/
 
         void Current_CurrentStateChanged(MediaPlayer sender, object args)
         {

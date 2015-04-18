@@ -36,7 +36,7 @@ namespace PodCatch.DataModel.Search
                         {
                             Title = result.artistName,
                             PodcastUri = result.feedUrl,
-                            Image = result.artworkUrl100,
+                            SearchImage = result.artworkUrl100,
                         };
                         results.Add(podcast);
                     }

@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.System.Threading;
 using Windows.Web.Http;
 
 namespace PodCatch.DataModel
@@ -40,7 +41,12 @@ namespace PodCatch.DataModel
             return m_DownloadedBytes;
         }
 
-        public async Task<StorageFile> Download()
+        public Task<StorageFile> Download()
+        {
+            return Task.Run(() => InnerDownload());
+        }
+
+        private async Task<StorageFile> InnerDownload()
         {
             if (m_SourceUri == null || m_SourceUri.IsFile)
             {

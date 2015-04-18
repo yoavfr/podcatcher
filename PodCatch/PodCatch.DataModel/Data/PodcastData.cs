@@ -16,9 +16,6 @@ namespace PodCatch.DataModel.Data
         public string Description { get; set; }
 
         [DataMember]
-        public string Image { get; set; }
-
-        [DataMember]
         public long LastRefreshTimeTicks { get; set; }
     }
 }

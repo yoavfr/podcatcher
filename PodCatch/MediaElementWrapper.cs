@@ -105,7 +105,7 @@ namespace PodCatch.Common
             episode.PostEvent(EpisodeEvent.Pause);
         }
 
-        public void SyncCurrentlyPlayingEpisode()
+        public void Connect()
         {
 
         }

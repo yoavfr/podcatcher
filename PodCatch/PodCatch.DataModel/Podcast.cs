@@ -21,7 +21,9 @@ namespace PodCatch.DataModel
     {
         private string m_Title;
         private string m_Description;
-        private string m_Image;
+        private string m_SearchImage;
+        private string m_RssImage;
+
         private IDownloadService m_DownloadService;
 
         private static Func<Episode, object> s_EpisodeOrdering = (e => -e.PublishDate.Ticks);
@@ -38,7 +40,6 @@ namespace PodCatch.DataModel
             Podcast podcast = new Podcast(serviceContext);
             podcast.Title = data.Title;
             podcast.Description = data.Description;
-            podcast.Image = data.Image;
             podcast.LastRefreshTimeTicks = data.LastRefreshTimeTicks;
             podcast.Episodes = new ConcurrentObservableCollection<Episode>(s_EpisodeOrdering, true);
             foreach (EpisodeData episodeData in data.Episodes)
@@ -62,6 +63,7 @@ namespace PodCatch.DataModel
                 episodes.Add(Episode.FromRoamingData(serviceContext, podcast.FileName, episodeData));
             }
             podcast.Episodes.HoldNotifications = false;
+
             return podcast;
         }
 
@@ -71,7 +73,6 @@ namespace PodCatch.DataModel
             {
                 Title = Title,
                 Description = Description,
-                Image = Image,
                 LastRefreshTimeTicks = LastRefreshTimeTicks
             };
             List<EpisodeData> episodes = new List<EpisodeData>();
@@ -174,14 +175,29 @@ namespace PodCatch.DataModel
 
         public string Image
         {
-            get { return m_Image; }
+            get
+            {
+                if (!string.IsNullOrEmpty(m_RssImage))
+                {
+                    Tracer.TraceInformation("Returning rss image location {0} for podcast {1}", m_RssImage, Title);
+                    return m_RssImage;
+                }
+                if (!string.IsNullOrEmpty(m_SearchImage))
+                {
+                    Tracer.TraceInformation("Returning search image location {0} for podcast {1}", m_SearchImage, Title);
+                    return m_SearchImage;
+                }
+                // Cached image if exists will always have this path
+                Tracer.TraceInformation("Returning default cached image location for podcast {0}", Title);
+                return string.Format("{0}\\{1}.jpg", ApplicationData.Current.LocalFolder.Path, Id);
+            }
+        }
+
+        public string SearchImage
+        {
             set
             {
-                if (m_Image != value)
-                {
-                    m_Image = value;
-                    NotifyPropertyChanged(() => Image);
-                }
+                m_SearchImage = value;
             }
         }
 
@@ -190,18 +206,11 @@ namespace PodCatch.DataModel
         public async Task Load()
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+
             Tracer.TraceInformation("Podcast.Load(): {0} from {1}", Title, localFolder.Path);
             try
             {
-                StorageFile file = null;
-                try
-                {
-                    file = await localFolder.GetFileAsync(CacheFileName);
-                }
-                catch (FileNotFoundException)
-                {
-                    Tracer.TraceInformation("Can't find cache file {0} for podcast {1}", CacheFileName, Id);
-                }
+                var file = await localFolder.TryGetFileAsync(CacheFileName);
                 if (file != null)
                 {
                     TouchedFiles.Instance.Add(file.Path);
@@ -213,7 +222,7 @@ namespace PodCatch.DataModel
                         await UpdateFields(readPodcast);
                     }
                 }
-                await RefreshFromRss(true);
+                await RefreshFromRss(false, true);
                 PruneEmptyEpisodes();
             }
             catch (Exception e)
@@ -222,14 +231,16 @@ namespace PodCatch.DataModel
             }
         }
 
-        public async Task RefreshFromRss(bool force)
+        public async Task RefreshFromRss(bool force, bool cacheImage)
         {
             DateTime lastRefreshTime = new DateTime(LastRefreshTimeTicks);
-            if (DateTime.UtcNow - lastRefreshTime < TimeSpan.FromHours(2) && !force && Episodes.Count > 0)
+            if (DateTime.UtcNow - lastRefreshTime < TimeSpan.FromHours(24) && !force && Episodes.Count > 0)
             {
+                Tracer.TraceInformation("Not refreshing Podcast {0} from Rss", Title);
                 return;
             }
 
+            Tracer.TraceInformation("Refreshing {0} from Rss", Title);
             SyndicationFeed syndicationFeed = new SyndicationFeed();
 
             HttpClient httpClient = new HttpClient();
@@ -250,13 +261,24 @@ namespace PodCatch.DataModel
                     Description = syndicationFeed.Subtitle.Text;
                 }
 
+                // If we have a source for the image in the syndication feed use it
                 if (syndicationFeed.ImageUri != null)
                 {
-                    await LoadImage(syndicationFeed.ImageUri.ToString());
+                    if (cacheImage)
+                    {
+                        await LoadImage(syndicationFeed.ImageUri.ToString());
+                        m_RssImage = null;
+                    }
+                    else
+                    {
+                        m_RssImage = syndicationFeed.ImageUri.ToString();
+                        NotifyPropertyChanged(() => Image);
+                    }
                 }
-                else if (Image != null)
+                else if (m_SearchImage != null && cacheImage)
                 {
-                    await LoadImage(Image);
+                    await LoadImage(m_SearchImage);
+                    m_SearchImage = null;
                 }
 
                 Episodes.HoldNotifications = true;
@@ -278,7 +300,7 @@ namespace PodCatch.DataModel
                     toRemove.Add(episode);
                 }
             }
-            
+
             foreach (Episode episode in toRemove)
             {
                 Episodes.Remove(episode);
@@ -313,6 +335,11 @@ namespace PodCatch.DataModel
             }
         }
 
+        public Task CacheImage()
+        {
+            return LoadImage(Image);
+        }
+
         private async Task LoadImage(string imageUri)
         {
             Uri validUri;
@@ -321,8 +348,8 @@ namespace PodCatch.DataModel
                 return;
             }
 
-            string imageExtension = Path.GetExtension(validUri.AbsolutePath);
-            string localImagePath = string.Format("{0}{1}", FileName, imageExtension);
+            // Path.GetExtension(validUri.AbsolutePath);
+            string localImagePath = string.Format("{0}.jpg", Id);
             ulong oldFileSize = await GetCachedFileSize(localImagePath);
             // the image we have is from the cache
             IDownloader downloader = m_DownloadService.CreateDownloader(validUri, ApplicationData.Current.LocalFolder, localImagePath, null);
@@ -332,9 +359,9 @@ namespace PodCatch.DataModel
                 if (!validUri.IsFile)
                 {
                     Tracer.TraceInformation("Podcast.LoadImage(): Downloading {0} -> {1}", validUri, localImagePath);
-                    StorageFile localImageFile = await downloader.Download();
+                    var localImageFile = await downloader.Download();
                     Tracer.TraceInformation("Podcast.LoadImage(): Finished downloading {0} -> {1}", validUri, localImageFile.Path);
-                    Image = localImageFile.Path;
+                    //Image = localImageFile.Path;
 
                     ulong newFileSize = await GetCachedFileSize(localImagePath);
                     if (newFileSize != oldFileSize)
@@ -369,10 +396,6 @@ namespace PodCatch.DataModel
             if (fromCache.Description != null)
             {
                 Description = fromCache.Description;
-            }
-            if (fromCache.Image != null)
-            {
-                Image = fromCache.Image;
             }
             TouchedFiles.Instance.Add(Image);
             LastRefreshTimeTicks = fromCache.LastRefreshTimeTicks;
@@ -410,8 +433,9 @@ namespace PodCatch.DataModel
 
         private string GetNormalizedEpisodeUri(Uri uri)
         {
-            return  uri.Host + uri.AbsolutePath;
+            return uri.Host + uri.AbsolutePath;
         }
+
         private string CacheFileName
         {
             get

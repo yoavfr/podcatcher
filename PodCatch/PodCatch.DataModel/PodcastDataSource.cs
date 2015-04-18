@@ -149,7 +149,7 @@ namespace PodCatch.DataModel
                 foreach (Podcast podcast in group.Podcasts)
                 {
                     AddPodcast(group.Id, podcast);
-                    loadTasks.Add(LoadPodcast(podcast));
+                    loadTasks.Add(Task.Run<bool>(() => LoadPodcast(podcast)));
                 }
             }
             await Task.WhenAll(loadTasks.ToArray());
@@ -211,7 +211,7 @@ namespace PodCatch.DataModel
             else
             {
                 // Search term
-                matches = await m_Search.FindAsync(searchTerm, 50);
+                matches = await m_Search.FindAsync(searchTerm, 10);
             }
 
             filtered = new List<Podcast>();
@@ -246,7 +246,7 @@ namespace PodCatch.DataModel
             {
                 try
                 {
-                    await podcast.RefreshFromRss(false);
+                    await podcast.RefreshFromRss(false, false);
                 }
                 catch (Exception e)
                 {
@@ -255,12 +255,12 @@ namespace PodCatch.DataModel
             }
         }
 
-        public async Task<bool> AddToFavorites(Podcast podcast)
+        public async Task AddToFavorites(Podcast podcast)
         {
             PodcastGroup favorites = GetGroup(Constants.FavoritesGroupId);
             if (favorites.Podcasts.Contains(podcast))
             {
-                return false;
+                return;
             }
 
             PodcastGroup search = GetGroup(Constants.SearchGroupId);
@@ -270,8 +270,15 @@ namespace PodCatch.DataModel
             }
 
             favorites.Podcasts.Add(podcast);
-            await Store();
-            return await LoadPodcast(podcast);
+            await Task.Run(async () =>
+            {
+                await Store();
+                var result = await LoadPodcast(podcast);
+                if (result)
+                {
+                    await podcast.CacheImage();
+                }
+            });
         }
 
         public Task RemoveFromFavorites(Podcast podcast)

@@ -52,13 +52,16 @@ namespace PodCatch.WindowsPhone
             };
             timer.Start();
 
-            // start the background audio task
-            StartBackgroundAudioTask();
 
         }
 
-        public void SyncCurrentlyPlayingEpisode()
+        public void Connect()
         {
+            Tracer.TraceInformation("ForegroundMediaPlayer - Connecting");
+            // start the background audio task
+            StartBackgroundAudioTask();
+
+            // If the background task is already playing an episode - update that episode's status 
             if (m_CurrentEpisodeId != null)
             {
                 var currentEpisode = m_PodcastDataSource.GetEpisode(m_CurrentEpisodeId);
@@ -72,6 +75,12 @@ namespace PodCatch.WindowsPhone
                     }
                 }
             }
+
+            //Adding App suspension handlers here so that we can unsubscribe handlers 
+            //that access to BackgroundMediaPlayer events
+            App.Current.Suspending += ForegroundApp_Suspending;
+            App.Current.Resuming += ForegroundApp_Resuming;
+            ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.AppState, PhoneConstants.ForegroundAppActive);
         }
 
         private bool IsMyBackgroundTaskRunning
@@ -94,13 +103,6 @@ namespace PodCatch.WindowsPhone
             }
         }
 
-        public void OnForegroundActivated()
-        {
-            App.Current.Suspending += ForegroundApp_Suspending;
-            App.Current.Resuming += ForegroundApp_Resuming;
-            ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.AppState, PhoneConstants.ForegroundAppActive);
-        }
-
         /// <summary>
         /// Sends message to background informing app has resumed
         /// Subscribe to MediaPlayer events
@@ -112,7 +114,7 @@ namespace PodCatch.WindowsPhone
             // Verify if the task was running before
             if (IsMyBackgroundTaskRunning)
             {
-                //if yes, reconnect to media play handlers
+                // if yes, reconnect to media play handlers
                 AddMediaPlayerEventHandlers();
 
                 //send message to background task that app is resumed, so it can start sending notifications

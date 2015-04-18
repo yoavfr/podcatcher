@@ -14,7 +14,7 @@ namespace PodCatch.DataModel
 
         PodcastGroup GetGroup(string groupId);
 
-        Task<bool> AddToFavorites(Podcast podcast);
+        Task AddToFavorites(Podcast podcast);
 
         Task RemoveFromFavorites(Podcast podcast);
 

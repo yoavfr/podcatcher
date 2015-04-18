@@ -32,11 +32,11 @@ namespace PodCatch.DataModel
 
             try
             {
-                IDownloader downloader = owner.m_DownloadService.CreateDownloader(owner.Uri, await owner.GetStorageFolder(), owner.FolderAndFileName, progress);
-                StorageFile localFile = await downloader.Download();
+                var downloader = owner.m_DownloadService.CreateDownloader(owner.Uri, await owner.GetStorageFolder(), owner.FolderAndFileName, progress);
+                var localFile = await downloader.Download();
 
                 // set duration
-                MusicProperties musicProperties = await localFile.Properties.GetMusicPropertiesAsync();
+                var musicProperties = await localFile.Properties.GetMusicPropertiesAsync();
                 owner.Duration = musicProperties.Duration;
                 // set position
                 owner.Position = TimeSpan.FromMilliseconds(0);

@@ -16,6 +16,6 @@ namespace PodCatch.DataModel
         bool IsEpisodePlaying(Episode episode);
         void SkipForward(Episode episode);
         void SkipBackward(Episode episode);
-        void SyncCurrentlyPlayingEpisode();
+        void Connect();
     }
 }

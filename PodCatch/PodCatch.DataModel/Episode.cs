@@ -117,7 +117,17 @@ namespace PodCatch.DataModel
                 if (m_Description != value && value != null)
                 {
                     m_Description = value;
-                    FormattedDescription = HtmlUtilities.ConvertToText(Description).Trim('\n', '\r', '\t', ' ');
+
+                    var descriptionAsText = Description;
+                    try
+                    {
+                        descriptionAsText = HtmlUtilities.ConvertToText(descriptionAsText);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Tracer.TraceWarning("Unable to convert {0} to text. {1}", descriptionAsText, e);
+                    }
+                    FormattedDescription = descriptionAsText.Trim('\n', '\r', '\t', ' ');
                     int lineLimit = FormattedDescription.IndexOfOccurence("\n", 10);
                     if (lineLimit != -1)
                     {
