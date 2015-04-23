@@ -38,7 +38,7 @@
 
         <StackPanel Grid.Row="0" Margin="19,0,19,0">
             <TextBlock Text="{Binding PodcastTitle}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
-            <Image Source="{Binding Image}" Margin ="0,10,0,0" HorizontalAlignment="Left" Stretch="UniformToFill" AutomationProperties.Name="{Binding EpsiodeTitle}" Width="138.5" Height="138.5"/>
+            <Image Source="{Binding Image}" Margin ="0,10,0,0" HorizontalAlignment="Left" Stretch="UniformToFill" AutomationProperties.Name="{Binding EpisodeTitle}" Width="138.5" Height="138.5"/>
         </StackPanel>
         <StackPanel Grid.Row="1" Margin="19,0,19,0">
             <TextBlock Text="{Binding EpisodeTitle}" Margin="0,10,0,0" Style="{ThemeResource TitleTextBlockStyle}"/>
@@ -47,7 +47,7 @@
         <ScrollViewer Grid.Row="2" Margin="19,9.5,19,0">           
                   <TextBlock Text="{Binding EpisodeDescription}" Style="{ThemeResource BaseTextBlockStyle}" />
         </ScrollViewer>
-        <ProgressBar Grid.Row="3"
+        <ProgressBar Grid.Row="3" 
                     Margin="19,0,19,0"
                     VerticalAlignment="Center"
                     Name="DownloadEpisodeProgressBar"

@@ -6,6 +6,7 @@ namespace PodCatch.DataModel
 {
     public class EpisodeStateScanning : AbstractState<Episode, EpisodeEvent>
     {
+        private IState<Episode, EpisodeEvent> m_OriginalState;
         public EpisodeStateScanning(IServiceContext serviceContext)
             : base(serviceContext)
         {
@@ -13,6 +14,7 @@ namespace PodCatch.DataModel
 
         public override Task OnEntry(Episode owner, IState<Episode, EpisodeEvent> fromState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
+            m_OriginalState = fromState;
             owner.NotifyPropertyChanged(() => owner.State);
             return Task.FromResult<object>(null);
         }
@@ -26,9 +28,9 @@ namespace PodCatch.DataModel
         {
             switch (anEvent)
             {
-                case EpisodeEvent.Play:
+                case EpisodeEvent.ScanDone:
                     {
-                        return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStatePlaying>());
+                        return Task.FromResult<IState<Episode, EpisodeEvent>>(m_OriginalState);
                     }
             }
             return Task.FromResult<IState<Episode, EpisodeEvent>>(null);

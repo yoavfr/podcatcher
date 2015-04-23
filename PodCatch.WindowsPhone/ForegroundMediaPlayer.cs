@@ -76,6 +76,17 @@ namespace PodCatch.WindowsPhone
                 }
             }
 
+            // If media ended when we were not running - sync this
+            var endedEpisodeId = (string)ApplicationData.Current.LocalSettings.ConsumeValue(PhoneConstants.MediaEnded);
+            if (endedEpisodeId != null)
+            {
+                var endedEpisode = m_PodcastDataSource.GetEpisode(endedEpisodeId);
+                if (endedEpisode != null)
+                {
+                    OnMediaEnded(endedEpisode);
+                }
+            }
+
             //Adding App suspension handlers here so that we can unsubscribe handlers 
             //that access to BackgroundMediaPlayer events
             App.Current.Suspending += ForegroundApp_Suspending;
@@ -146,7 +157,7 @@ namespace PodCatch.WindowsPhone
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        async void MediaPlayer_CurrentStateChanged(MediaPlayer sender, object args)
+        async void OnCurrentStateChanged(MediaPlayer sender, object args)
         {
             switch (sender.CurrentState)
             {
@@ -165,10 +176,11 @@ namespace PodCatch.WindowsPhone
             }
         }
 
+
         /// <summary>
         /// This event fired when a message is recieved from Background Process
         /// </summary>
-        async void BackgroundMediaPlayer_MessageReceivedFromBackground(object sender, MediaPlayerDataReceivedEventArgs e)
+        async void OnMessageReceivedFromBackground(object sender, MediaPlayerDataReceivedEventArgs e)
         {
             foreach (string key in e.Data.Keys)
             {
@@ -180,8 +192,21 @@ namespace PodCatch.WindowsPhone
                         m_ServerInitialized.Set();
                         m_CurrentEpisodeId = (string)e.Data[key];
                         break;
+                    case PhoneConstants.MediaEnded:
+                        Tracer.TraceInformation("Media ended");
+                        await OnMediaEnded(NowPlaying);
+                        break;
                 }
             }
+        }
+
+        private async Task OnMediaEnded(Episode endedEpisode)
+        {
+            await ThreadManager.RunInBackground(async () =>
+            {
+                await endedEpisode.PostEvent(EpisodeEvent.DonePlaying);
+                await m_PodcastDataSource.Store();
+            });
         }
 
         public Episode NowPlaying { get; private set;}
@@ -239,8 +264,8 @@ namespace PodCatch.WindowsPhone
 
         private void RemoveMediaPlayerEventHandlers()
         {
-            BackgroundMediaPlayer.Current.CurrentStateChanged -= MediaPlayer_CurrentStateChanged;
-            BackgroundMediaPlayer.MessageReceivedFromBackground -= BackgroundMediaPlayer_MessageReceivedFromBackground;
+            BackgroundMediaPlayer.Current.CurrentStateChanged -= OnCurrentStateChanged;
+            BackgroundMediaPlayer.MessageReceivedFromBackground -= OnMessageReceivedFromBackground;
         }
 
         /// <summary>
@@ -248,8 +273,8 @@ namespace PodCatch.WindowsPhone
         /// </summary>
         private void AddMediaPlayerEventHandlers()
         {
-            BackgroundMediaPlayer.Current.CurrentStateChanged += MediaPlayer_CurrentStateChanged;
-            BackgroundMediaPlayer.MessageReceivedFromBackground += BackgroundMediaPlayer_MessageReceivedFromBackground;
+            BackgroundMediaPlayer.Current.CurrentStateChanged += OnCurrentStateChanged;
+            BackgroundMediaPlayer.MessageReceivedFromBackground += OnMessageReceivedFromBackground;
         }
 
         private async Task StartBackgroundAudioTask()
@@ -265,7 +290,7 @@ namespace PodCatch.WindowsPhone
                 bool result = m_ServerInitialized.WaitOne(2000);
                 if (result != true)
                 {
-                    throw new Exception("Background Audio Task didn't start in expected time");
+                    Tracer.TraceWarning("Background Audio Task didn't start in expected time");
                 }
             });
         }

@@ -186,11 +186,11 @@ namespace PodCatch.DataModel
                 {
                     Tracer.TraceInformation("Returning search image location {0} for podcast {1}", m_SearchImage, Title);
                     return m_SearchImage;
-                }
+            }
                 // Cached image if exists will always have this path
                 Tracer.TraceInformation("Returning default cached image location for podcast {0}", Title);
                 return string.Format("{0}\\{1}.jpg", ApplicationData.Current.LocalFolder.Path, Id);
-            }
+        }
         }
 
         public string SearchImage
@@ -203,7 +203,7 @@ namespace PodCatch.DataModel
 
         public long LastRefreshTimeTicks { get; set; }
 
-        public async Task Load()
+        public async Task Load(bool force)
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
 
@@ -266,7 +266,7 @@ namespace PodCatch.DataModel
                 {
                     if (cacheImage)
                     {
-                        await LoadImage(syndicationFeed.ImageUri.ToString());
+                    await LoadImage(syndicationFeed.ImageUri.ToString());
                         m_RssImage = null;
                     }
                     else
@@ -300,7 +300,7 @@ namespace PodCatch.DataModel
                     toRemove.Add(episode);
                 }
             }
-
+            
             foreach (Episode episode in toRemove)
             {
                 Episodes.Remove(episode);

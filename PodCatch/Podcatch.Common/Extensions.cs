@@ -126,6 +126,15 @@ namespace PodCatch.Common
             return null;
         }
 
+        public static object GetValue(this ApplicationDataContainer dataContainer, string key)
+        {
+            if (dataContainer.Values.ContainsKey(key))
+            {
+                return dataContainer.Values[key];
+            }
+            return null;
+        }
+
         public static void PutValue(this ApplicationDataContainer dataContainer, string key, object value)
         {
             if (dataContainer.Values.ContainsKey(key))

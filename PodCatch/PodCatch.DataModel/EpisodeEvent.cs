@@ -9,6 +9,7 @@
         Play,
         Pause,
         Scan,
+        ScanDone,
         DonePlaying,
         Refresh,
     }

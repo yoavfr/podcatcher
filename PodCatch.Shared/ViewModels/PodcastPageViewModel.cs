@@ -343,7 +343,7 @@ namespace PodCatch.ViewModels
             if (m_MediaPlayer.IsEpisodePlaying(episode.Data))
             {
                 episode.Data.Position = m_MediaPlayer.Position = TimeSpan.FromTicks(sliderValue);
-                episode.Data.PostEvent(EpisodeEvent.Play);
+                episode.Data.PostEvent(EpisodeEvent.ScanDone);
             }
         }
 

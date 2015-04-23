@@ -268,19 +268,17 @@ namespace PodCatch.ViewModels
         internal void ScanStart(EpisodePageViewModel episode)
         {
             m_Scanning = true;
-            if (m_MediaPlayer.IsEpisodePlaying(m_Episode))
-            {
-                m_Episode.PostEvent(EpisodeEvent.Scan);
-            }
+            episode.m_Episode.PostEvent(EpisodeEvent.Scan);
         }
 
         internal void ScanDone(EpisodePageViewModel episode, long sliderValue)
         {
             m_Scanning = false;
-            if (m_MediaPlayer.IsEpisodePlaying(m_Episode))
+            episode.m_Episode.Position = TimeSpan.FromTicks(sliderValue);
+            episode.m_Episode.PostEvent(EpisodeEvent.ScanDone);
+            if (m_MediaPlayer.NowPlaying == episode.m_Episode)
             {
-                m_Episode.Position = m_MediaPlayer.Position = TimeSpan.FromTicks(sliderValue);
-                m_Episode.PostEvent(EpisodeEvent.Play);
+                m_MediaPlayer.Position = episode.m_Episode.Position;
             }
         }
     }

@@ -23,18 +23,19 @@ namespace PodCatch.Common
                     style.Setters.Add(new Setter(AppBarButton.ForegroundProperty, new SolidColorBrush(Colors.Gray)));
                 }
             }
-            else if ("BoldText" == kind || "Text" == kind)
+            else if ("Text" == kind)
             {
-                style = new Style(typeof(TextBlock));
-                if ("BoldText" == kind)
-                {
-                    style.Setters.Add(new Setter(TextBlock.FontSizeProperty, 20));
-                    style.Setters.Add(new Setter(TextBlock.FontWeightProperty, FontWeights.Bold));
-                    style.Setters.Add(new Setter(TextBlock.LineHeightProperty, 30));
-                }
+                style = (Style)Application.Current.Resources["ListViewItemTextBlockStylenew"];
                 if (played)
                 {
-                    style.Setters.Add(new Setter(TextBlock.ForegroundProperty, new SolidColorBrush(Colors.Gray)));
+                    Style playedStyle = new Style();
+                    playedStyle.BasedOn = style.BasedOn;
+                    foreach (var setter in style.Setters)
+                    {
+                        playedStyle.Setters.Add(setter);
+                    }
+                    playedStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, new SolidColorBrush(Colors.Gray)));
+                    style = playedStyle;
                 }
             }
             return style;

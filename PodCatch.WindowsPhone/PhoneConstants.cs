@@ -12,6 +12,7 @@ namespace PodCatch.WindowsPhone
         public const string EpisodeId = "EpsiodeId";
         public const string BackgroundTaskStarted = "BackgroundTaskStarted";
         public const string BackgroundTaskRunning = "BackgroundTaskRunning";
+        public const string MediaEnded = "MediaEnded";
         public const string BackgroundTaskCancelled = "BackgroundTaskCancelled";
         public const string AppSuspended = "appsuspend";
         public const string AppResumed = "appresumed";

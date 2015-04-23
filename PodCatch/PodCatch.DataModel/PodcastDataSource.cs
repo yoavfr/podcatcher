@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.System.Threading;
 
 namespace PodCatch.DataModel
 {
@@ -149,25 +150,26 @@ namespace PodCatch.DataModel
                 foreach (Podcast podcast in group.Podcasts)
                 {
                     AddPodcast(group.Id, podcast);
-                    loadTasks.Add(Task.Run<bool>(() => LoadPodcast(podcast)));
+                    loadTasks.Add(LoadPodcast(podcast, force));
                 }
             }
             await Task.WhenAll(loadTasks.ToArray());
         }
 
-        private async Task<bool> LoadPodcast(Podcast podcast)
+        private Task LoadPodcast(Podcast podcast, bool force)
         {
+            return ThreadPool.RunAsync(async (action) =>
+                {
             try
             {
-                await podcast.Load();
+                        await podcast.Load(force);
                 await podcast.Store();
-                return true;
             }
             catch (Exception e)
             {
                 Tracer.TraceInformation("Error loading {0}. {1}", podcast, e);
-                return false;
             }
+                }).AsTask();
         }
 
         public async Task Store()
@@ -272,7 +274,7 @@ namespace PodCatch.DataModel
             favorites.Podcasts.Add(podcast);
             await Task.Run(async () =>
             {
-                await Store();
+            await Store();
                 var result = await LoadPodcast(podcast);
                 if (result)
                 {
