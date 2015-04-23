@@ -274,12 +274,9 @@ namespace PodCatch.DataModel
             favorites.Podcasts.Add(podcast);
             await Task.Run(async () =>
             {
-            await Store();
-                var result = await LoadPodcast(podcast);
-                if (result)
-                {
-                    await podcast.CacheImage();
-                }
+                await Store();
+                await LoadPodcast(podcast, true);
+                await podcast.CacheImage();
             });
         }
 
