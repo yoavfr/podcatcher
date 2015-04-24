@@ -9,14 +9,15 @@ namespace PodCatch.DataModel
     public interface IMediaPlayer
     {
         string NowPlaying { get; }
+
+        string EndedMediaId { get; }
         TimeSpan Duration { get; }
         TimeSpan Position { get; set; }
-        Task Play(string path, TimeSpan position, string id);
+        Task Play(string path, TimeSpan position, string mediaId);
         void Pause();
         bool IsMediaPlaying(string mediaId);
         void SkipForward();
         void SkipBackward();
-        void Connect();
 
         event MediaPlayerStateChangedHandler MediaPlayerStateChanged;
     }

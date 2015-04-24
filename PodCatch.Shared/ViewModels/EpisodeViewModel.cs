@@ -217,7 +217,10 @@ namespace PodCatch.ViewModels
             {
                 if (Data.Played)
                 {
-                    Data.Position = TimeSpan.FromSeconds(0);
+                    if (Data.Position >= Data.Duration)
+                    {
+                        Data.Position = TimeSpan.FromSeconds(0);
+                    }
                     Data.Played = false;
                 }
                 Data.Play();

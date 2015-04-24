@@ -287,6 +287,16 @@ namespace PodCatch.DataModel
             return PostEvent(EpisodeEvent.UpdateDownloadStatus);
         }
 
+        public Task ResumePlaying()
+        {
+            return PostEvent(EpisodeEvent.ResumePlaying);
+        }
+
+        public Task ResumeEnded()
+        {
+            return PostEvent(EpisodeEvent.Ended);
+        }
+
         public async Task<StorageFile> GetStorageFile()
         {
             var storageFolder = await GetStorageFolder();
@@ -368,6 +378,7 @@ namespace PodCatch.DataModel
 
         internal void OnMediaPlayerStateChanged(MediaPlayerEvent eventType, object parameter)
         {
+            Tracer.TraceInformation("OnMediaPlayerStateChanged. Episode: {0}, event: {1}", Id, eventType);
             switch (eventType)
             {
                 case MediaPlayerEvent.Tick:
@@ -379,9 +390,11 @@ namespace PodCatch.DataModel
                         m_LastSaveTime = DateTime.UtcNow;
                     }
                     break;
+
                 case MediaPlayerEvent.Play:
                     PostEvent(EpisodeEvent.PlayStarted);
                     break;
+
                 case MediaPlayerEvent.SwappedOut:
                     if ((string)parameter == Id)
                     {
@@ -389,12 +402,14 @@ namespace PodCatch.DataModel
                         PostEvent(EpisodeEvent.Paused);
                     }
                     break;
+
                 case MediaPlayerEvent.Pause:
                     if ((string)parameter == Id)
                     {
                         PostEvent(EpisodeEvent.Paused);
                     }
                     break;
+
                 case MediaPlayerEvent.Ended:
                     if ((string)parameter == Id)
                     {

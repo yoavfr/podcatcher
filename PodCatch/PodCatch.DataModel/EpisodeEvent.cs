@@ -8,6 +8,8 @@
         DownloadFail,
         Play,
         PlayStarted,
+        Ended,
+        ResumePlaying,
         Pause,
         Paused,
         Scan,

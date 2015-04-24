@@ -27,24 +27,27 @@ namespace PodCatch.DataModel
             switch (anEvent)
             {
                 case EpisodeEvent.Play:
-                    {
-                        owner.MediaPlayer.MediaPlayerStateChanged += owner.OnMediaPlayerStateChanged;
-                        var storageFile = await owner.GetStorageFile();
-                        await owner.MediaPlayer.Play(storageFile.Path, owner.Position, owner.Id);
-                        break;
-                    }
+                    owner.MediaPlayer.MediaPlayerStateChanged += owner.OnMediaPlayerStateChanged;
+                    var storageFile = await owner.GetStorageFile();
+                    await owner.MediaPlayer.Play(storageFile.Path, owner.Position, owner.Id);
+                    break;
+
                 case EpisodeEvent.PlayStarted:
-                    {
-                        return GetState<EpisodeStatePlaying>();
-                    }
+                    return GetState<EpisodeStatePlaying>();
+
+                case EpisodeEvent.ResumePlaying:
+                    owner.MediaPlayer.MediaPlayerStateChanged += owner.OnMediaPlayerStateChanged;
+                    return GetState<EpisodeStatePlaying>();
+
                 case EpisodeEvent.Scan:
-                    {
-                        return GetState<EpisodeStateScanning>();
-                    }
+                    return GetState<EpisodeStateScanning>();
+
                 case EpisodeEvent.Refresh:
-                    {
-                        return GetState<EpisodeStateDownloading>();
-                    }
+                    return GetState<EpisodeStateDownloading>();
+
+                case EpisodeEvent.Ended:
+                    owner.Played = true;
+                    break;
             }
             return null;
         }

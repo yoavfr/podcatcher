@@ -33,8 +33,22 @@ namespace PodCatch.ViewModels
             // load from cache
             ThreadManager.RunInBackground(async () => {
                 await Data.Load(false);
+
                 // Connect the currently playing episode from the media player after done loading all episodes
-                m_MediaPlayer.Connect();
+                if (m_MediaPlayer.NowPlaying != null)
+                {
+                    var episode = m_PodcastDataSource.GetEpisode(m_MediaPlayer.NowPlaying);
+                    if (episode != null)
+                    {
+                        episode.ResumePlaying();
+                    }
+                }
+
+                if (m_MediaPlayer.EndedMediaId != null)
+                {
+                    var episode = m_PodcastDataSource.GetEpisode(m_MediaPlayer.EndedMediaId);
+                    episode.ResumeEnded();
+                }
             });
 
             Task t = RegisterBackgroundTask();

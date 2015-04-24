@@ -27,21 +27,22 @@ namespace PodCatch.DataModel
             switch (anEvent)
             {
                 case EpisodeEvent.Pause:
-                    {
-                        owner.MediaPlayer.Pause();
-                        break;
-                    }
+                    owner.MediaPlayer.Pause();
+                    break;
+
                 case EpisodeEvent.Paused:
-                        return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateDownloaded>());
+                    return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateDownloaded>());
+
+                case EpisodeEvent.Ended:
+                    owner.Played = true;
+                    return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateDownloaded>());
+
                 case EpisodeEvent.DonePlaying:
-                    {
-                        owner.Played = true;
-                        return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateDownloaded>());
-                    }
+                    owner.Played = true;
+                    return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateDownloaded>());
+
                 case EpisodeEvent.Scan:
-                    {
-                        return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateScanning>());
-                    }
+                    return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateScanning>());
             }
             return Task.FromResult<IState<Episode, EpisodeEvent>>(null);
         }

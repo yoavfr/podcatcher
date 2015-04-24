@@ -19,6 +19,7 @@ namespace PodCatch.WindowsPhone
     {
         private AutoResetEvent m_ServerInitialized = new AutoResetEvent(false);
         private bool m_IsBackgroundTaskRunning = false;
+        public string EndedMediaId { get; set; } 
 
         public event MediaPlayerStateChangedHandler MediaPlayerStateChanged;
 
@@ -29,48 +30,24 @@ namespace PodCatch.WindowsPhone
             timer.Interval = TimeSpan.FromMilliseconds(500);
             timer.Tick += (sender, e) =>
             {
-                NotifyMediaPlayerStateChanged(MediaPlayerEvent.Tick, Position);
+                if (BackgroundMediaPlayer.Current.CurrentState == MediaPlayerState.Playing)
+                {
+                    NotifyMediaPlayerStateChanged(MediaPlayerEvent.Tick, Position);
+                }
             };
             timer.Start();
-        }
-
-        public void Connect()
-        {
-            Tracer.TraceInformation("ForegroundMediaPlayer - Connecting");
+           
+            Tracer.TraceInformation("ForegroundMediaPlayer - Starting");
             // start the background audio task
             StartBackgroundAudioTask();
 
-            // If the background task is already playing an episode - update that episode's status 
-            /*if (m_CurrentEpisodeId != null)
-            {
-                var currentEpisode = m_PodcastDataSource.GetEpisode(m_CurrentEpisodeId);
-                if (currentEpisode != null)
-                {
-                    NowPlaying = currentEpisode;
-                    NowPlaying.Position = BackgroundMediaPlayer.Current.Position;
-                    if (BackgroundMediaPlayer.Current.CurrentState == MediaPlayerState.Playing)
-                    {
-                        NowPlaying.PostEvent(EpisodeEvent.Play);
-                    }
-                }
-            }
-
-            // If media ended when we were not running - sync this
-            var endedEpisodeId = (string)ApplicationData.Current.LocalSettings.ConsumeValue(PhoneConstants.MediaEnded);
-            if (endedEpisodeId != null)
-            {
-                var endedEpisode = m_PodcastDataSource.GetEpisode(endedEpisodeId);
-                if (endedEpisode != null)
-                {
-                    OnMediaEnded(endedEpisode);
-                }
-            }*/
-
-            //Adding App suspension handlers here so that we can unsubscribe handlers 
-            //that access to BackgroundMediaPlayer events
+            //Adding App suspension handlers 
             App.Current.Suspending += ForegroundApp_Suspending;
             App.Current.Resuming += ForegroundApp_Resuming;
             ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.AppState, PhoneConstants.ForegroundAppActive);
+
+            // if media played all the way when we were suspended, we should find it in here
+            EndedMediaId = (string)ApplicationData.Current.LocalSettings.ConsumeValue(PhoneConstants.MediaEnded);
         }
 
         private bool IsMyBackgroundTaskRunning
@@ -258,18 +235,6 @@ namespace PodCatch.WindowsPhone
                     Tracer.TraceWarning("Background Audio Task didn't start in expected time");
                 }
             });
-        }
-
-        private void BackgroundTaskInitializationCompleted(IAsyncAction action, AsyncStatus status)
-        {
-            if (status == AsyncStatus.Completed)
-            {
-                //Debug.WriteLine("Background Audio Task initialized");
-            }
-            else if (status == AsyncStatus.Error)
-            {
-                //Debug.WriteLine("Background Audio Task could not initialized due to an error ::" + action.ErrorCode.ToString());
-            }
         }
 
         public void Pause()
