@@ -14,7 +14,6 @@ namespace PodCatch.ViewModels
     {
         private Episode m_Episode;
         private Podcast m_Podcast;
-        private IMediaPlayer m_MediaPlayer;
         private bool m_Scanning;
 
         public EpisodePageViewModel(IPodcastDataSource podcastDataSource, IServiceContext serviceContext) : base (podcastDataSource, serviceContext)
@@ -25,7 +24,6 @@ namespace PodCatch.ViewModels
         {
             m_Episode = Data.GetEpisode(episodeId);
             m_Podcast = Data.GetPodcastByEpisodeId(episodeId);
-            m_MediaPlayer = ServiceContext.GetService<IMediaPlayer>();
             UpdateFields();
             m_Episode.PropertyChanged += OnDataChanged;
             m_Podcast.PropertyChanged += OnDataChanged;
@@ -227,11 +225,11 @@ namespace PodCatch.ViewModels
                     m_Episode.Position = TimeSpan.FromSeconds(0);
                     m_Episode.Played = false;
                 }
-                Task t = m_MediaPlayer.Play(m_Episode);
+                Task t = m_Episode.Play();
             }
             else if (m_Episode.State is EpisodeStatePlaying)
             {
-                m_MediaPlayer.Pause(m_Episode);
+                m_Episode.Pause();
             }
         }
 
@@ -257,12 +255,12 @@ namespace PodCatch.ViewModels
 
         public void SkipForward()
         {
-            m_MediaPlayer.SkipForward(m_Episode);
+            m_Episode.SkipForward();
         }
 
         public void SkipBackward()
         {
-            m_MediaPlayer.SkipBackward(m_Episode);
+            m_Episode.SkipBackward();
         }
 
         internal void ScanStart(EpisodePageViewModel episode)
@@ -276,10 +274,6 @@ namespace PodCatch.ViewModels
             m_Scanning = false;
             episode.m_Episode.Position = TimeSpan.FromTicks(sliderValue);
             episode.m_Episode.PostEvent(EpisodeEvent.ScanDone);
-            if (m_MediaPlayer.NowPlaying == episode.m_Episode)
-            {
-                m_MediaPlayer.Position = episode.m_Episode.Position;
-            }
         }
     }
 }

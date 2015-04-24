@@ -7,11 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Core;
 using Windows.Data.Html;
-using Windows.Foundation;
 using Windows.Storage;
-using Windows.UI.Core;
 
 namespace PodCatch.DataModel
 {
@@ -24,14 +21,21 @@ namespace PodCatch.DataModel
         private string m_Title;
         private string m_Description;
         private bool m_Played;
-        public IDownloadService m_DownloadService;
+        private DateTime m_LastSaveTime;
+        private IPodcastDataSource m_PodcastDataSource;
+
+        public IDownloadService DownloadService { get; set; }
+
+        public IMediaPlayer MediaPlayer { get; set; }
 
         public Episode(IServiceContext serviceContext, string podcastFileName, Uri uri)
             : base(serviceContext)
         {
             Uri = uri;
             PodcastFileName = podcastFileName;
-            m_DownloadService = serviceContext.GetService<IDownloadService>();
+            DownloadService = serviceContext.GetService<IDownloadService>();
+            MediaPlayer = serviceContext.GetService<IMediaPlayer>();
+            m_PodcastDataSource = serviceContext.GetService<IPodcastDataSource>();
             m_StateMachine = new SimpleStateMachine<Episode, EpisodeEvent>(serviceContext, this, 0);
             m_StateMachine.InitState(EpisodeStateFactory.GetInstance(serviceContext).GetState<EpisodeStateUnknown>(), true);
             m_StateMachine.StartPumpEvents();
@@ -268,6 +272,16 @@ namespace PodCatch.DataModel
             await PostEvent(EpisodeEvent.Download);
         }
 
+        public Task Play()
+        {
+            return PostEvent(EpisodeEvent.Play);
+        }
+
+        public Task Pause()
+        {
+            return PostEvent(EpisodeEvent.Pause);
+        }
+
         public Task UpdateDownloadStatus()
         {
             return PostEvent(EpisodeEvent.UpdateDownloadStatus);
@@ -350,6 +364,72 @@ namespace PodCatch.DataModel
         public override string ToString()
         {
             return String.Format("Episode Uri {0}", Uri);
+        }
+
+        internal void OnMediaPlayerStateChanged(MediaPlayerEvent eventType, object parameter)
+        {
+            switch (eventType)
+            {
+                case MediaPlayerEvent.Tick:
+                    Position = (TimeSpan)parameter;
+                    if (DateTime.UtcNow.AddSeconds(-10) > m_LastSaveTime)
+                    {
+                        // save location
+                        Task t = m_PodcastDataSource.Store();
+                        m_LastSaveTime = DateTime.UtcNow;
+                    }
+                    break;
+                case MediaPlayerEvent.Play:
+                    PostEvent(EpisodeEvent.PlayStarted);
+                    break;
+                case MediaPlayerEvent.SwappedOut:
+                    if ((string)parameter == Id)
+                    {
+                        MediaPlayer.MediaPlayerStateChanged -= OnMediaPlayerStateChanged;
+                        PostEvent(EpisodeEvent.Paused);
+                    }
+                    break;
+                case MediaPlayerEvent.Pause:
+                    if ((string)parameter == Id)
+                    {
+                        PostEvent(EpisodeEvent.Paused);
+                    }
+                    break;
+                case MediaPlayerEvent.Ended:
+                    if ((string)parameter == Id)
+                    {
+                        Played = true;
+                        PostEvent(EpisodeEvent.Paused);
+                        m_PodcastDataSource.Store();
+                    }
+                    break;
+            }
+        }
+
+        public void SkipForward()
+        {
+            long positionTicks = Position.Ticks;
+            long durationTicks = Duration.Ticks;
+            long increment = durationTicks / 20;
+            positionTicks = Math.Min(durationTicks, positionTicks + increment);
+            Position = TimeSpan.FromTicks(positionTicks);
+            if (MediaPlayer.NowPlaying == Id)
+            {
+                MediaPlayer.Position = Position;
+            }
+        }
+
+        public void SkipBackward()
+        {
+            long positionTicks = Position.Ticks;
+            long durationTicks = Duration.Ticks;
+            long increment = durationTicks / 20;
+            positionTicks = Math.Max(0, positionTicks - increment);
+            Position = TimeSpan.FromTicks(positionTicks);
+            if (MediaPlayer.NowPlaying == Id)
+            {
+                MediaPlayer.Position = Position;
+            }
         }
     }
 }

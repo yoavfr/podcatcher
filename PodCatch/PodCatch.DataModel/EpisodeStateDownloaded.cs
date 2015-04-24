@@ -22,24 +22,31 @@ namespace PodCatch.DataModel
             return Task.FromResult<object>(null);
         }
 
-        public override Task<IState<Episode, EpisodeEvent>> OnEvent(Episode owner, EpisodeEvent anEvent, IEventProcessor<Episode, EpisodeEvent> stateMachine)
+        public override async Task<IState<Episode, EpisodeEvent>> OnEvent(Episode owner, EpisodeEvent anEvent, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
             switch (anEvent)
             {
                 case EpisodeEvent.Play:
                     {
-                        return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStatePlaying>());
+                        owner.MediaPlayer.MediaPlayerStateChanged += owner.OnMediaPlayerStateChanged;
+                        var storageFile = await owner.GetStorageFile();
+                        await owner.MediaPlayer.Play(storageFile.Path, owner.Position, owner.Id);
+                        break;
+                    }
+                case EpisodeEvent.PlayStarted:
+                    {
+                        return GetState<EpisodeStatePlaying>();
                     }
                 case EpisodeEvent.Scan:
                     {
-                        return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateScanning>());
+                        return GetState<EpisodeStateScanning>();
                     }
                 case EpisodeEvent.Refresh:
                     {
-                        return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateDownloading>());
+                        return GetState<EpisodeStateDownloading>();
                     }
             }
-            return Task.FromResult<IState<Episode, EpisodeEvent>>(null);
+            return null;
         }
     }
 }

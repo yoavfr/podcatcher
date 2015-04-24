@@ -19,40 +19,19 @@ namespace PodCatch.WindowsPhone
     {
         private AutoResetEvent m_ServerInitialized = new AutoResetEvent(false);
         private bool m_IsBackgroundTaskRunning = false;
-        private IPodcastDataSource m_PodcastDataSource;
-        private DateTime m_LastSaveTime;
-        private string m_CurrentEpisodeId;
 
+        public event MediaPlayerStateChangedHandler MediaPlayerStateChanged;
 
         public ForegroundMediaPlayer(IServiceContext serviceContext): base (serviceContext)
         {
-
-            m_PodcastDataSource = serviceContext.GetService<IPodcastDataSource>();
-            
-            // Periodically update position in playing episode and every 10 seconds save state too
+            // Periodically update position in playing media
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(500);
             timer.Tick += (sender, e) =>
             {
-                Episode episode = NowPlaying;
-                if (episode != null)
-                {
-                    // don't update position when slider is being manipulated.
-                    if (!(episode.State is EpisodeStateScanning))
-                    {
-                        episode.Position = Position;
-                    }
-                    if (DateTime.UtcNow.AddSeconds(-10) > m_LastSaveTime)
-                    {
-                        // save location
-                        Task t = m_PodcastDataSource.Store();
-                        m_LastSaveTime = DateTime.UtcNow;
-                    }
-                }
+                NotifyMediaPlayerStateChanged(MediaPlayerEvent.Tick, Position);
             };
             timer.Start();
-
-
         }
 
         public void Connect()
@@ -62,7 +41,7 @@ namespace PodCatch.WindowsPhone
             StartBackgroundAudioTask();
 
             // If the background task is already playing an episode - update that episode's status 
-            if (m_CurrentEpisodeId != null)
+            /*if (m_CurrentEpisodeId != null)
             {
                 var currentEpisode = m_PodcastDataSource.GetEpisode(m_CurrentEpisodeId);
                 if (currentEpisode != null)
@@ -85,7 +64,7 @@ namespace PodCatch.WindowsPhone
                 {
                     OnMediaEnded(endedEpisode);
                 }
-            }
+            }*/
 
             //Adding App suspension handlers here so that we can unsubscribe handlers 
             //that access to BackgroundMediaPlayer events
@@ -162,16 +141,13 @@ namespace PodCatch.WindowsPhone
             switch (sender.CurrentState)
             {
                 case MediaPlayerState.Playing:
-                    if (NowPlaying != null)
-                    {
-                        NowPlaying.PostEvent(EpisodeEvent.Play);
-                    }
+                    NotifyMediaPlayerStateChanged(MediaPlayerEvent.Play, NowPlaying);
                     break;
                 case MediaPlayerState.Paused:
-                    if (NowPlaying != null)
-                    {
-                        NowPlaying.PostEvent(EpisodeEvent.Pause);
-                    }
+                    NotifyMediaPlayerStateChanged(MediaPlayerEvent.Pause, NowPlaying);
+                    break;
+                case MediaPlayerState.Stopped:
+                    NotifyMediaPlayerStateChanged(MediaPlayerEvent.Ended, NowPlaying);    
                     break;
             }
         }
@@ -190,26 +166,18 @@ namespace PodCatch.WindowsPhone
                         //Wait for Background Task to be initialized before starting playback
                         Tracer.TraceInformation("Background Media task started");
                         m_ServerInitialized.Set();
-                        m_CurrentEpisodeId = (string)e.Data[key];
+                        NowPlaying = (string)e.Data[key];
+                        NotifyMediaPlayerStateChanged(MediaPlayerEvent.Play, NowPlaying);
                         break;
                     case PhoneConstants.MediaEnded:
                         Tracer.TraceInformation("Media ended");
-                        await OnMediaEnded(NowPlaying);
+                        NotifyMediaPlayerStateChanged(MediaPlayerEvent.Ended, NowPlaying);
                         break;
                 }
             }
         }
 
-        private async Task OnMediaEnded(Episode endedEpisode)
-        {
-            await ThreadManager.RunInBackground(async () =>
-            {
-                await endedEpisode.PostEvent(EpisodeEvent.DonePlaying);
-                await m_PodcastDataSource.Store();
-            });
-        }
-
-        public Episode NowPlaying { get; private set;}
+        public string NowPlaying { get; private set;}
 
         public TimeSpan Duration
         {
@@ -231,35 +199,32 @@ namespace PodCatch.WindowsPhone
             }
         }
 
-        public async Task Play(Episode episode)
+        public async Task Play(string mediaPath, TimeSpan position, string mediaId)
         {
             if (!IsMyBackgroundTaskRunning)
             {
                 await StartBackgroundAudioTask();
             }
 
-            var file = await episode.GetStorageFile();
-            var episodePath = file.Path;
+            // Notify on swapping out old
+            if (mediaId != NowPlaying)
+            {
+                NotifyMediaPlayerStateChanged(MediaPlayerEvent.SwappedOut, NowPlaying);
+            }
+
+            // Keep what we are playing now
+            NowPlaying = mediaId;
             
             // set position
             var positionMessage = new ValueSet();
-            positionMessage.Add(PhoneConstants.Position, episode.Position.Ticks.ToString());
+            positionMessage.Add(PhoneConstants.Position, position.Ticks.ToString());
             BackgroundMediaPlayer.SendMessageToBackground(positionMessage);
 
             // send episode path to background + id of current episode so that when we resume we can reconstruct our state
             var startMessage = new ValueSet();
-            startMessage.Add(PhoneConstants.EpisodePath, episodePath);
-            startMessage.Add(PhoneConstants.EpisodeId, episode.Id);
+            startMessage.Add(PhoneConstants.MediaPath, mediaPath);
+            startMessage.Add(PhoneConstants.MediaId, mediaId);
             BackgroundMediaPlayer.SendMessageToBackground(startMessage);
-            
-            // Switching to a new podcast - mark the previously played as paused
-            if (NowPlaying != null && NowPlaying != episode)
-            {
-                NowPlaying.PostEvent(EpisodeEvent.Pause);
-            }
-
-            // Keep what we are playing now
-            NowPlaying = episode;
         }
 
         private void RemoveMediaPlayerEventHandlers()
@@ -307,34 +272,43 @@ namespace PodCatch.WindowsPhone
             }
         }
 
-        public void Pause(Episode episode)
+        public void Pause()
         {
             BackgroundMediaPlayer.Current.Pause();
         }
 
-        public bool IsEpisodePlaying(Episode episode)
+        public bool IsMediaPlaying(string mediaId)
         {
-            return NowPlaying == episode;
+            return NowPlaying == mediaId;
         }
 
-        public void SkipForward(Episode episode)
+        public void SkipForward()
         {
             long positionTicks = Position.Ticks;
             long durationTicks = Duration.Ticks;
             long increment = durationTicks / 20;
             positionTicks = Math.Min(durationTicks, positionTicks + increment);
             Position = TimeSpan.FromTicks(positionTicks);
-            episode.Position = Position;
+            NotifyMediaPlayerStateChanged(MediaPlayerEvent.Tick, Position);
         }
 
-        public void SkipBackward(Episode episode)
+        public void SkipBackward()
         {
             long positionTicks = Position.Ticks;
             long durationTicks = Duration.Ticks;
             long increment = durationTicks / 20;
             positionTicks = Math.Max(0, positionTicks - increment);
             Position = TimeSpan.FromTicks(positionTicks);
-            episode.Position = Position;
+            NotifyMediaPlayerStateChanged(MediaPlayerEvent.Tick, Position);
+        }
+
+        private void NotifyMediaPlayerStateChanged(MediaPlayerEvent eventType, object parameter)
+        {
+            var handler = MediaPlayerStateChanged;
+            if (handler != null)
+            {
+                handler(eventType, parameter);
+            }
         }
     }
 }

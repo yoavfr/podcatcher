@@ -53,7 +53,7 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
         private AutoResetEvent m_BackgroundTaskStarted = new AutoResetEvent(false);
         private bool m_Backgroundtaskrunning = false;
         private TimeSpan m_StartPosition;
-        private string m_EpisodeId;
+        private string m_MediaId;
 
         /// <summary>
         /// The Run method is the entry point of a background task.
@@ -109,7 +109,7 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
             if (m_ForegroundAppState != ForegroundAppStatus.Suspended)
             {
                 ValueSet message = new ValueSet();
-                message.Add(PhoneConstants.BackgroundTaskStarted, m_EpisodeId);
+                message.Add(PhoneConstants.BackgroundTaskStarted, m_MediaId);
                 BackgroundMediaPlayer.SendMessageToForeground(message);
             }
         }
@@ -268,7 +268,7 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
             }
             else
             {
-                ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.MediaEnded, m_EpisodeId);
+                ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.MediaEnded, m_MediaId);
             }
         }
 
@@ -283,7 +283,7 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
             {
                 switch (key)
                 {
-                    case PhoneConstants.EpisodePath:
+                    case PhoneConstants.MediaPath:
                         string episodePath = (string)e.Data[key];
                         var storageFile = await StorageFile.GetFileFromPathAsync(episodePath);
                         var musicProperties = await storageFile.Properties.GetMusicPropertiesAsync();
@@ -296,7 +296,7 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                         m_SystemMediaTransportControl.DisplayUpdater.MusicProperties.Title = musicProperties.Title;
                         m_SystemMediaTransportControl.DisplayUpdater.Update();
 
-                        ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.EpisodePath, episodePath);
+                        ApplicationData.Current.LocalSettings.PutValue(PhoneConstants.MediaPath, episodePath);
                         break;
 
                     case PhoneConstants.Position:
@@ -323,8 +323,8 @@ namespace PodCatch.WindowsPhone.BackgroundAudioTask
                         SendStartedMessageToForeground();
                         break;
 
-                    case PhoneConstants.EpisodeId:
-                        m_EpisodeId = (string)e.Data[key];
+                    case PhoneConstants.MediaId:
+                        m_MediaId = (string)e.Data[key];
                         break;
                 }
             }

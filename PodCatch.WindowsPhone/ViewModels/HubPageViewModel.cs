@@ -20,11 +20,13 @@ namespace PodCatch.ViewModels
         private EpisodeViewModel m_NowPlaying;
         private bool m_ShowNowPlaying;
         private IMediaPlayer m_MediaPlayer;
+        private IPodcastDataSource m_PodcastDataSource;
 
         public HubPageViewModel(IServiceContext serviceContext)
             : base(serviceContext.GetService<IPodcastDataSource>(), serviceContext)
         {
             m_MediaPlayer = serviceContext.GetService<IMediaPlayer>();
+            m_PodcastDataSource = serviceContext.GetService<IPodcastDataSource>();
             ObservableCollection<PodcastGroup> podcastGroups = Data.GetGroups();
             podcastGroups.CollectionChanged += OnPodcastGroupsChanged;
 
@@ -140,7 +142,11 @@ namespace PodCatch.ViewModels
             UpdateFields(null);
             if (m_MediaPlayer != null && m_MediaPlayer.NowPlaying != null)
             {
-                NowPlaying = new EpisodeViewModel(m_MediaPlayer.NowPlaying, ServiceContext);
+                Episode episode = m_PodcastDataSource.GetEpisode(m_MediaPlayer.NowPlaying);
+                if (episode != null)
+                {
+                    NowPlaying = new EpisodeViewModel(episode, ServiceContext);
+                }
             }
             ShowNowPlaying = NowPlaying != null;
         }
@@ -168,12 +174,12 @@ namespace PodCatch.ViewModels
 
         internal void OnSkipForward()
         {
-            m_MediaPlayer.SkipForward(m_MediaPlayer.NowPlaying);
+            m_NowPlaying.SkipForward();
         }
 
         internal void OnSkipBackward()
         {
-            m_MediaPlayer.SkipBackward(m_MediaPlayer.NowPlaying);
+            m_NowPlaying.SkipBackward();
         }
     }
 }

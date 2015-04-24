@@ -13,7 +13,6 @@ namespace PodCatch.ViewModels
 {
     public class PodcastPageViewModel : BaseViewModel<IPodcastDataSource>
     {
-        private IMediaPlayer m_MediaPlayer;
         private RelayCommand m_RefreshCommand;
         private RelayCommand m_ShowMoreCommand;
         private RelayCommand m_AllPlayedCommand;
@@ -87,7 +86,6 @@ namespace PodCatch.ViewModels
         public PodcastPageViewModel(IServiceContext serviceContext)
             : base(serviceContext.GetService<IPodcastDataSource>(), serviceContext)
         {
-            m_MediaPlayer = serviceContext.GetService<IMediaPlayer>();
         }
 
         /// <summary>
@@ -340,19 +338,19 @@ namespace PodCatch.ViewModels
 
         public void ScanDone(EpisodeViewModel episode, long sliderValue)
         {
-            if (m_MediaPlayer.IsEpisodePlaying(episode.Data))
+            /*if (m_MediaPlayer.IsMediaPlaying(episode.Data))
             {
                 episode.Data.Position = m_MediaPlayer.Position = TimeSpan.FromTicks(sliderValue);
                 episode.Data.PostEvent(EpisodeEvent.ScanDone);
-            }
+            }*/
         }
 
         public void ScanStart(EpisodeViewModel episode)
         {
-            if (m_MediaPlayer.IsEpisodePlaying(episode.Data))
+            /*if (m_MediaPlayer.IsMediaPlaying(episode.Data))
             {
                 episode.Data.PostEvent(EpisodeEvent.Scan);
-            }
+            }*/
         }
 
         public void DownloadEpisodes()

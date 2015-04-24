@@ -220,22 +220,22 @@ namespace PodCatch.ViewModels
                     Data.Position = TimeSpan.FromSeconds(0);
                     Data.Played = false;
                 }
-                Task t = m_MediaPlayer.Play(Data);
+                Data.Play();
             }
             else if (Data.State is EpisodeStatePlaying)
             {
-                m_MediaPlayer.Pause(Data);
+                Data.Pause();
             }
         }
 
         public void SkipForward()
         {
-            m_MediaPlayer.SkipForward(Data);
+            Data.SkipForward();
         }
 
         public void SkipBackward()
         {
-            m_MediaPlayer.SkipBackward(Data);
+            Data.SkipBackward();
         }
 
         public Task Download()

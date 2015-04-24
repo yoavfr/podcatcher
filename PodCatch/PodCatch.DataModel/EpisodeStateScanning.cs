@@ -30,6 +30,10 @@ namespace PodCatch.DataModel
             {
                 case EpisodeEvent.ScanDone:
                     {
+                        if (owner.MediaPlayer.NowPlaying == owner.Id)
+                        {
+                            owner.MediaPlayer.Position = owner.Position;
+                        }
                         return Task.FromResult<IState<Episode, EpisodeEvent>>(m_OriginalState);
                     }
             }

@@ -28,8 +28,11 @@ namespace PodCatch.DataModel
             {
                 case EpisodeEvent.Pause:
                     {
-                        return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateDownloaded>());
+                        owner.MediaPlayer.Pause();
+                        break;
                     }
+                case EpisodeEvent.Paused:
+                        return Task.FromResult<IState<Episode, EpisodeEvent>>(GetState<EpisodeStateDownloaded>());
                 case EpisodeEvent.DonePlaying:
                     {
                         owner.Played = true;

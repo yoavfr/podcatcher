@@ -32,7 +32,7 @@ namespace PodCatch.DataModel
 
             try
             {
-                var downloader = owner.m_DownloadService.CreateDownloader(owner.Uri, await owner.GetStorageFolder(), owner.FolderAndFileName, progress);
+                var downloader = owner.DownloadService.CreateDownloader(owner.Uri, await owner.GetStorageFolder(), owner.FolderAndFileName, progress);
                 var localFile = await downloader.Download();
 
                 // set duration

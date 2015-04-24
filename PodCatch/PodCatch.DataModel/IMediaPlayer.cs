@@ -8,14 +8,27 @@ namespace PodCatch.DataModel
 {
     public interface IMediaPlayer
     {
-        Episode NowPlaying { get; }
+        string NowPlaying { get; }
         TimeSpan Duration { get; }
         TimeSpan Position { get; set; }
-        Task Play(Episode episode);
-        void Pause(Episode episode);
-        bool IsEpisodePlaying(Episode episode);
-        void SkipForward(Episode episode);
-        void SkipBackward(Episode episode);
+        Task Play(string path, TimeSpan position, string id);
+        void Pause();
+        bool IsMediaPlaying(string mediaId);
+        void SkipForward();
+        void SkipBackward();
         void Connect();
+
+        event MediaPlayerStateChangedHandler MediaPlayerStateChanged;
+    }
+
+    public delegate void MediaPlayerStateChangedHandler(MediaPlayerEvent eventType, object parameter);
+
+    public enum MediaPlayerEvent
+    {
+        Play,
+        Pause,
+        Ended,
+        SwappedOut,
+        Tick
     }
 }

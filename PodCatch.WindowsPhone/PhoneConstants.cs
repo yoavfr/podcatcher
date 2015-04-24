@@ -9,7 +9,6 @@ namespace PodCatch.WindowsPhone
     class PhoneConstants
     {
         public const string CurrentTrack = "trackname";
-        public const string EpisodeId = "EpsiodeId";
         public const string BackgroundTaskStarted = "BackgroundTaskStarted";
         public const string BackgroundTaskRunning = "BackgroundTaskRunning";
         public const string MediaEnded = "MediaEnded";
@@ -24,6 +23,8 @@ namespace PodCatch.WindowsPhone
         public const string Trackchanged = "songchanged";
         public const string ForegroundAppActive = "Active";
         public const string ForegroundAppSuspended = "Suspended";
-        public const string EpisodePath = "EpisodePath";
+        
+        public const string MediaId = "MediaId";
+        public const string MediaPath = "MediaPath";
     }
 }

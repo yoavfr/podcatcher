@@ -160,32 +160,35 @@ namespace PodCatch.DataModel
         {
             return ThreadPool.RunAsync(async (action) =>
                 {
-            try
-            {
+                    try
+                    {
                         await podcast.Load(force);
-                await podcast.Store();
-            }
-            catch (Exception e)
-            {
-                Tracer.TraceInformation("Error loading {0}. {1}", podcast, e);
-            }
+                        await podcast.Store();
+                    }
+                    catch (Exception e)
+                    {
+                        Tracer.TraceInformation("Error loading {0}. {1}", podcast, e);
+                    }
                 }).AsTask();
         }
 
-        public async Task Store()
+        public Task Store()
         {
-            try
-            {
-                StorageFile roamingFavoritesFile = await ApplicationData.Current.RoamingFolder.CreateFileAsync("podcatch.json.tmp", CreationCollisionOption.ReplaceExisting);
-                Collection<PodcastGroupData> favorites = new Collection<PodcastGroupData>() { GetGroup(Constants.FavoritesGroupId).ToData() };
-                string favoritesAsJson = JsonConvert.SerializeObject(favorites, Formatting.Indented);
-                await FileIO.WriteTextAsync(roamingFavoritesFile, favoritesAsJson);
-                await roamingFavoritesFile.RenameAsync("podcatch.json", NameCollisionOption.ReplaceExisting);
-            }
-            catch (Exception e)
-            {
-                Tracer.TraceInformation("Failed to store favorites. {0}", e);
-            }
+            return ThreadPool.RunAsync(async (action) =>
+                {
+                    try
+                    {
+                        StorageFile roamingFavoritesFile = await ApplicationData.Current.RoamingFolder.CreateFileAsync("podcatch.json.tmp", CreationCollisionOption.ReplaceExisting);
+                        Collection<PodcastGroupData> favorites = new Collection<PodcastGroupData>() { GetGroup(Constants.FavoritesGroupId).ToData() };
+                        string favoritesAsJson = JsonConvert.SerializeObject(favorites, Formatting.Indented);
+                        await FileIO.WriteTextAsync(roamingFavoritesFile, favoritesAsJson);
+                        await roamingFavoritesFile.RenameAsync("podcatch.json", NameCollisionOption.ReplaceExisting);
+                    }
+                    catch (Exception e)
+                    {
+                        Tracer.TraceInformation("Failed to store favorites. {0}", e);
+                    }
+                }).AsTask();
         }
 
         public async Task<IEnumerable<Podcast>> Search(string searchTerm)
