@@ -14,6 +14,9 @@
         <common:EpisodeStateIconConverter x:Key="EpisodeStateIconConverter" />
         <common:EpisodeStateButtonEnabledConverter x:Key="EpisodeStateButtonEnabledConverter" />
         <common:EpisodeStateProgressVisiblityConverter x:Key="EpisodeStateProgressVisiblityConverter" />
+        <common:EpisodeStateSliderVisiblityConverter x:Key="EpisodeStateSliderVisiblityConverter" />
+        <common:TimespanToTicksConverter x:Key="TimespanToTicksConverter" />
+        <common:EpisodePlayedStyleConverter x:Key="EpisodePlayedStyleConverter" />
 
         <Style x:Key="ButtonStyle1" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -87,7 +90,7 @@
         </StackPanel>
 
         <!--TODO: Content should be placed within the following grid-->
-        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Visible">
+        <Grid Grid.Row="2">
             <Grid x:Name="ContentRoot" Margin="0,0,19,0">
                 <ListView 
                                 AutomationProperties.AutomationId="ItemListViewSection4"
@@ -100,34 +103,55 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="9.9*"/>
-                                    <RowDefinition Height=".1*"/>
-                                </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="8*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0">
                                     <AppBarButton   
-                                        Grid.Row="0"
-                                        Grid.Column="0"
                                         Icon="{Binding State, Converter={StaticResource EpisodeStateIconConverter}}" 
+                                        Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='AppBarButton'}"
                                         Click="OnEpisodePlay"
                                         IsEnabled="{Binding State, Converter={StaticResource EpisodeStateButtonEnabledConverter}}"/>
-                                <TextBlock Grid.Row="0" Grid.Column="1" Margin ="0,8,0,0" Text="{Binding Title}" Style="{ThemeResource ListViewItemTextBlockStyle}"/>
-                                <ProgressBar Grid.Row="1" Grid.Column="0"
-                                        Margin="19,0,19,0"
-                                        VerticalAlignment="Center"
-                                        Visibility="{Binding State, Converter={StaticResource EpisodeStateProgressVisiblityConverter}, ConverterParameter={Binding CurrentItem}}"
-                                        Value="{Binding DownloadProgress}"
-                                        Maximum="1"
-                                        IsIndeterminate="False" />
+                                    <ProgressBar
+                                            Margin="9,0,9,17"
+                                            VerticalAlignment="Bottom"
+                                            Visibility="{Binding State, Converter={StaticResource EpisodeStateProgressVisiblityConverter}, ConverterParameter={Binding CurrentItem}}"
+                                            Value="{Binding DownloadProgress}"
+                                            Maximum="1"
+                                            IsIndeterminate="False" />
+                                    <ProgressBar
+                                            Margin="9,0,9,17"
+                                            VerticalAlignment="Bottom"
+                                            Visibility="{Binding State, Converter={StaticResource EpisodeStateSliderVisiblityConverter}, ConverterParameter={Binding CurrentItem}}"
+                                            Maximum="{Binding Duration, Converter={StaticResource TimespanToTicksConverter}}"
+                                            Value="{Binding Position, Converter={StaticResource TimespanToTicksConverter}}"
+                                            IsIndeterminate="False" />
+                                </Grid>
+                                <StackPanel Grid.Column="1"
+                                            Margin="14,0,0,0">
+                                    <TextBlock 
+                                        Text="{Binding Title}" 
+                                        Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}"
+                                        TextLineBounds="Tight"/>
+                                    <TextBlock 
+                                        Text="{Binding Description}"
+                                        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+                                        Foreground="{ThemeResource PhoneMidBrush}"
+                                        OpticalMarginAlignment="TrimSideBearings"
+                                        TextLineBounds="Tight"
+                                        FontWeight="SemiBold"
+                                        TextTrimming="Clip"
+                                        TextWrapping="Wrap"
+                                        MaxLines="2"
+                                        Margin="0,9.5,0,0"/>
+                                </StackPanel>
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
             </Grid>
-        </ScrollViewer>
+        </Grid>
     </Grid>
     <Page.BottomAppBar>
         <CommandBar ClosedDisplayMode="Minimal">

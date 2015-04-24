@@ -24,16 +24,8 @@ namespace PodCatch.Common
 
         public static Task RunInBackground(Action action)
         {
-            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
-            if (!dispatcher.HasThreadAccess)
-            {
-                action();
-                return VoidTask.Completed;
-            }
-            else
-            {
-                return Task.Run(action);
-            }
+            return Task.Run(action);
+
         }
 
         public static Task<T> RunInBackground<T>(Func<Task<T>> asyncAction)

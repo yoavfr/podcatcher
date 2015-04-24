@@ -25,10 +25,10 @@ namespace PodCatch.Common
             }
             else if ("Text" == kind)
             {
-                style = (Style)Application.Current.Resources["ListViewItemTextBlockStylenew"];
+                style = (Style)Application.Current.Resources["ListViewItemTextBlockStyle"];
                 if (played)
                 {
-                    Style playedStyle = new Style();
+                    Style playedStyle = new Style(typeof(TextBlock));
                     playedStyle.BasedOn = style.BasedOn;
                     foreach (var setter in style.Setters)
                     {
