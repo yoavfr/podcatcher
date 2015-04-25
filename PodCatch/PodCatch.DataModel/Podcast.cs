@@ -361,7 +361,6 @@ namespace PodCatch.DataModel
                     Tracer.TraceInformation("Podcast.LoadImage(): Downloading {0} -> {1}", validUri, localImagePath);
                     var localImageFile = await downloader.Download();
                     Tracer.TraceInformation("Podcast.LoadImage(): Finished downloading {0} -> {1}", validUri, localImageFile.Path);
-                    //Image = localImageFile.Path;
 
                     ulong newFileSize = await GetCachedFileSize(localImagePath);
                     if (newFileSize != oldFileSize)
@@ -404,6 +403,7 @@ namespace PodCatch.DataModel
                 return Task.FromResult<object>(null);
             }
 
+            Episodes.HoldNotifications = true;
             foreach (Episode episodeFromCache in fromCache.Episodes)
             {
                 Episode episode = GetEpisodeByUri(episodeFromCache.Uri);
@@ -412,6 +412,7 @@ namespace PodCatch.DataModel
                     episode.UpdateFromCache(episodeFromCache);
                 }
             }
+            Episodes.HoldNotifications = false;
             return Task.FromResult<object>(null);
         }
 

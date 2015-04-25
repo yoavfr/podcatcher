@@ -22,15 +22,31 @@ namespace PodCatch.Common
             }).AsTask();
         }
 
-        public static Task RunInBackground(Action action)
+        public static Task RunInBackground(Action action, bool onNewThread = true)
         {
-            return Task.Run(action);
-
+            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+            if (!dispatcher.HasThreadAccess && !onNewThread)
+            {
+                action();
+                return VoidTask.Completed;
+            }
+            else
+            {
+                return Task.Run(action);
+            }
         }
 
-        public static Task<T> RunInBackground<T>(Func<Task<T>> asyncAction)
+        public static Task<T> RunInBackground<T>(Func<Task<T>> asyncAction, bool onNewThread = true)
         {
-            return Task.Run(asyncAction);
+            CoreDispatcher dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+            if (!dispatcher.HasThreadAccess && !onNewThread)
+            {
+                return asyncAction();
+            }
+            else
+            {
+                return Task.Run(asyncAction);
+            }
         }
     }
 }

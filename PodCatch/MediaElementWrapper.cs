@@ -17,6 +17,12 @@ namespace PodCatch.Common
         private DateTime m_LastSaveTime;
         private MediaElement m_MediaElement;
 
+        public string EndedMediaId { get; private set; }
+
+        public string NowPlaying { get; private set; }
+
+        public event MediaPlayerStateChangedHandler MediaPlayerStateChanged;
+
         private MediaElement MediaElement
         {
             get
@@ -39,8 +45,6 @@ namespace PodCatch.Common
 
         private IPodcastDataSource m_PodcastDataSource;
 
-        public Episode NowPlaying { get; private set; }
-
         public TimeSpan Position
         {
             get
@@ -62,52 +66,50 @@ namespace PodCatch.Common
             }
         }
 
-        public async Task Play(Episode episode)
+        public async Task Play(string mediaPath, TimeSpan position, string mediaId)
         {
-            if (NowPlaying != null && NowPlaying != episode)
+            // Notify on swapping out old
+            if (mediaId != NowPlaying)
             {
-                Pause(NowPlaying);
+                NotifyMediaPlayerStateChanged(MediaPlayerEvent.SwappedOut, NowPlaying);
             }
 
-            StorageFile storageFile = await episode.GetStorageFile();
+            // Keep what we are playing now
+            NowPlaying = mediaId;
+
+            StorageFile storageFile = await StorageFile.GetFileFromPathAsync(mediaPath);
             if (storageFile == null)
             {
                 Tracer.TraceInformation("MediaElementWrapper.Play() - can't find file {0}", storageFile);
                 // TODO: error message to user
                 return;
             }
+
             var stream = await storageFile.OpenReadAsync();
-            MediaElement.SetSource(stream, storageFile.ContentType);
-            Position = episode.Position;
-            NowPlaying = episode;
-            Task t = episode.PostEvent(EpisodeEvent.Play);
-            MediaElement.Play();
-            MediaElement.MediaEnded += MediaElement_MediaEnded;
-        }
-
-        private async void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
-        {
-            Episode episode = NowPlaying;
-            if (episode != null)
+            NowPlaying = mediaId;
+            await ThreadManager.DispatchOnUIthread(() =>
             {
-                NowPlaying = null;
-                episode.Played = true;
-                Task t = episode.PostEvent(EpisodeEvent.DonePlaying);
-                await m_PodcastDataSource.Store();
-            }
-            MediaElement.MediaEnded -= MediaElement_MediaEnded;
+                Position = position;
+                MediaElement.SetSource(stream, storageFile.ContentType);
+                MediaElement.Play();
+                MediaElement.MediaEnded += OnMediaEnded;
+            });
         }
 
-        public void Pause(Episode episode)
+        private void OnMediaEnded(object sender, RoutedEventArgs e)
         {
-            MediaElement.Pause();
-            episode.Position = Position;
-            episode.PostEvent(EpisodeEvent.Pause);
+            NotifyMediaPlayerStateChanged(MediaPlayerEvent.Ended, NowPlaying);
+
+            MediaElement.MediaEnded -= OnMediaEnded;
         }
 
-        public void Connect()
+        public async void Pause()
         {
-
+            await ThreadManager.DispatchOnUIthread(() =>
+            {
+                MediaElement.Pause();
+            });
+            NotifyMediaPlayerStateChanged(MediaPlayerEvent.Pause, NowPlaying);
         }
 
         private MediaElementWrapper(IServiceContext serviceContext)
@@ -125,20 +127,9 @@ namespace PodCatch.Common
             timer.Interval = TimeSpan.FromMilliseconds(500);
             timer.Tick += (sender, e) =>
             {
-                Episode episode = NowPlaying;
-                if (episode != null)
+                if (MediaElement.CurrentState == MediaElementState.Playing)
                 {
-                    // don't update position when slider is being manipulated.
-                    if (!(episode.State is EpisodeStateScanning))
-                    {
-                        episode.Position = Position;
-                    }
-                    if (DateTime.UtcNow.AddSeconds(-10) > m_LastSaveTime)
-                    {
-                        // save location
-                        Task t = m_PodcastDataSource.Store();
-                        m_LastSaveTime = DateTime.UtcNow;
-                    }
+                    NotifyMediaPlayerStateChanged(MediaPlayerEvent.Tick, Position);
                 }
             };
             timer.Start();
@@ -173,8 +164,7 @@ namespace PodCatch.Common
         {
             try
             {
-                Episode episode = NowPlaying;
-                if (episode == null || Dispatcher == null)
+                if (NowPlaying == null || Dispatcher == null)
                 {
                     return;
                 }
@@ -183,28 +173,28 @@ namespace PodCatch.Common
                     case SystemMediaTransportControlsButton.Play:
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
-                                Task t = Play(episode);
+                                MediaElement.Play();
                             });
                         break;
 
                     case SystemMediaTransportControlsButton.Pause:
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
-                                Pause(episode);
+                                Pause();
                             });
                         break;
 
                     case SystemMediaTransportControlsButton.Next:
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
-                                SkipForward(episode);
+                                SkipForward();
                             });
                         break;
 
                     case SystemMediaTransportControlsButton.Previous:
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
-                                SkipBackward(episode);
+                                SkipBackward();
                             });
                         break;
                 }
@@ -218,44 +208,53 @@ namespace PodCatch.Common
         private void MediaElement_MediaOpened(object sender, RoutedEventArgs e)
         {
             ((MediaElement)sender).Position = m_Position;
-            Episode episode = NowPlaying;
-            if (episode != null)
+            NotifyMediaPlayerStateChanged(MediaPlayerEvent.Play, NowPlaying);
+
+            SystemMediaTransportControlsDisplayUpdater updater = SystemMediaTransportControls.DisplayUpdater;
+            updater.Type = MediaPlaybackType.Music;
+
+            /*if (episode.Title != null)
             {
-                SystemMediaTransportControlsDisplayUpdater updater = SystemMediaTransportControls.DisplayUpdater;
-                updater.Type = MediaPlaybackType.Music;
-                if (episode.Title != null)
-                {
-                    updater.MusicProperties.Title = episode.Title;
-                }
-                updater.Update();
-                SystemMediaTransportControls.IsNextEnabled = true;
-                SystemMediaTransportControls.IsPreviousEnabled = true;
-            }
+                updater.MusicProperties.Title = episode.Title;
+            }*/
+
+            updater.Update();
+            SystemMediaTransportControls.IsNextEnabled = true;
+            SystemMediaTransportControls.IsPreviousEnabled = true;
         }
 
-        public bool IsEpisodePlaying(Episode episode)
+        public bool IsMediaPlaying(string episodeId)
         {
-            return NowPlaying == episode;
+            return NowPlaying == episodeId;
         }
 
-        public void SkipForward(Episode episode)
+        public void SkipForward()
         {
             long positionTicks = Position.Ticks;
             long durationTicks = Duration.Ticks;
             long increment = durationTicks / 20;
             positionTicks = Math.Min(durationTicks, positionTicks + increment);
             Position = TimeSpan.FromTicks(positionTicks);
-            episode.Position = Position;
+            NotifyMediaPlayerStateChanged(MediaPlayerEvent.Tick, Position);
         }
 
-        public void SkipBackward(Episode episode)
+        public void SkipBackward()
         {
             long positionTicks = Position.Ticks;
             long durationTicks = Duration.Ticks;
             long increment = durationTicks / 20;
             positionTicks = Math.Max(0, positionTicks - increment);
             Position = TimeSpan.FromTicks(positionTicks);
-            episode.Position = Position;
+            NotifyMediaPlayerStateChanged(MediaPlayerEvent.Tick, Position);
+        }
+
+        private void NotifyMediaPlayerStateChanged(MediaPlayerEvent eventType, object parameter)
+        {
+            var handler = MediaPlayerStateChanged;
+            if (handler != null)
+            {
+                handler(eventType, parameter);
+            }
         }
     }
 }

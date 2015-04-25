@@ -23,12 +23,12 @@ namespace PodCatch.Common
                     style.Setters.Add(new Setter(AppBarButton.ForegroundProperty, new SolidColorBrush(Colors.Gray)));
                 }
             }
-            else if ("Text" == kind)
+            else if ("PhoneText" == kind)
             {
                 style = (Style)Application.Current.Resources["ListViewItemTextBlockStyle"];
                 if (played)
                 {
-                    Style playedStyle = new Style(typeof(TextBlock));
+                    var playedStyle = new Style(typeof(TextBlock));
                     playedStyle.BasedOn = style.BasedOn;
                     foreach (var setter in style.Setters)
                     {
@@ -36,6 +36,20 @@ namespace PodCatch.Common
                     }
                     playedStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, new SolidColorBrush(Colors.Gray)));
                     style = playedStyle;
+                }
+            }
+            else if ("DesktopBoldText" == kind || "DesktopText" == kind)
+            {
+                style = new Style(typeof(TextBlock));
+                if ("DesktopBoldText" == kind)
+                {
+                    style.Setters.Add(new Setter(TextBlock.FontSizeProperty, 20));
+                    style.Setters.Add(new Setter(TextBlock.FontWeightProperty, FontWeights.Bold));
+                    style.Setters.Add(new Setter(TextBlock.LineHeightProperty, 30));
+                }
+                if (played)
+                {
+                    style.Setters.Add(new Setter(TextBlock.ForegroundProperty, new SolidColorBrush(Colors.Gray)));
                 }
             }
             return style;

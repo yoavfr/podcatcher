@@ -19,7 +19,7 @@ namespace PodCatch.WindowsPhone
     {
         private AutoResetEvent m_ServerInitialized = new AutoResetEvent(false);
         private bool m_IsBackgroundTaskRunning = false;
-        public string EndedMediaId { get; set; } 
+        public string EndedMediaId { get; private set; } 
 
         public event MediaPlayerStateChangedHandler MediaPlayerStateChanged;
 

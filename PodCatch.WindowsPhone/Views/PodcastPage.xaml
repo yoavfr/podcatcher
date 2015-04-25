@@ -132,7 +132,7 @@
                                             Margin="14,0,0,0">
                                     <TextBlock 
                                         Text="{Binding Title}" 
-                                        Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='Text'}"
+                                        Style="{Binding Played, Converter={StaticResource EpisodePlayedStyleConverter}, ConverterParameter='PhoneText'}"
                                         TextLineBounds="Tight"/>
                                     <TextBlock 
                                         Text="{Binding Description}"

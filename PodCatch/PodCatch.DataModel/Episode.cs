@@ -137,6 +137,10 @@ namespace PodCatch.DataModel
                     {
                         FormattedShortDescription = FormattedDescription.Substring(0, lineLimit) + "\n...";
                     }
+                    else
+                    {
+                        FormattedShortDescription = FormattedDescription;
+                    }
                     NotifyPropertyChanged(() => Description);
                 }
             }
