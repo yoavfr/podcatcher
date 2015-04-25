@@ -158,7 +158,7 @@ namespace PodCatch.DataModel
 
         private Task LoadPodcast(Podcast podcast, bool force)
         {
-            return ThreadPool.RunAsync(async (action) =>
+            return Task.Run<Task>(async() =>
                 {
                     try
                     {
@@ -169,12 +169,12 @@ namespace PodCatch.DataModel
                     {
                         Tracer.TraceInformation("Error loading {0}. {1}", podcast, e);
                     }
-                }).AsTask();
+                });
         }
 
         public Task Store()
         {
-            return ThreadPool.RunAsync(async (action) =>
+            return Task.Run<Task>(async () =>
                 {
                     try
                     {
@@ -188,7 +188,7 @@ namespace PodCatch.DataModel
                     {
                         Tracer.TraceInformation("Failed to store favorites. {0}", e);
                     }
-                }).AsTask();
+                });
         }
 
         public async Task<IEnumerable<Podcast>> Search(string searchTerm)

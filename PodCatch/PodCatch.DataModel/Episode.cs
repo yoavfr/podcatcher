@@ -23,6 +23,7 @@ namespace PodCatch.DataModel
         private bool m_Played;
         private DateTime m_LastSaveTime;
         private IPodcastDataSource m_PodcastDataSource;
+        private bool m_Scanning;
 
         public IDownloadService DownloadService { get; set; }
 
@@ -386,12 +387,16 @@ namespace PodCatch.DataModel
             switch (eventType)
             {
                 case MediaPlayerEvent.Tick:
-                    Position = (TimeSpan)parameter;
-                    if (DateTime.UtcNow.AddSeconds(-10) > m_LastSaveTime)
+                    // don't update position from continued playe while scanning
+                    if (!m_Scanning)
                     {
-                        // save location
-                        Task t = m_PodcastDataSource.Store();
-                        m_LastSaveTime = DateTime.UtcNow;
+                        Position = (TimeSpan)parameter;
+                        if (DateTime.UtcNow.AddSeconds(-10) > m_LastSaveTime)
+                        {
+                            // save location
+                            Task t = m_PodcastDataSource.Store();
+                            m_LastSaveTime = DateTime.UtcNow;
+                        }
                     }
                     break;
 
@@ -449,6 +454,19 @@ namespace PodCatch.DataModel
             {
                 MediaPlayer.Position = Position;
             }
+        }
+
+        public void ScanStart()
+        {
+            m_Scanning = true;
+            PostEvent(EpisodeEvent.Scan);
+        }
+
+        public void ScanDone(TimeSpan timeSpan)
+        {
+            Position = timeSpan;
+            PostEvent(EpisodeEvent.ScanDone);
+            m_Scanning = false;
         }
     }
 }

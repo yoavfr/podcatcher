@@ -245,5 +245,15 @@ namespace PodCatch.ViewModels
         {
             return Data.Download();
         }
+
+        internal void ScanDone(TimeSpan position)
+        {
+            Data.ScanDone(position);
+        }
+
+        internal void ScanStart()
+        {
+            Data.ScanStart();
+        }
     }
 }

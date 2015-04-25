@@ -2,10 +2,7 @@
 using PodCatch.Common;
 using PodCatch.DataModel;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PodCatch.ViewModels
@@ -14,9 +11,9 @@ namespace PodCatch.ViewModels
     {
         private Episode m_Episode;
         private Podcast m_Podcast;
-        private bool m_Scanning;
 
-        public EpisodePageViewModel(IPodcastDataSource podcastDataSource, IServiceContext serviceContext) : base (podcastDataSource, serviceContext)
+        public EpisodePageViewModel(IPodcastDataSource podcastDataSource, IServiceContext serviceContext)
+            : base(podcastDataSource, serviceContext)
         {
         }
 
@@ -34,8 +31,8 @@ namespace PodCatch.ViewModels
             UpdateFields();
         }
 
-
         private string m_EpisodeTitle;
+
         public string EpisodeTitle
         {
             get
@@ -53,6 +50,7 @@ namespace PodCatch.ViewModels
         }
 
         private string m_PodcastTitle;
+
         public string PodcastTitle
         {
             get
@@ -70,6 +68,7 @@ namespace PodCatch.ViewModels
         }
 
         private string m_Image;
+
         public string Image
         {
             get
@@ -105,6 +104,7 @@ namespace PodCatch.ViewModels
         }
 
         private string m_EpisodeDescription;
+
         public string EpisodeDescription
         {
             get
@@ -122,6 +122,7 @@ namespace PodCatch.ViewModels
         }
 
         private IState<Episode, EpisodeEvent> m_EpisodeState;
+
         public IState<Episode, EpisodeEvent> EpisodeState
         {
             get
@@ -139,6 +140,7 @@ namespace PodCatch.ViewModels
         }
 
         private TimeSpan m_EpisodeDuration;
+
         public TimeSpan EpisodeDuration
         {
             get
@@ -156,6 +158,7 @@ namespace PodCatch.ViewModels
         }
 
         private TimeSpan m_EpisodePosition;
+
         public TimeSpan EpisodePosition
         {
             get
@@ -167,11 +170,7 @@ namespace PodCatch.ViewModels
                 if (m_EpisodePosition != value)
                 {
                     m_EpisodePosition = value;
-                    // don't update position when scanning
-                    if (! m_Scanning)
-                    {
-                        NotifyPropertyChanged(() => EpisodePosition);
-                    }
+                    NotifyPropertyChanged(() => EpisodePosition);
                 }
             }
         }
@@ -265,15 +264,12 @@ namespace PodCatch.ViewModels
 
         internal void ScanStart(EpisodePageViewModel episode)
         {
-            m_Scanning = true;
-            episode.m_Episode.PostEvent(EpisodeEvent.Scan);
+            episode.m_Episode.ScanStart();
         }
 
         internal void ScanDone(EpisodePageViewModel episode, long sliderValue)
         {
-            m_Scanning = false;
-            episode.m_Episode.Position = TimeSpan.FromTicks(sliderValue);
-            episode.m_Episode.PostEvent(EpisodeEvent.ScanDone);
+            episode.m_Episode.ScanDone(TimeSpan.FromTicks(sliderValue));
         }
     }
 }

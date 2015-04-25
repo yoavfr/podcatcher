@@ -338,19 +338,12 @@ namespace PodCatch.ViewModels
 
         public void ScanDone(EpisodeViewModel episode, long sliderValue)
         {
-            /*if (m_MediaPlayer.IsMediaPlaying(episode.Data))
-            {
-                episode.Data.Position = m_MediaPlayer.Position = TimeSpan.FromTicks(sliderValue);
-                episode.Data.PostEvent(EpisodeEvent.ScanDone);
-            }*/
+            episode.ScanDone(TimeSpan.FromTicks(sliderValue));
         }
 
         public void ScanStart(EpisodeViewModel episode)
         {
-            /*if (m_MediaPlayer.IsMediaPlaying(episode.Data))
-            {
-                episode.Data.PostEvent(EpisodeEvent.Scan);
-            }*/
+            episode.ScanStart();
         }
 
         public void DownloadEpisodes()

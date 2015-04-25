@@ -18,6 +18,7 @@ namespace PodCatch.BackgroundTasks
                     serviceContext.PublishService<PodcastDataSource>();
                     serviceContext.PublishService<DownloadService>();
                     serviceContext.PublishService<ITunesSearch>();
+                    serviceContext.PublishService<DummyMediaPlayer>();
                     s_Instance = serviceContext;
                 }
                 return s_Instance;

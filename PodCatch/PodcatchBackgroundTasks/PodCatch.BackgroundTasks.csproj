@@ -107,6 +107,7 @@
   <ItemGroup>
     <Compile Include="BackgroundTask.cs" />
     <Compile Include="BackgroundTaskServiceContext.cs" />
+    <Compile Include="DummyMediaPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

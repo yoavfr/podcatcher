@@ -4,6 +4,7 @@ using PodCatch.DataModel.Data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -207,7 +208,8 @@ namespace PodCatch.DataModel
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
 
-            Tracer.TraceInformation("Podcast.Load(): {0} from {1}", Title, localFolder.Path);
+            Stopwatch stopwatch = new Stopwatch();
+            Tracer.TraceInformation("Podcast.Load(): start loading {0} from {1}", Title, localFolder.Path);
             try
             {
                 var file = await localFolder.TryGetFileAsync(CacheFileName);
@@ -216,13 +218,22 @@ namespace PodCatch.DataModel
                     TouchedFiles.Instance.Add(file.Path);
                     using (Stream stream = await file.OpenStreamForReadAsync())
                     {
+                        stopwatch.Start();
                         DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PodcastData));
                         Podcast readPodcast = Podcast.FromData(ServiceContext, (PodcastData)serializer.ReadObject(stream));
-
+                        stopwatch.Stop();
+                        Tracer.TraceInformation("Podcast.Load() deserializing cached for {0} took {1}", Title, stopwatch.Elapsed);
+                        stopwatch.Reset();
+                        stopwatch.Start();
                         await UpdateFields(readPodcast);
+                        stopwatch.Stop();
+                        Tracer.TraceInformation("Podcast.Load() update from local cache of {0} took {1}", Title, stopwatch.Elapsed);
                     }
                 }
+                Tracer.TraceInformation("Podcast.Load(): done reading local cache for {0}", Title);
                 await RefreshFromRss(false, true);
+                Tracer.TraceInformation("Podcast.Load(): done refreshing {0}", Title);
+
                 PruneEmptyEpisodes();
             }
             catch (Exception e)

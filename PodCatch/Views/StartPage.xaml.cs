@@ -76,8 +76,6 @@ namespace PodCatch
         /// session.  The state will be null the first time a page is visited.</param>
         public void OnLoadState(object sender, LoadStateEventArgs e)
         {
-            // MediaElementWrapper needs the dispatcher to conrtol the MediaElement on this thread
-            MediaElementWrapper.Dispatcher = Dispatcher;
         }
 
         /// <summary>

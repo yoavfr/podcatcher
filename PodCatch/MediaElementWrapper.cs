@@ -3,7 +3,6 @@ using System;
 using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Storage;
-using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -41,28 +40,35 @@ namespace PodCatch.Common
 
         private SystemMediaTransportControls SystemMediaTransportControls { get; set; }
 
-        public static CoreDispatcher Dispatcher { private get; set; }
-
         private IPodcastDataSource m_PodcastDataSource;
 
         public TimeSpan Position
         {
             get
             {
-                return MediaElement.Position;
+                return m_Position;
             }
             set
             {
                 m_Position = value;
-                MediaElement.Position = value;
+                ThreadManager.DispatchOnUIthread(() =>
+                {
+                    MediaElement.Position = value;
+                });
             }
         }
+
+        private TimeSpan m_Duration;
 
         public TimeSpan Duration
         {
             get
             {
-                return MediaElement.NaturalDuration.TimeSpan;
+                return m_Duration;
+            }
+            private set
+            {
+                m_Duration = value;
             }
         }
 
@@ -129,6 +135,7 @@ namespace PodCatch.Common
             {
                 if (MediaElement.CurrentState == MediaElementState.Playing)
                 {
+                    Position = MediaElement.Position;
                     NotifyMediaPlayerStateChanged(MediaPlayerEvent.Tick, Position);
                 }
             };
@@ -164,38 +171,38 @@ namespace PodCatch.Common
         {
             try
             {
-                if (NowPlaying == null || Dispatcher == null)
+                if (NowPlaying == null)
                 {
                     return;
                 }
                 switch (args.Button)
                 {
                     case SystemMediaTransportControlsButton.Play:
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        await ThreadManager.DispatchOnUIthread(() =>
                             {
                                 MediaElement.Play();
                             });
                         break;
 
                     case SystemMediaTransportControlsButton.Pause:
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                            {
-                                Pause();
-                            });
+                        await ThreadManager.DispatchOnUIthread(() =>
+                        {
+                            Pause();
+                        });
                         break;
 
                     case SystemMediaTransportControlsButton.Next:
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                            {
-                                SkipForward();
-                            });
+                        await ThreadManager.DispatchOnUIthread(() =>
+                        {
+                            SkipForward();
+                        });
                         break;
 
                     case SystemMediaTransportControlsButton.Previous:
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                            {
-                                SkipBackward();
-                            });
+                        await ThreadManager.DispatchOnUIthread(() =>
+                        {
+                            SkipBackward();
+                        });
                         break;
                 }
             }
@@ -208,6 +215,7 @@ namespace PodCatch.Common
         private void MediaElement_MediaOpened(object sender, RoutedEventArgs e)
         {
             ((MediaElement)sender).Position = m_Position;
+            Duration = MediaElement.NaturalDuration.TimeSpan;
             NotifyMediaPlayerStateChanged(MediaPlayerEvent.Play, NowPlaying);
 
             SystemMediaTransportControlsDisplayUpdater updater = SystemMediaTransportControls.DisplayUpdater;

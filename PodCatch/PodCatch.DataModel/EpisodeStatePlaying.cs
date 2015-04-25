@@ -1,5 +1,6 @@
 ﻿using Podcatch.Common.StateMachine;
 using PodCatch.Common;
+using System;
 using System.Threading.Tasks;
 
 namespace PodCatch.DataModel
@@ -14,6 +15,10 @@ namespace PodCatch.DataModel
         public override Task OnEntry(Episode owner, IState<Episode, EpisodeEvent> fromState, IEventProcessor<Episode, EpisodeEvent> stateMachine)
         {
             owner.NotifyPropertyChanged(() => owner.State);
+            if (owner.Duration == TimeSpan.FromTicks(0))
+            {
+                owner.Duration = owner.MediaPlayer.Duration;
+            }
             return Task.FromResult<object>(null);
         }
 
