@@ -387,7 +387,7 @@ namespace PodCatch.DataModel
             {
                 case MediaPlayerEvent.Tick:
                     // don't update position from continued playe while scanning
-                    if (State != EpisodeStateScanning)
+                    if (State != typeof(EpisodeStateScanning))
                     {
                         Position = (TimeSpan)parameter;
                         if (DateTime.UtcNow.AddSeconds(-10) > m_LastSaveTime)
